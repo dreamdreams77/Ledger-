@@ -16,11 +16,8 @@
     --terminal:#7fbf8f;
     --blood:#b4453a;
     --paper:#e8e1d0;
-    --marigold:#e8823a;
-    --mako:#6fe0a0;
   }
   *{box-sizing:border-box;}
-  p,div,span{overflow-wrap:break-word;}
   html,body{
     margin:0;padding:0;height:100%;
     background:var(--void);
@@ -38,198 +35,78 @@
   #frame{
     position:relative;
     border:3px solid var(--brass-dim);
-    outline:1px solid rgba(0,0,0,0.8);
-    outline-offset:4px;
-    box-shadow:
-      0 0 0 1px #000,
-      0 0 60px rgba(201,161,90,0.12),
-      0 24px 60px rgba(0,0,0,0.7),
-      inset 0 0 60px rgba(0,0,0,0.6),
-      inset 0 1px 0 rgba(255,255,255,0.06);
+    box-shadow:0 0 0 1px #000, 0 0 40px rgba(201,161,90,0.08), inset 0 0 60px rgba(0,0,0,0.6);
     background:#000;
     width:800px;max-width:96vw;
+    animation:frameBreathe 6s ease-in-out infinite;
+  }
+  @keyframes frameBreathe{
+    0%,100%{box-shadow:0 0 0 1px #000, 0 0 40px rgba(201,161,90,0.08), inset 0 0 60px rgba(0,0,0,0.6);}
+    50%{box-shadow:0 0 0 1px #000, 0 0 56px rgba(201,161,90,0.16), inset 0 0 60px rgba(0,0,0,0.6);}
   }
   #title-bar{
-    display:flex;flex-wrap:wrap;justify-content:space-between;align-items:center;
-    row-gap:4px;
+    display:flex;justify-content:space-between;align-items:center;
     padding:6px 14px;
     background:linear-gradient(180deg,var(--panel-2),var(--panel));
     border-bottom:2px solid var(--brass-dim);
-    box-shadow:0 1px 0 rgba(0,0,0,0.6), inset 0 -6px 10px -8px rgba(0,0,0,0.7);
     font-family:'Playfair Display',serif;
-    position:relative;
+    letter-spacing:2px;
   }
-  #title-bar::before, #title-bar::after{
-    content:'';position:absolute;top:50%;width:5px;height:5px;border-radius:50%;
-    background:radial-gradient(circle at 35% 35%, #e6c98a, var(--brass-dim) 70%);
-    transform:translateY(-50%);box-shadow:inset 0 0 1px #000;
-  }
-  #title-bar::before{left:5px;} #title-bar::after{right:5px;}
-  #title-bar .name{
-    font-weight:700;color:var(--brass);font-size:clamp(11.5px,3.6vw,15px);
-    letter-spacing:clamp(0.5px,0.5vw,2px);white-space:nowrap;
-    text-shadow:0 1px 0 rgba(0,0,0,0.6), 0 0 10px rgba(201,161,90,0.25);
-  }
-  #title-bar .name .compass-icon{display:inline-block;animation:compasssway 5s ease-in-out infinite;transform-origin:50% 55%;}
-  @keyframes compasssway{
-    0%,100%{transform:rotate(-8deg);}
-    50%{transform:rotate(8deg);}
-  }
-  #title-bar .file{
-    font-family:'IBM Plex Mono',monospace;font-size:11px;color:#8a8f9c;
-    flex-wrap:wrap;row-gap:4px;justify-content:flex-end;
-  }
-  #buildStamp{cursor:pointer;opacity:0.7;font-size:10px;white-space:nowrap;}
-  #file-tag{white-space:nowrap;}
-  #title-bar .chevron-trim{position:absolute;bottom:-8px;left:50%;transform:translateX(-50%);height:6px;margin:0;opacity:0.5;}
-  @media (max-width: 480px){
-    #title-bar .file{gap:7px !important;font-size:10px;}
-    #muteBtn, #questBtn, #settingsBtn, #bestiaryBtn, #invBtn, #skillsBtn{font-size:12px;}
-    #buildStamp{display:none;}
-  }
+  #title-bar .name{font-weight:700;color:var(--brass);font-size:15px;}
+  #title-bar .file{font-family:'IBM Plex Mono',monospace;font-size:11px;color:#8a8f9c;}
+  #buildStamp{cursor:pointer;opacity:0.7;font-size:10px;}
   #buildStamp:hover{opacity:1;color:var(--brass);}
-  #muteBtn, #questBtn, #settingsBtn, #bestiaryBtn, #invBtn, #skillsBtn{cursor:pointer;font-size:13px;opacity:0.85;position:relative;}
-  #muteBtn:hover, #questBtn:hover, #settingsBtn:hover, #bestiaryBtn:hover, #invBtn:hover, #skillsBtn:hover{opacity:1;}
-  #skillsBtn.pip::after{
-    content:'';position:absolute;top:-3px;right:-4px;width:7px;height:7px;border-radius:50%;
-    background:var(--terminal);box-shadow:0 0 5px rgba(127,191,143,0.9);
+  #menuDropdown{position:relative;}
+  #menuBtn{
+    cursor:pointer;font-size:11px;letter-spacing:1px;opacity:0.9;
+    border:1px solid var(--brass-dim);padding:4px 10px;
+    font-family:'IBM Plex Mono',monospace;color:var(--brass);
+    background:rgba(255,255,255,0.02);
   }
-  #panel .skillrow{
-    display:flex;align-items:center;justify-content:space-between;width:min(340px,90vw);
-    padding:8px 10px;margin-bottom:8px;border:1px solid var(--brass-dim);background:rgba(255,255,255,0.02);
-    box-sizing:border-box;
+  #menuBtn:hover{opacity:1;border-color:var(--brass);}
+  #menuList{
+    display:none;flex-direction:column;
+    position:absolute;top:calc(100% + 4px);right:0;
+    min-width:210px;z-index:60;
+    background:var(--panel-2);
+    border:1px solid var(--brass-dim);
+    box-shadow:0 6px 18px rgba(0,0,0,0.6);
   }
-  #panel .skillrow > div:first-child{flex:1 1 auto;min-width:0;}
-  #panel .skillrow .sname{font-size:12px;color:var(--paper);text-align:left;overflow-wrap:break-word;}
-  #panel .skillrow .sdesc{font-size:10px;color:#9a9fac;text-align:left;margin-top:2px;max-width:100%;overflow-wrap:break-word;}
-  #panel .skillrow .spts{font-size:11px;color:var(--terminal);margin:0 10px;white-space:nowrap;}
-  #panel .skillplus{
-    border:1px solid var(--brass);width:24px;height:24px;line-height:22px;text-align:center;
-    cursor:pointer;color:var(--brass);font-size:14px;flex-shrink:0;
+  #menuList.open{display:flex;}
+  #menuList .menu-item{
+    padding:9px 14px;font-size:11.5px;letter-spacing:0.5px;
+    color:var(--paper);cursor:pointer;text-align:left;
+    border-bottom:1px solid rgba(201,161,90,0.14);
+    white-space:nowrap;
   }
-  #panel .skillplus:hover{background:var(--brass);color:#000;}
-  #panel .skillplus.disabled{opacity:0.25;pointer-events:none;}
-  #panel .itemgrid{display:flex;flex-wrap:wrap;gap:10px;width:min(340px,90vw);margin-bottom:16px;justify-content:center;}
+  #menuList .menu-item:last-child{border-bottom:none;}
+  #menuList .menu-item:hover{background:var(--brass-dim);color:#000;}
+  #panel .itemgrid{display:flex;flex-wrap:wrap;gap:10px;width:340px;margin-bottom:16px;justify-content:center;}
   #panel .itemcard{
-    width:96px;border:1px solid var(--brass-dim);padding:10px 6px 8px;cursor:pointer;
-    background:radial-gradient(ellipse at top, rgba(111,224,160,0.05), rgba(255,255,255,0.02) 60%);
-    text-align:center;font-size:10px;color:#c9c3b0;
-    border-radius:6px;
-    transition:border-color .15s, box-shadow .15s, transform .1s;
+    width:96px;border:1px solid var(--brass-dim);padding:8px 6px;cursor:pointer;
+    background:rgba(255,255,255,0.02);text-align:center;font-size:10px;color:#c9c3b0;
+    clip-path:polygon(8px 0, 100% 0, 100% 100%, 0 100%, 0 8px);
   }
-  #panel .itemcard .glyph{
-    font-size:20px;color:var(--brass);margin-bottom:6px;
-    display:inline-flex;align-items:center;justify-content:center;
-    width:34px;height:34px;border-radius:50%;
-    background:radial-gradient(circle at 35% 30%, #3a4258, #12141c 75%);
-    box-shadow:inset 0 0 4px rgba(0,0,0,0.8), 0 0 0 1px rgba(201,161,90,0.25),
-      0 0 10px rgba(201,161,90,0.15), 0 0 0 5px rgba(201,161,90,0.04);
-    position:relative;
-  }
-  /* Glowing slot backing, like a materia socket housing */
-  #panel .itemcard .glyph::before{
-    content:'';position:absolute;inset:-6px;border-radius:50%;
-    border:1px solid rgba(201,161,90,0.2);
-    box-shadow:0 0 8px rgba(201,161,90,0.12) inset;
-    pointer-events:none;
-  }
-  /* Orb sheen highlight, top-left */
-  #panel .itemcard .glyph::after{
-    content:'';position:absolute;top:15%;left:22%;width:32%;height:20%;
-    background:rgba(255,255,255,0.35);border-radius:50%;
-    filter:blur(1px);pointer-events:none;
-  }
-  #panel .itemcard.selected{
-    border-color:var(--terminal);background:rgba(127,191,143,0.08);
-    box-shadow:0 0 12px rgba(127,191,143,0.35);
-  }
-  #panel .itemcard.selected .glyph{
-    background:radial-gradient(circle at 35% 30%, #c8f5d6, var(--mako) 55%, #2f7a4f 100%);
-    box-shadow:0 0 10px rgba(111,224,160,0.85), inset 0 0 4px rgba(255,255,255,0.4),
-      0 0 18px rgba(111,224,160,0.4), 0 0 0 5px rgba(111,224,160,0.08);
-    color:#0b1f12;
-  }
-  #panel .itemcard.selected .glyph::before{
-    border-color:rgba(111,224,160,0.4);
-    box-shadow:0 0 12px rgba(111,224,160,0.25) inset;
-    animation:makopulse 2s ease-in-out infinite;
-  }
-  #panel .itemcard:hover{border-color:var(--brass);transform:translateY(-2px);}
-  #panel .itemdesc{width:min(320px,88vw);font-size:11px;color:#9a9fac;min-height:32px;margin-bottom:10px;}
+  #panel .itemcard .glyph{font-size:20px;color:var(--brass);margin-bottom:4px;}
+  #panel .itemcard.selected{border-color:var(--terminal);background:rgba(127,191,143,0.08);}
+  #panel .itemcard:hover{border-color:var(--brass);}
+  #panel .itemdesc{width:320px;font-size:11px;color:#9a9fac;min-height:32px;margin-bottom:10px;}
   body.colorblind{
     --blood:#c76b1f;
     --terminal:#4fa8d8;
   }
   #panel{
-    position:fixed;inset:0;width:100%;height:100dvh;height:100vh;
-    background:
-      radial-gradient(ellipse at center, rgba(14,11,18,0.97), rgba(3,2,4,0.99)),
-      #08070a;
-    backdrop-filter:blur(2px);
+    position:absolute;top:0;left:0;width:100%;height:100%;
+    background:radial-gradient(ellipse at center, rgba(10,8,14,0.92), rgba(0,0,0,0.98));
     display:none;flex-direction:column;align-items:center;
     justify-content:center;justify-content:safe center;
-    text-align:center;padding:28px 20px;pointer-events:auto;z-index:50;
+    text-align:center;padding:20px;pointer-events:auto;z-index:5;
     overflow-y:auto;-webkit-overflow-scrolling:touch;box-sizing:border-box;
   }
-  #panel::before{
-    content:'';position:absolute;inset:14px;pointer-events:none;
-    border:1px solid rgba(201,161,90,0.14);
-  }
-  #panel h1{
-    font-family:'Playfair Display',serif;font-weight:900;color:var(--brass);
-    letter-spacing:2px;margin:0 0 6px 0;
-    text-shadow:0 1px 0 rgba(255,255,255,0.18), 0 -1px 0 rgba(0,0,0,0.65), 0 0 20px rgba(201,161,90,0.35);
-  }
-  #panel h1::after{
-    content:'◆ ◆ ◆';
-    display:block;color:var(--brass-dim);font-size:8px;letter-spacing:7px;
-    margin-top:7px;opacity:0.7;
-  }
-  #panel .sub{color:var(--terminal);font-size:11px;letter-spacing:2.5px;margin-bottom:18px;}
-  #panel .questlist{text-align:left;width:min(320px,88vw);font-size:12px;color:#c9c3b0;margin-bottom:18px;}
+  #panel .questlist{text-align:left;width:320px;font-size:12px;color:#c9c3b0;margin-bottom:18px;}
   #panel .questitem{display:flex;gap:8px;padding:5px 0;border-bottom:1px solid rgba(201,161,90,0.12);}
   #panel .questitem.done{color:#7fbf8f;}
-  #panel .settingsrow{display:flex;align-items:center;justify-content:space-between;width:min(280px,88vw);margin-bottom:14px;font-size:12px;}
-
-  /* --- Insult Duel: Monkey-Island-style "insult sword fighting" --- */
-  #panel.duel-mode{
-    background:
-      radial-gradient(ellipse at center, rgba(20,14,10,0.97), rgba(4,3,2,0.99)),
-      #08070a;
-  }
-  .duel-h1{position:relative;}
-  .duel-h1::before{
-    content:'⚔';display:block;font-size:22px;color:var(--marigold);
-    text-shadow:0 0 12px rgba(232,130,58,0.6);margin-bottom:6px;
-    opacity:0.9;
-  }
-  .duel-insult{
-    position:relative;
-    max-width:min(340px,88vw);
-    color:#f0c9a8;
-    font-style:italic;
-    font-size:14px;line-height:1.6;
-    background:rgba(30,18,10,0.55);
-    border:1px solid rgba(232,130,58,0.35);
-    border-radius:16px;
-    padding:14px 18px 18px;
-    margin:6px auto 22px;
-  }
-  .duel-insult::after{
-    content:'';position:absolute;left:38px;bottom:-10px;
-    border-width:10px 8px 0 0;border-style:solid;
-    border-color:rgba(232,130,58,0.35) transparent transparent transparent;
-  }
-  .duel-opt{
-    border-color:var(--brass-dim);
-    position:relative;padding-left:26px !important;
-  }
-  .duel-opt::before{
-    content:'⚔';position:absolute;left:8px;top:50%;transform:translateY(-50%) rotate(-90deg);
-    font-size:11px;color:var(--marigold);opacity:0;transition:opacity .15s;
-  }
-  .duel-opt:hover::before{opacity:1;}
-  .btn.duel-opt:hover{border-color:var(--marigold);color:#000;background:var(--marigold);}
+  #panel .settingsrow{display:flex;align-items:center;justify-content:space-between;width:280px;margin-bottom:14px;font-size:12px;}
   #panel input[type=range]{width:140px;accent-color:var(--brass);}
   #panel .toggle{border:1px solid var(--brass-dim);padding:5px 12px;cursor:pointer;font-size:11px;color:var(--terminal);}
   #panel .toggle.on{background:var(--brass-dim);color:#000;}
@@ -241,24 +118,6 @@
     background:
       repeating-linear-gradient(to bottom, rgba(0,0,0,0) 0px, rgba(0,0,0,0) 2px, rgba(0,0,0,0.05) 3px),
       radial-gradient(ellipse at center, rgba(0,0,0,0) 58%, rgba(0,0,0,0.22) 100%);
-  }
-  #stage::before{
-    content:'';
-    position:absolute; inset:-20px;
-    pointer-events:none;
-    z-index:3;
-    background-image:
-      radial-gradient(circle, rgba(232,130,58,0.55) 1px, transparent 1.6px),
-      radial-gradient(circle, rgba(232,130,58,0.35) 1.2px, transparent 1.8px),
-      radial-gradient(circle, rgba(111,224,160,0.3) 1px, transparent 1.6px);
-    background-size:180px 220px, 260px 300px, 340px 260px;
-    background-position:10px 0, 90px 60px, 200px 20px;
-    opacity:0.4;
-    animation:embersrise 22s linear infinite;
-  }
-  @keyframes embersrise{
-    0%{background-position:10px 0, 90px 60px, 200px 20px;}
-    100%{background-position:10px -220px, 90px -300px, 200px -260px;}
   }
   #frame::before{
     content:'';
@@ -284,30 +143,6 @@
     display:none;
   }
   #game3d{image-rendering:auto;}
-  #postfx{
-    position:absolute;top:0;left:0;width:100%;height:100%;
-    pointer-events:none;z-index:2;
-  }
-  #postfx::before{
-    content:'';position:absolute;inset:0;
-    mix-blend-mode:soft-light;opacity:0.5;
-    background:
-      linear-gradient(135deg, rgba(255,150,70,0.16) 0%, rgba(255,150,70,0) 30%),
-      linear-gradient(-45deg, rgba(60,140,190,0.18) 0%, rgba(60,140,190,0) 35%),
-      repeating-linear-gradient(100deg, rgba(0,0,0,0.32) 0px, rgba(0,0,0,0.32) 22px, rgba(0,0,0,0) 22px, rgba(0,0,0,0) 58px);
-  }
-  #postfx::after{
-    content:'';position:absolute;top:-50%;left:-60%;width:60%;height:220%;
-    background:linear-gradient(100deg, rgba(255,255,255,0) 0%, rgba(255,244,214,0.06) 45%, rgba(255,244,214,0.1) 50%, rgba(255,244,214,0.06) 55%, rgba(255,255,255,0) 100%);
-    transform:rotate(12deg);
-    animation:lightsweep 14s ease-in-out infinite;
-    mix-blend-mode:screen;
-  }
-  @keyframes lightsweep{
-    0%{left:-60%;}
-    45%{left:120%;}
-    100%{left:120%;}
-  }
   #hud{
     position:absolute;top:0;left:0;width:100%;height:100%;
     pointer-events:none;
@@ -319,239 +154,77 @@
     font-size:12px;color:var(--paper);
     text-shadow:0 1px 2px #000;
   }
-  .hud-top > div:first-child{position:relative;padding:6px 10px 6px 8px;}
-  .hud-top > div:first-child::before{
-    content:'';position:absolute;top:-6px;left:-10px;width:200px;height:calc(100% + 12px);
-    background:radial-gradient(ellipse at left center, rgba(111,224,160,0.16), rgba(111,224,160,0) 70%);
-    pointer-events:none;z-index:-1;
-    animation:makopulse 3.2s ease-in-out infinite;
-  }
-  @keyframes makopulse{
-    0%,100%{opacity:0.6;}
-    50%{opacity:1;}
-  }
-  .hpbar{
-    width:160px;height:12px;border:1px solid var(--brass);
-    background:#1a1006;position:relative;
-    box-shadow:inset 0 2px 3px rgba(0,0,0,0.7), inset 0 -1px 0 rgba(255,255,255,0.06);
-  }
-  .hpfill{
-    position:absolute;left:0;top:0;bottom:0;
-    background:linear-gradient(180deg, #e2685a, var(--blood) 60%, #7a251d);
-    box-shadow:0 0 5px rgba(180,69,58,0.6);
-    transition:width .2s;
-  }
-  .limitbar{
-    width:160px;height:6px;border:1px solid var(--brass-dim);
-    background:#141018;position:relative;margin-top:4px;
-    box-shadow:inset 0 1px 2px rgba(0,0,0,0.7);
-  }
-  .limitfill{position:absolute;left:0;top:0;bottom:0;background:linear-gradient(180deg,#f0d27a,#e0c05a);transition:width .15s;}
-  .limitfill.ready{
-    background:linear-gradient(180deg,#fff3c4,#ffe07a);
-    box-shadow:0 0 8px rgba(255,224,122,0.9), 0 0 2px rgba(255,255,255,0.8);
-    animation:limitpulse 1.1s ease-in-out infinite;
-  }
-  .limitbar:has(.limitfill.ready){
-    border-color:#ffe07a;
-    box-shadow:0 0 14px rgba(255,224,122,0.85), 0 0 28px rgba(255,224,122,0.35), 0 0 2px rgba(255,255,255,0.7);
-    animation:limitbarpulse 1.1s ease-in-out infinite;
-  }
-  @keyframes limitbarpulse{
-    0%,100%{filter:brightness(1);transform:scaleY(1);}
-    50%{filter:brightness(1.25);transform:scaleY(1.3);}
-  }
-  @keyframes limitpulse{
-    0%,100%{filter:brightness(1);}
-    50%{filter:brightness(1.35);}
-  }
-  .atb-ready{
-    display:inline-block;color:#0b1f12;background:linear-gradient(180deg,#c8f5d6,var(--mako) 70%);
-    padding:1px 6px;border-radius:8px;font-weight:700;letter-spacing:0.5px;
-    box-shadow:0 0 8px rgba(111,224,160,0.75), 0 0 2px rgba(255,255,255,0.6);
-    animation:limitpulse 1.1s ease-in-out infinite;
-  }
-  .deco-trim{
-    height:5px;width:min(400px,80vw);margin:0 auto 20px;
-    background-image:
-      linear-gradient(135deg, var(--brass-dim) 25%, transparent 25%),
-      linear-gradient(225deg, var(--brass-dim) 25%, transparent 25%),
-      linear-gradient(315deg, var(--brass-dim) 25%, transparent 25%),
-      linear-gradient(45deg, var(--brass-dim) 25%, transparent 25%);
-    background-size:12px 12px;
-    background-position:0 0, 0 0, 6px 6px, 6px 6px;
-    opacity:0.55;
-  }
-  /* Art Deco chevron trim, Grim Fandango-flavored: a banded zigzag strip
-     that sits under the main title, brass-on-marigold, with a thin double
-     rule above/below like a Manny Calavera title card. */
-  .chevron-trim{
-    position:relative;
-    height:14px;width:min(300px,72vw);margin:2px auto 22px;
-    background-image:
-      linear-gradient(45deg, var(--marigold) 25%, transparent 25%),
-      linear-gradient(-45deg, var(--marigold) 25%, transparent 25%),
-      linear-gradient(45deg, transparent 75%, var(--marigold) 75%),
-      linear-gradient(-45deg, transparent 75%, var(--marigold) 75%);
-    background-size:16px 16px;
-    background-position:0 0, 0 0, 8px 8px, 8px 8px;
-    opacity:0.6;
-    -webkit-mask-image:linear-gradient(90deg, transparent, #000 12%, #000 88%, transparent);
-    mask-image:linear-gradient(90deg, transparent, #000 12%, #000 88%, transparent);
-  }
-  .chevron-trim::before, .chevron-trim::after{
-    content:'';position:absolute;left:0;right:0;height:1px;
-    background:linear-gradient(90deg, transparent, var(--brass-dim), transparent);
-  }
-  .chevron-trim::before{top:-4px;} .chevron-trim::after{bottom:-4px;}
-  /* Sugar-skull glyph, drawn in CSS rather than emoji so it can carry the
-     marigold Dia de los Muertos accent consistently with the rest of the
-     Grim-Fandango-flavored chrome. Sits ahead of the case-file tag. */
-  .skull-glyph{
-    display:inline-block;width:11px;height:11px;margin-right:4px;position:relative;
-    vertical-align:-1px;
-  }
-  .skull-glyph::before{
-    content:'';position:absolute;inset:0;
-    background:radial-gradient(circle at 50% 42%, var(--paper) 0 38%, transparent 39%),
-      radial-gradient(circle at 32% 42%, var(--marigold) 0 12%, transparent 13%),
-      radial-gradient(circle at 68% 42%, var(--marigold) 0 12%, transparent 13%);
-    filter:drop-shadow(0 0 2px rgba(232,130,58,0.5));
-    border-radius:50% 50% 42% 42%;
-    opacity:0.9;
-  }
-  .skull-glyph::after{
-    content:'';position:absolute;left:35%;top:66%;width:30%;height:18%;
-    background:var(--void);opacity:0.75;
-    clip-path:polygon(0 0,100% 0,80% 100%,20% 100%);
-  }
-  /* Second ember layer, offset speed/scale from #stage::before, so the
-     marigold drift reads with real depth (near/far embers) rather than a
-     single flat particle field, and extends across the full frame
-     including the title bar and touch controls, not just the canvas. */
-  #frame::before{ z-index:4; }
-  #wrap{
-    position:relative;
-  }
-  #wrap::after{
-    content:'';position:absolute; inset:0; pointer-events:none; z-index:5;
-    background-image:
-      radial-gradient(circle, rgba(232,130,58,0.45) 1px, transparent 1.6px),
-      radial-gradient(circle, rgba(232,130,58,0.28) 0.8px, transparent 1.4px);
-    background-size:260px 340px, 190px 260px;
-    background-position:40px 10px, 150px 120px;
-    opacity:0.35;
-    animation:embersriseSlow 34s linear infinite;
-  }
-  @keyframes embersriseSlow{
-    0%{background-position:40px 10px, 150px 120px;}
-    100%{background-position:40px -340px, 150px -260px;}
-  }
-  .shardrow{display:flex;gap:7px;margin-top:5px;}
+  .hpbar{width:160px;height:12px;border:1px solid var(--brass);background:#1a1006;position:relative;}
+  .hpfill{position:absolute;left:0;top:0;bottom:0;background:var(--blood);}
+  .limitbar{width:160px;height:6px;border:1px solid var(--brass-dim);background:#141018;position:relative;margin-top:3px;}
+  .limitfill{position:absolute;left:0;top:0;bottom:0;background:#e0c05a;transition:width .15s;}
+  .limitfill.ready{background:#ffe07a;box-shadow:0 0 6px rgba(255,224,122,0.8);}
+  .shardrow{display:flex;gap:6px;margin-top:4px;}
   .shardicon{
-    width:17px;height:17px;border-radius:50%;
-    border:1px solid var(--brass-dim);
-    background:radial-gradient(circle at 35% 30%, #2a3040, #10121a 75%);
-    display:flex;align-items:center;justify-content:center;
-    font-size:9px;color:#4a5568;
-    box-shadow:inset 0 0 3px rgba(0,0,0,0.8);
-    transition:box-shadow .2s, background .2s;
+    width:16px;height:16px;border:1px solid var(--brass-dim);
+    background:var(--panel);display:flex;align-items:center;justify-content:center;
+    font-size:9px;color:var(--terminal);
   }
-  .shardicon.have{
-    background:radial-gradient(circle at 35% 30%, #b6e6c4, var(--terminal) 55%, #3f7a52 100%);
-    color:#0b1f12;border-color:var(--terminal);
-    box-shadow:0 0 6px rgba(127,191,143,0.85), 0 0 2px rgba(255,255,255,0.6), inset 0 0 3px rgba(255,255,255,0.4);
-  }
+  .shardicon.have{background:var(--brass-dim);color:#000;}
   #dialogue{
-    position:absolute;left:14px;right:14px;bottom:12px;
-    background:linear-gradient(180deg, rgba(14,12,17,0.98), rgba(6,5,8,0.99));
-    border:2px solid var(--brass);
-    box-shadow:0 0 0 1px #000, inset 0 0 0 4px rgba(0,0,0,0.5), inset 0 0 24px rgba(0,0,0,0.65), 0 8px 28px rgba(0,0,0,0.6);
-    padding:14px 18px;
+    position:absolute;left:20px;right:20px;bottom:16px;
+    background:rgba(10,10,10,0.94);
+    border:1px solid var(--brass);
+    box-shadow:0 0 0 1px rgba(0,0,0,0.6), inset 0 0 0 1px rgba(201,161,90,0.15), 0 6px 18px rgba(0,0,0,0.5);
+    padding:12px 16px;
     display:none;
     pointer-events:auto;
-    font-size:clamp(13px,2.9vw,15px);
-    line-height:1.55;
-    max-height:70%;
-    overflow-y:auto;
+    font-size:13px;
+    line-height:1.5;
+    clip-path:polygon(10px 0, 100% 0, 100% 100%, 0 100%, 0 10px);
   }
   #dialogue::before{
-    content:'';position:absolute;inset:5px;pointer-events:none;
-    border:1px solid rgba(201,161,90,0.28);
+    content:'';
+    position:absolute; inset:0;
+    pointer-events:none;
+    opacity:0.05;
+    mix-blend-mode:overlay;
+    background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='120' height='120'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/></filter><rect width='100%25' height='100%25' filter='url(%23n)'/></svg>");
   }
-  #dialogue::after{
-    content:'';position:absolute;inset:0;pointer-events:none;
-    background-image:
-      radial-gradient(circle at 35% 35%, #e6c98a, var(--brass-dim) 70%),
-      radial-gradient(circle at 35% 35%, #e6c98a, var(--brass-dim) 70%),
-      radial-gradient(circle at 35% 35%, #e6c98a, var(--brass-dim) 70%),
-      radial-gradient(circle at 35% 35%, #e6c98a, var(--brass-dim) 70%);
-    background-repeat:no-repeat;
-    background-size:5px 5px;
-    background-position:top 6px left 6px, top 6px right 6px, bottom 6px left 6px, bottom 6px right 6px;
-    opacity:0.85;
+  #dialogue .speaker{
+    color:var(--brass);font-family:'Playfair Display',serif;font-weight:700;
+    margin-bottom:6px;font-size:13px;letter-spacing:1.5px;
+    padding-bottom:4px;border-bottom:1px solid rgba(201,161,90,0.25);
   }
-  #dialogue .speaker{color:var(--brass);font-family:'Playfair Display',serif;font-weight:700;margin-bottom:5px;font-size:clamp(13px,3vw,15px);letter-spacing:0.5px;}
-  #dialogue .body{color:var(--paper);white-space:pre-wrap;text-shadow:0 1px 2px rgba(0,0,0,0.6);}
+  #dialogue .body{color:var(--paper);white-space:pre-wrap;}
   #dialogue .hint{margin-top:8px;color:#7a7f8c;font-size:10px;}
   #dialogue .choices{margin-top:8px;display:flex;gap:8px;flex-wrap:wrap;}
   #dialogue .choice{
     border:1px solid var(--brass-dim);padding:5px 10px;cursor:pointer;color:var(--terminal);
     font-size:11px;background:rgba(255,255,255,0.02);
+    clip-path:polygon(6px 0, 100% 0, 100% calc(100% - 6px), calc(100% - 6px) 100%, 0 100%, 0 6px);
   }
   #dialogue .choice:hover{background:var(--brass-dim);color:#000;}
   #overlay{
-    position:fixed;inset:0;width:100%;height:100dvh;height:100vh;
-    background:
-      radial-gradient(ellipse at center, rgba(15,12,19,0.95), rgba(2,2,4,0.99)),
-      #08070a;
-    backdrop-filter:blur(2px);
+    position:absolute;top:0;left:0;width:100%;height:100%;
+    background:radial-gradient(ellipse at center, rgba(10,8,14,0.85), rgba(0,0,0,0.97));
     display:flex;flex-direction:column;align-items:center;
     justify-content:center;justify-content:safe center;
-    text-align:center;padding:32px 20px;
-    pointer-events:auto;z-index:50;
+    text-align:center;padding:24px 20px;
+    pointer-events:auto;
     overflow-y:auto;-webkit-overflow-scrolling:touch;box-sizing:border-box;
   }
-  #overlay h1{
-    font-family:'Playfair Display',serif;font-weight:900;
-    font-size:clamp(28px, 6.5vw, 42px);color:var(--brass);
-    letter-spacing:clamp(2px,0.6vw,4px);margin:0 0 6px 0;line-height:1.15;
-    text-shadow:0 1px 0 rgba(255,255,255,0.18), 0 -1px 0 rgba(0,0,0,0.65), 0 0 26px rgba(201,161,90,0.4);
-    animation:titleflicker 6s linear infinite;
+  #overlay h1, #panel h1{
+    font-family:'Playfair Display',serif;font-weight:900;font-size:38px;color:var(--brass);
+    letter-spacing:4px;margin:0 0 6px 0;
+    text-shadow:0 1px 0 rgba(255,255,255,0.18), 0 -1px 0 rgba(0,0,0,0.65), 0 0 24px rgba(201,161,90,0.35);
   }
-  @keyframes titleflicker{
-    0%,93%,95%,97%,100%{opacity:1;}
-    94%{opacity:0.85;}
-    96%{opacity:0.92;}
-  }
-  #overlay h1::after{
-    content:'◆ ◆ ◆';
-    display:block;color:var(--brass-dim);font-size:9px;letter-spacing:8px;
-    margin-top:8px;opacity:0.7;
-  }
-  #overlay .sub{color:var(--terminal);font-size:clamp(11px,2.8vw,13px);letter-spacing:3px;margin-bottom:26px;}
-  #overlay p.flavor{
-    max-width:min(92vw,560px);color:#cbc5b3;font-size:clamp(13.5px,3.4vw,15.5px);
-    line-height:1.75;margin-bottom:22px;font-weight:400;
-    text-shadow:0 1px 2px rgba(0,0,0,0.5);
-  }
+  #overlay .sub, #panel .sub{color:var(--terminal);font-size:12px;letter-spacing:3px;margin-bottom:26px;}
+  #overlay p.flavor, #panel p.flavor{max-width:480px;color:#b9b3a0;font-size:12.5px;line-height:1.7;margin-bottom:22px;}
   .btn{
     font-family:'IBM Plex Mono',monospace;
     border:1px solid var(--brass);
-    background:rgba(201,161,90,0.04);color:var(--paper);
-    padding:11px 22px 11px 16px;margin:5px;cursor:pointer;font-size:13.5px;letter-spacing:1px;
-    transition:background .15s,color .15s,padding-left .15s,box-shadow .15s;
+    background:transparent;color:var(--paper);
+    padding:10px 22px;margin:5px;cursor:pointer;font-size:13px;letter-spacing:1px;
+    transition:background .15s,color .15s;
     clip-path:polygon(8px 0, 100% 0, 100% calc(100% - 8px), calc(100% - 8px) 100%, 0 100%, 0 8px);
-    box-shadow:inset 0 1px 0 rgba(255,255,255,0.08), inset 0 -6px 10px -8px rgba(0,0,0,0.6);
-    position:relative;
   }
-  .btn:hover{box-shadow:0 0 10px rgba(201,161,90,0.5), inset 0 1px 0 rgba(255,255,255,0.15);}
-  .btn::before{
-    content:'';display:inline-block;width:0;overflow:hidden;
-    transition:width .15s;vertical-align:middle;
-  }
-  .btn:hover::before{content:'▸ ';width:1em;}
-  .btn:hover{background:var(--brass);color:#000;padding-left:12px;}
+  .btn:hover{background:var(--brass);color:#000;}
   .btn.primary{background:var(--brass-dim);color:#0b0e14;font-weight:600;}
   .btn.primary:hover{background:var(--brass);}
   #stamp{
@@ -562,11 +235,24 @@
   }
   #banner{
     position:absolute;top:12px;left:50%;transform:translateX(-50%);
-    font-family:'Playfair Display',serif;color:var(--marigold);font-size:14px;letter-spacing:2px;
-    background:rgba(10,6,2,0.8);padding:6px 16px;border:1px solid var(--marigold);
-    box-shadow:0 0 16px rgba(232,130,58,0.35), inset 0 0 12px rgba(232,130,58,0.08);
-    text-shadow:0 0 8px rgba(232,130,58,0.6);
+    font-family:'Playfair Display',serif;color:var(--brass);font-size:13px;letter-spacing:2px;
+    background:rgba(0,0,0,0.55);padding:4px 14px;border:1px solid var(--brass-dim);
     opacity:0;transition:opacity .4s;pointer-events:none;
+  }
+  #memoryCaption{
+    position:absolute;left:50%;bottom:14%;transform:translateX(-50%);
+    text-align:center;pointer-events:none;
+    opacity:0;transition:opacity 1.8s ease;
+  }
+  #memoryCaption .it{
+    font-family:'Playfair Display',serif;font-style:italic;font-weight:700;
+    font-size:22px;color:#f5f0dd;letter-spacing:1px;
+    text-shadow:0 0 18px rgba(223,232,255,0.55), 0 1px 3px rgba(0,0,0,0.8);
+    margin-bottom:4px;
+  }
+  #memoryCaption .en{
+    font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:3px;
+    color:#9aa0c8;text-transform:uppercase;
   }
   #controls-note{
     position:absolute;bottom:8px;right:12px;font-size:10px;color:#6b7080;pointer-events:none;
@@ -589,54 +275,19 @@
   #dpad .tright{grid-column:3;grid-row:2;}
   #dpad .tup{grid-row:1;}
   #dpad .tdown{grid-row:3;}
-  /* Notched-brass ship's-wheel look for the touch D-pad, Monkey-Island
-     flavored: each spoke is a worn brass peg rather than a flat square. */
   .tbtn{
-    border:1px solid var(--brass-dim);
-    background:
-      radial-gradient(circle at 35% 28%, #dcc494 0%, var(--panel-2) 38%, #10121a 82%);
-    color:var(--brass);
+    border:1px solid var(--brass-dim);background:var(--panel-2);color:var(--brass);
     display:flex;align-items:center;justify-content:center;font-size:16px;
-    border-radius:50%;
-    box-shadow:
-      inset 0 1px 0 rgba(255,255,255,0.16), inset 0 -3px 6px -3px rgba(0,0,0,0.85),
-      0 0 0 2px rgba(0,0,0,0.5), 0 0 0 3px rgba(201,161,90,0.18);
     -webkit-tap-highlight-color:transparent;touch-action:none;cursor:pointer;
-    position:relative;
   }
-  .tbtn::after{
-    content:'';position:absolute;inset:3px;border-radius:50%;
-    border:1px solid rgba(0,0,0,0.35);pointer-events:none;
-  }
-  .tbtn:active{background:radial-gradient(circle at 35% 28%, #f0d9a8, var(--brass-dim) 60%);color:#000;}
+  .tbtn:active{background:var(--brass-dim);color:#000;}
   #actbtn{
     width:76px;height:76px;border-radius:50%;
-    border:3px solid var(--brass);
-    background:
-      repeating-conic-gradient(#3a3122 0deg 8deg, #191408 8deg 16deg),
-      radial-gradient(circle at 50% 50%, transparent 58%, rgba(0,0,0,0.4) 60%);
-    color:var(--brass);
-    font-size:12px;letter-spacing:1px;font-weight:700;
-    box-shadow:0 0 0 1px #000, 0 0 14px rgba(201,161,90,0.25), inset 0 0 10px rgba(0,0,0,0.7),
-      inset 0 0 0 5px rgba(0,0,0,0.55), inset 0 0 0 6px rgba(201,161,90,0.3);
+    border:2px solid var(--brass);background:var(--panel-2);color:var(--brass);
+    font-size:12px;letter-spacing:1px;
     display:flex;align-items:center;justify-content:center;
     -webkit-tap-highlight-color:transparent;touch-action:none;cursor:pointer;
-    position:relative;
   }
-  /* Wheel spokes radiating from the ACT hub, brass-capped like handles */
-  #actbtn::before{
-    content:'';position:absolute;inset:0;border-radius:50%;pointer-events:none;
-    background-image:
-      repeating-conic-gradient(from 0deg, rgba(201,161,90,0.5) 0deg 2deg, transparent 2deg 45deg);
-    mix-blend-mode:screen;
-    -webkit-mask-image:radial-gradient(circle, transparent 34%, #000 35%, #000 92%, transparent 93%);
-    mask-image:radial-gradient(circle, transparent 34%, #000 35%, #000 92%, transparent 93%);
-  }
-  #actbtn::after{
-    content:'';position:absolute;inset:8px;border-radius:50%;
-    border:1px solid rgba(201,161,90,0.35);pointer-events:none;
-  }
-  #actbtn span{position:relative;z-index:1;}
   #actbtn:active{background:var(--brass-dim);color:#000;}
   #leaveBtn{
     position:absolute;top:10px;left:10px;
@@ -646,29 +297,65 @@
     -webkit-tap-highlight-color:transparent;
   }
   #leaveBtn:hover{background:var(--blood);color:#fff;}
+  #splash{
+    position:absolute;inset:0;z-index:50;
+    background:#000;
+    display:none;flex-direction:column;align-items:center;justify-content:center;
+    text-align:center;padding:24px;box-sizing:border-box;
+    cursor:pointer;pointer-events:auto;
+  }
+  #splash .splash-eyebrow{
+    font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:5px;
+    color:var(--brass-dim);margin-bottom:22px;
+  }
+  #splash .splash-title{
+    font-family:'Playfair Display',serif;font-weight:900;
+    font-size:52px;letter-spacing:6px;color:var(--paper);
+    margin:0 0 22px 0;line-height:1.15;
+    text-shadow:0 0 2px rgba(0,0,0,0.9), 0 0 44px rgba(210,200,235,0.22);
+  }
+  #splash .splash-metaphor{
+    font-family:'IBM Plex Mono',monospace;font-style:italic;
+    font-size:12.5px;line-height:1.9;color:#9a9fb8;
+    max-width:440px;letter-spacing:0.5px;margin:0 0 46px 0;
+  }
+  #splash .splash-enter{
+    font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:4px;
+    color:var(--brass);
+    animation:splashBreathe 3.4s ease-in-out infinite;
+  }
+  @keyframes splashBreathe{0%,100%{opacity:0.4;}50%{opacity:0.95;}}
+  @media (max-width:640px){
+    #splash .splash-title{font-size:32px;letter-spacing:3px;}
+    #splash .splash-metaphor{font-size:11px;max-width:88%;}
+  }
 </style>
 </head>
 <body>
 <div id="wrap">
   <div id="frame">
     <div id="title-bar">
-      <span class="name"><span class="compass-icon">🧭</span> LEDGER OF THE LOST</span>
+      <span class="name">LEDGER OF THE LOST</span>
       <span class="file" style="display:flex;align-items:center;gap:10px;">
         <span id="buildStamp" title="build info">v0.14-b · rev.a1c9f</span>
-        <span id="questBtn" title="case objectives">📋</span>
-        <span id="invBtn" title="inventory">🎒</span>
-        <span id="skillsBtn" title="skill points">📜</span>
-        <span id="bestiaryBtn" title="bestiary">🗂</span>
-        <span id="settingsBtn" title="settings">⚙</span>
-        <span id="muteBtn" title="mute/unmute sound">🔊</span>
-        <span id="file-tag"><span class="skull-glyph"></span>CASE FILE NO. 0001</span>
+        <div id="menuDropdown">
+          <span id="menuBtn" title="menu">☰ MENU</span>
+          <div id="menuList">
+            <div class="menu-item" id="questBtn">📋 Case Objectives</div>
+            <div class="menu-item" id="invBtn">🎒 Inventory</div>
+            <div class="menu-item" id="bestiaryBtn">🗂 Bestiary</div>
+            <div class="menu-item" id="storyBtn">📖 The Full Story</div>
+            <div class="menu-item" id="settingsBtn">⚙ Settings</div>
+            <div class="menu-item" id="muteBtn">🔊 Mute Sound</div>
+            <div class="menu-item" id="homeBtn">🏠 Return to Main Menu</div>
+          </div>
+        </div>
+        <span id="file-tag">CASE FILE NO. 0001</span>
       </span>
-      <div class="chevron-trim"></div>
     </div>
     <div id="stage">
       <canvas id="game2d" width="800" height="600" style="display:block;"></canvas>
       <canvas id="game3d" width="800" height="600"></canvas>
-      <div id="postfx"></div>
       <div id="hud">
         <div class="hud-top" id="hud-top" style="display:none;">
           <div>
@@ -676,12 +363,11 @@
             <div class="hpbar"><div class="hpfill" id="hpfill" style="width:100%;"></div></div>
             <div class="limitbar" title="Overtime Clause"><div class="limitfill" id="limitfill" style="width:0%;"></div></div>
             <div class="shardrow" id="shardrow"></div>
-            <div id="abilityrow" style="margin-top:4px;font-size:10px;color:#c9c3b0;"></div>
-            <div id="turnOrderRow" style="margin-top:4px;font-size:10px;color:#8fd6a0;text-shadow:0 0 4px rgba(127,191,143,0.5);"></div>
           </div>
           <div style="text-align:right;" id="locationTag">HUB ... RECORDS OFFICE</div>
         </div>
         <div id="banner"></div>
+        <div id="memoryCaption"><div class="it">sempre e per sempre</div><div class="en">always and forever</div></div>
         <div id="stamp">DENIED</div>
         <div id="dialogue">
           <div class="speaker" id="dlgSpeaker">???</div>
@@ -691,6 +377,14 @@
         </div>
         <div id="controls-note"></div>
         <div id="leaveBtn" title="leave without solving">✕ LEAVE</div>
+        <div id="overlay"></div>
+        <div id="panel"></div>
+        <div id="splash">
+          <div class="splash-eyebrow">DEPARTMENT OF POSTMORTEM AFFAIRS</div>
+          <h1 class="splash-title">LEDGER OF THE LOST</h1>
+          <p class="splash-metaphor">Before the Records Office. Before any of it had a name or a floor number. There is only the infinite black ... and you, somewhere inside it, waiting on a file that hasn't been opened yet.</p>
+          <div class="splash-enter">CLICK TO ENTER</div>
+        </div>
       </div>
     </div>
     <div id="footer">
@@ -704,12 +398,10 @@
         <div class="tbtn tright" id="btn-right">▶</div>
         <div class="tbtn tdown" id="btn-down">▼</div>
       </div>
-      <div id="actbtn"><span>ACT</span></div>
+      <div id="actbtn">ACT</div>
     </div>
   </div>
 </div>
-<div id="overlay"></div>
-<div id="panel"></div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/matter-js/0.19.0/matter.min.js"></script>
@@ -747,6 +439,7 @@ const el = {
   dlgChoices: document.getElementById('dlgChoices'),
   dlgHint: document.getElementById('dlgHint'),
   banner: document.getElementById('banner'),
+  memoryCaption: document.getElementById('memoryCaption'),
   stamp: document.getElementById('stamp'),
   controlsNote: document.getElementById('controls-note'),
   leaveBtn: document.getElementById('leaveBtn'),
@@ -755,20 +448,17 @@ const el = {
   questBtn: document.getElementById('questBtn'),
   invBtn: document.getElementById('invBtn'),
   bestiaryBtn: document.getElementById('bestiaryBtn'),
-  skillsBtn: document.getElementById('skillsBtn'),
   settingsBtn: document.getElementById('settingsBtn'),
   panel: document.getElementById('panel'),
   seedTag: document.getElementById('seedTag'),
-  abilityRow: document.getElementById('abilityrow'),
-  turnOrderRow: document.getElementById('turnOrderRow'),
+  splash: document.getElementById('splash'),
+  storyBtn: document.getElementById('storyBtn'),
+  homeBtn: document.getElementById('homeBtn'),
+  menuBtn: document.getElementById('menuBtn'),
+  menuList: document.getElementById('menuList'),
+  menuDropdown: document.getElementById('menuDropdown'),
 };
 
-const SKILL_DEFS = {
-  vigor:     { key:'vigor',     name:'Vigor Clause',      glyph:'♥', desc:'+4 Max HP per rank. The body remembers to keep functioning.' },
-  precision: { key:'precision', name:'Precision Filing',  glyph:'✦', desc:'+3% Critical chance per rank. Every strike lands exactly where the form says it should.' },
-  procedure: { key:'procedure', name:'Standard Procedure',glyph:'⚔', desc:'+1 flat damage per rank. Following the process, thoroughly.' },
-  tenacity:  { key:'tenacity',  name:'Tenacity Rider',    glyph:'⛨', desc:'-1 damage taken per rank (minimum 1). You have survived worse paperwork than this.' },
-};
 const SHARD_DEFS = {
   ember:   { key:'ember',   name:'Ember Regret',    glyph:'E', desc:'A shard that burns cold. Adds weight to every blow you land.' },
   hollow:  { key:'hollow',  name:'Hollow Step',      glyph:'H', desc:'Grants the dash of one who has already left the room. [SPACE] to dash.' },
@@ -780,13 +470,77 @@ const SHARD_DEFS = {
 const SHARD_KEYS = Object.keys(SHARD_DEFS);
 function emptyShards(){ const o={}; SHARD_KEYS.forEach(k=>o[k]=false); return o; }
 
+// ---------------------------------------------------------------------
+// 0a0b. SHARD FUSION ... once both shards in a pair are recovered, they
+// can be permanently linked into one stronger, combined effect. Same
+// spirit as linked Materia: two small pieces of a former self choosing
+// to stop being separate. Irreversible by design, same as everything
+// else these shards represent.
+// ---------------------------------------------------------------------
+const FUSION_DEFS = {
+  ember_tape:   { key:'ember_tape',   pair:['ember','tape'],
+    name:'Burning Docket',      desc:'Red Tape binds tighter, and burns while it holds. Bind chance rises, and bound enemies take Ember\u2019s heat too.' },
+  hollow_wind:  { key:'hollow_wind',  pair:['hollow','wind'],
+    name:'Vanishing Act',       desc:'The room forgets you were ever there, just after you leave it. A dash now leaves you briefly untouchable.' },
+  weight_photo: { key:'weight_photo', pair:['weight','photo'],
+    name:'Anchored Likeness',   desc:'Docked blows dock less, once you remember who you were. Ledger\u2019s Weight\u2019s reduction doubles.' },
+};
+const FUSION_KEYS = Object.keys(FUSION_DEFS);
+function emptyFusions(){ const o={}; FUSION_KEYS.forEach(k=>o[k]=false); return o; }
+function fusionAvailable(fkey){
+  const f = FUSION_DEFS[fkey];
+  return f.pair.every(s=>state.shards[s]) && !state.fusions[fkey];
+}
+function weightReduction(){
+  if(!state.shards.weight) return 0;
+  return state.fusions.weight_photo ? 2 : 1;
+}
+
 const TRINKET_DEFS = {
   cufflink: { key:'cufflink', name:'Brass Cufflink', desc:'+1 to every blow you land.', dmg:1 },
   ledger:   { key:'ledger',   name:'Worn Ledger',     desc:'+8 Max HP, carried like a shield.', hp:8 },
   stamp:    { key:'stamp',    name:'Lucky Stamp',     desc:'A little more of your hits land as critical notices.', crit:0.12 },
   compass:  { key:'compass',  name:'Case Compass',    desc:'You see a little further into the dark.', vision:1.5 },
   seal:     { key:'seal',     name:"Notary's Seal",   desc:'+15 Max HP and +1 to every blow. Bureaucracy, properly weaponized.', hp:15, dmg:1 },
+  notarys_flourish: { key:'notarys_flourish', name:"Notary's Flourish", desc:'Cufflink and Stamp, fused: +2 to every blow, and more of them land as critical notices.', dmg:2, crit:0.15 },
+  bound_compass:    { key:'bound_compass',    name:'Bound Compass',    desc:'Ledger and Compass, fused: +10 Max HP, and the dark gives up a little more ground.', hp:10, vision:2.0 },
 };
+
+// ---------------------------------------------------------------------
+// 0a0c. TRINKET FUSION ... same idea as shard fusion, but trinkets are
+// single-slot equipment rather than always-on passives, so ownership is
+// tracked through the Memory Box (state.trinketBox) instead of a simple
+// boolean. Fusing consumes both trinkets, wherever they're held ---
+// equipped or boxed --- and hands back one stronger, combined trinket,
+// auto-equipped.
+// ---------------------------------------------------------------------
+const TRINKET_FUSION_DEFS = {
+  cufflink_stamp: { pair:['cufflink','stamp'], result:'notarys_flourish' },
+  ledger_compass: { pair:['ledger','compass'], result:'bound_compass' },
+};
+function ownsTrinket(key){
+  return state.equippedTrinket===key || state.trinketBox.includes(key);
+}
+function trinketFusionAvailable(fkey){
+  const f = TRINKET_FUSION_DEFS[fkey];
+  return f.pair.every(k=>ownsTrinket(k));
+}
+function removeTrinketFromWherever(key){
+  if(state.equippedTrinket===key) state.equippedTrinket=null;
+  const idx = state.trinketBox.indexOf(key);
+  if(idx!==-1) state.trinketBox.splice(idx,1);
+}
+function fuseTrinket(fkey){
+  const f = TRINKET_FUSION_DEFS[fkey];
+  if(!trinketFusionAvailable(fkey)) return;
+  // stash whatever's currently worn before we start removing pieces
+  if(state.equippedTrinket && !f.pair.includes(state.equippedTrinket)){
+    state.trinketBox.push(state.equippedTrinket);
+  }
+  f.pair.forEach(removeTrinketFromWherever);
+  state.equippedTrinket = f.result;
+  writeSave();
+}
 
 // ---------------------------------------------------------------------
 // 0a2. KEY ITEMS & COMBINATION ... a small point-and-click layer over the
@@ -806,6 +560,382 @@ const ITEM_COMBOS = [
 ];
 function findCombo(a,b){
   return ITEM_COMBOS.find(c=> (c.pair[0]===a&&c.pair[1]===b) || (c.pair[0]===b&&c.pair[1]===a) );
+}
+
+// ---------------------------------------------------------------------
+// 0a2b. PERSONAL EFFECTS ... a second, non-puzzle keepsake track. Each of
+// these is tied to someone specific from outside the Department, and
+// picking one up plays a short memory (see MEMORY_DEFS below) instead
+// of a combine-able puzzle piece. Same inventory, same panel ... these
+// just don't chain into anything. They're here to be found and kept.
+// Recurring motif: SPARKWING, a small carved/imagined dragon that keeps
+// turning up across all of it ... half kid's toy, half something older,
+// the closest thing this Department has to a summon that never gets
+// cast, just remembered. (FFVII would give it a materia slot. Monkey
+// Island would give it a punchline. This place just lets it sit on a
+// shelf.)
+// ---------------------------------------------------------------------
+const KEEPSAKE_DEFS = {
+  feather:        { key:'feather',        name:'Grey Feather',            glyph:'✦', desc:"Light enough to lose in a breeze, kept anyway. Belonged to a little boy who threw it in a river once, just to watch it decide which way to go." },
+  stone:          { key:'stone',          name:'Skipping Stone',          glyph:'●', desc:"Flat, smooth, thrown so many times it's forgotten how to sink. The little boy swore this exact one keeps coming back around." },
+  calculator:     { key:'calculator',     name:'Cracked Calculator',      glyph:'⊞', desc:"Buttons half worn to blank. Somebody small once used it to prove, very seriously, that 7×8 does not in fact equal 12." },
+  mcdonalds_bag:  { key:'mcdonalds_bag',  name:'Folded Paper Bag',        glyph:'▽', desc:"Grease-spotted, folded into a neat little square instead of thrown away. Some meals get kept for what came with them, not what was in them." },
+  pasta:          { key:'pasta',          name:'Dry Pasta Shell',         glyph:'꩜', desc:"One stray shell from a kitchen counter, never cooked, never swept up. It survived the meal better than the memory of who made it did." },
+  ring:           { key:'ring',           name:'Op-Shop Ring',            glyph:'○', desc:"Two dollars, maybe three ... the woman behind the counter threw in the story for free. Somebody's, once. Now it's whoever's willing to carry the story too." },
+  puffer_jacket:  { key:'puffer_jacket',  name:'Faded Puffer Jacket',     glyph:'▤', desc:"Too big, patched at one elbow, warm regardless. The op-shop woman insisted it wanted to go into a forest, not a closet." },
+  coffee_cup:     { key:'coffee_cup',     name:'Chipped Coffee Cup',      glyph:'⊔', desc:"One thumbprint-sized chip on the rim, otherwise fine. She said someone used to spin records with a cup exactly like it balanced on the deck, somehow never once spilling." },
+  metamucil:      { key:'metamucil',      name:'Half-Full Metamucil Tub', glyph:'◍', desc:"Deeply, defiantly unglamorous. The tall woman produced it with a completely straight face, then couldn't hold the bit for more than a few seconds ... something small and glowing nearby laughed even harder than she did." },
+  titanium_ring:  { key:'titanium_ring',  name:'Titanium Ring',           glyph:'◎', desc:"Plain band, engraved so small you need to tilt it to the light ... a coiled shape, wings folded in, easy to mistake for a scratch until you know to look for Sparkwing." },
+  soju:           { key:'soju',           name:'Green Soju Bottle',       glyph:'▮', desc:"Empty, rinsed, kept anyway. Best opened after hours, when the only honest conversations are the ones nobody's rehearsed." },
+  sofa:           { key:'sofa',           name:'Sofa Cushion',            glyph:'▭', desc:"One cushion off a sofa that doesn't exist here anymore. Sat on by exactly the right number of people, most evenings, for exactly long enough." },
+  notebook:       { key:'notebook',       name:'Dog-Eared Notebook',      glyph:'▥', desc:"Pages soft from handling. The tall woman wrote under a willow more than once ... you can tell which pages, they're the ones that don't try as hard." },
+  vitamins:       { key:'vitamins',       name:'Rattling Vitamin Jar',    glyph:'✚', desc:"Mostly full, faintly ridiculous, somehow exactly what's needed at 6am. The tall woman swears these are load-bearing." },
+  tv:             { key:'tv',             name:'Boxy Television',        glyph:'▦', desc:"Static on every channel but one. What plays on that one channel isn't quite live and isn't quite a recording ... the tall woman calls it 'just a rerun of a good day.'" },
+  key:            { key:'key',            name:'Nine-Notch Key',          glyph:'⚿', desc:"Cut with one notch missing, same as the woman who gave it to you is missing a finger. She said the lock doesn't mind the gap. Neither should you." },
+  dj_table:       { key:'dj_table',       name:'Miniature Spin Table',    glyph:'◐', desc:"A toy turntable, dead serious about its one job. Somebody scratched a tiny dragon into the platter with a pin, ages ago, mid-set." },
+  computer:       { key:'computer',       name:'Beige Desktop Tower',     glyph:'▧', desc:"Heavier than it looks, humming even unplugged, which shouldn't be possible and is exactly on brand for the person who left it running." },
+  willow_leaf:    { key:'willow_leaf',    name:'Pressed Willow Leaf',     glyph:'❧', desc:"Flat between two pages for years, still faintly green at the vein. From the willow ... the one under the moon, the one that's a place and not just a tree." },
+  moon_halo:      { key:'moon_halo',      name:'Sliver of Moon-Halo',     glyph:'☾', desc:"A thin ring of light that shouldn't come loose from the sky and did anyway. Held up right, it throws a shadow shaped almost exactly like a small dragon in flight." },
+  fairy_sparkle:  { key:'fairy_sparkle',  name:'Bottled Fairy Sparkle',   glyph:'✳', desc:"A jar of caught light, still restless. Shake it and, for a second, the motes fall into the shape of folded wings before scattering again." },
+};
+Object.assign(ITEM_DEFS, KEEPSAKE_DEFS);
+const KEEPSAKE_KEYS = Object.keys(KEEPSAKE_DEFS);
+
+// Which floor each keepsake can be found on. Spread across the whole
+// run rather than front-loaded, so Filing keeps giving something new
+// all the way to the Deep Archive. Never respawns once collected.
+const KEEPSAKE_FLOOR_MAP = {
+  1: ['feather','stone','ring'],
+  2: ['calculator','puffer_jacket'],
+  3: ['mcdonalds_bag','coffee_cup'],
+  4: ['pasta','metamucil','notebook'],
+  5: ['titanium_ring','vitamins'],
+  6: ['soju','tv'],
+  7: ['sofa','dj_table','moon_halo'],
+  8: ['computer','key','fairy_sparkle'],
+};
+
+// ---------------------------------------------------------------------
+// 0a2c. MEMORIES ... the short scene each keepsake plays the moment it's
+// picked up. Speaker is the person or thing the item belongs to. These
+// are deliberately small: a beat, not a cutscene, in keeping with how
+// the willow/fairy/moon material already works elsewhere in the build.
+// ---------------------------------------------------------------------
+const MEMORY_DEFS = {
+  feather: { speaker:'THE LITTLE BOY', lines:[
+    "A riverbank, or something Filing remembers as one.",
+    "He throws the feather in without looking to see whose river it is. \"It'll figure it out,\" he says, like that settles it.",
+    "It does, eventually. Everything down here eventually does.",
+  ]},
+  stone: { speaker:'THE LITTLE BOY', lines:[
+    "Same riverbank. Same stone, somehow, thrown for what feels like the fortieth time.",
+    "\"Watch,\" he says. \"It comes back.\" It doesn't, not really ... but the afternoon does, on a loop, and that's close enough for him.",
+  ]},
+  calculator: { speaker:'THE LITTLE BOY', lines:[
+    "Chalk on a wall that shouldn't hold chalk. He's found the one equation that never balances and is thrilled about it.",
+    "\"See? It's broken on purpose.\" You're fairly sure that's not how math works. You don't say so.",
+  ]},
+  mcdonalds_bag: { speaker:'THE LITTLE BOY', lines:[
+    "A booth, a tray, fries going cold on purpose because the conversation matters more than the food ever did.",
+    "He folds the bag into a smaller and smaller square, like if it's tidy enough the whole afternoon gets to stay.",
+  ]},
+  pasta: { speaker:'THE LITTLE BOY', lines:[
+    "A kitchen with the radio on low. He's not tall enough to reach the counter and does it anyway, one dry shell at a time, missing the pot more than he hits it.",
+    "Nobody minds. That's the whole memory, really ... nobody minding.",
+  ]},
+  ring: { speaker:'THE OP-SHOP WOMAN', lines:[
+    "Fluorescent light, a glass counter, a ring that cost less than the coffee you had on the way in.",
+    "\"Everything in here belonged to somebody,\" she says, ringing it up anyway. \"Doesn't mean you can't have it now.\"",
+  ]},
+  puffer_jacket: { speaker:'THE OP-SHOP WOMAN', lines:[
+    "\"That one wants a forest,\" she says, of a jacket two sizes too big. \"Trust me. I've been wrong about a coat maybe twice.\"",
+    "Deeper into Filing, the air changes ... pine instead of dust. She was right the second time too.",
+  ]},
+  coffee_cup: { speaker:'DJ DADDY COOL', lines:[
+    "A cup balanced right on the edge of a spinning deck, somehow never once sliding off through an entire set.",
+    "\"Physics is a suggestion round here,\" he says, not looking up from the crossfader. \"Same as most rules.\"",
+  ]},
+  metamucil: { speaker:'THE TALL WOMAN', lines:[
+    "\"Fairies leave notes in the strangest bottles,\" she says, deadpan, holding out a half-used tub of fiber supplement like it's a relic.",
+    "Something small and glowing nearby laughs so hard it drops half its sparkle on the floor.",
+  ]},
+  titanium_ring: { speaker:'THE NINE-FINGER WISE WOMAN', lines:[
+    "She turns the plain band once between what fingers she has left, finds the light, and holds it there until the engraving shows: a small coiled shape, wings folded.",
+    "\"Sparkwing,\" she says, like it's obvious. \"Blessing's in the metal. You just have to remember to tilt it toward something.\"",
+  ]},
+  soju: { speaker:'THE OP-SHOP WOMAN', lines:[
+    "Past closing, past the point where either of you is being careful about what gets said.",
+    "\"Everyone down here's dead already,\" she says, pouring two glasses that shouldn't exist. \"Might as well say the true thing.\"",
+  ]},
+  sofa: { speaker:'THE OP-SHOP WOMAN', lines:[
+    "One cushion, one lamp, the rest of the room politely declining to fully exist.",
+    "Nobody says much. Nobody needs to. It's the kind of quiet that only happens when the right people are in a room together.",
+  ]},
+  notebook: { speaker:'THE TALL WOMAN', lines:[
+    "Under the willow, off the path you weren't supposed to find. She's writing something she folds shut the second she notices you.",
+    "\"Not for you yet,\" she says, not unkindly. \"Maybe not ever. Some pages are just for getting through the night.\"",
+  ]},
+  vitamins: { speaker:'THE TALL WOMAN', lines:[
+    "\"Time loop's easier with breakfast,\" she says, shaking the jar like a maraca. \"Say what you want about the afterlife ... it respects a vitamin schedule.\"",
+    "You feel, absurdly, a little steadier for it.",
+  ]},
+  tv: { speaker:'THE TALL WOMAN', lines:[
+    "Static, then ... for one loop only ... a single good day, playing back at half-speed like it knows you'll want to watch it twice.",
+    "\"Don't try to change the channel,\" she warns. \"It only plays the ones that were already good.\"",
+  ]},
+  key: { speaker:'THE NINE-FINGER WISE WOMAN', lines:[
+    "She presses the notched key into your palm without ceremony ... the kind of gift that isn't really about the object.",
+    "\"Last door's not locked because it's hiding something,\" she says. \"It's locked so you'd have to choose to open it. Choose it.\"",
+  ]},
+  dj_table: { speaker:'DJ DADDY COOL', lines:[
+    "A back room full of records nobody filed properly, and one toy turntable, dead serious about its one job.",
+    "Scratched into the platter, small enough to miss: a dragon mid-flight. \"Old habit,\" he says. \"Mark everything that matters. Even the toys.\"",
+  ]},
+  computer: { speaker:'DJ DADDY COOL', lines:[
+    "Unplugged, and humming anyway. On the dead screen, if you catch the angle right, one line of text that shouldn't still be rendering.",
+    "He doesn't explain it. He just says, \"Some messages don't need power. They just need somebody to still be looking.\"",
+  ]},
+  willow_leaf: { speaker:'THE WILLOW TREE', lines:[
+    "No wind, and the leaf comes loose anyway, landing in your hand like it meant to.",
+    "This is the willow. The one that's a place and not just a tree. Whatever ending this Department has waiting, it runs through here first.",
+    "Roots all the way down, past the last floor, into the infinite black itself. Even that has to hold something up.",
+  ]},
+  moon_halo: { speaker:'THE MOON', lines:[
+    "A thin ring of light works itself loose from the sky and drifts down slow enough to catch.",
+    "Held up right, it throws one shadow across the floor ... small, winged, gone the second you look straight at it. Sparkwing again, or something enough like it.",
+  ]},
+  fairy_sparkle: { speaker:'THE FAIRY', lines:[
+    "A jar of caught light, never quite still. Shake it, and for one second the motes fold into the shape of wings before scattering back into nonsense.",
+    "It isn't a message. It's just proof something down here is still glowing on purpose.",
+  ]},
+};
+
+// Have every keepsake been recovered? Used for the one small bonus at
+// the very end of the run ... see the EXIT INTERVIEW win text.
+function allKeepsakesCollected(){
+  return KEEPSAKE_KEYS.every(k=>state.inventory.includes(k));
+}
+function keepsakeCount(){
+  return KEEPSAKE_KEYS.filter(k=>state.inventory.includes(k)).length;
+}
+
+// ---------------------------------------------------------------------
+// 0a2d. CHAPTERS & MINI-SCENES ... the bigger follow-up content some
+// keepsakes promise beyond their pickup memory: a puzzle, a buff, a
+// paginated chapter, or a hidden readable. keepsakeFollowUp() is the
+// dispatcher called right after a keepsake's memory dialogue closes;
+// most items have nothing further (the memory *is* the whole scene),
+// a handful open into something bigger.
+// ---------------------------------------------------------------------
+function keepsakeFollowUp(key, resolveTurn){
+  if(key==='stone'){
+    state.player.timeLoopTurns = Math.max(state.player.timeLoopTurns, 10);
+    flashBanner('TIME LOOP MOMENT ... the afternoon repeats in your favor. (+2 damage, 10 turns)');
+    resolveTurn(); return;
+  }
+  if(key==='vitamins'){
+    state.player.timeLoopTurns = Math.max(state.player.timeLoopTurns, 20);
+    flashBanner('TIME LOOP ENERGY BOOST ... (+2 damage, 20 turns)');
+    resolveTurn(); return;
+  }
+  if(key==='tv'){
+    const stillHere = KEEPSAKE_KEYS.some(k=>!state.inventory.includes(k) &&
+      (KEEPSAKE_FLOOR_MAP[state.floor]||[]).includes(k));
+    openDialogue('TIME LOOP VISION', stillHere
+      ? ["The static clears for a second. Somewhere on this floor, something else is still waiting to be found.", "Then it's gone, and the picture's just snow again."]
+      : ["The static clears for a second, and holds ... nothing left waiting on this floor. Just the rerun of a good day, playing all the way through this time."],
+      null, resolveTurn);
+    return;
+  }
+  if(key==='calculator'){ openCalculatorPuzzle(resolveTurn); return; }
+  if(key==='fairy_sparkle'){ openSparkleTrailPuzzle(resolveTurn); return; }
+  if(key==='moon_halo'){ openSkyText(resolveTurn); return; }
+  if(key==='ring'){
+    openDialogue('THE TALL WOMAN', ["Somewhere past the register, a corridor that wasn't there a minute ago holds its door open a crack.", "It doesn't lead anywhere new, exactly. Just further into rooms that were already yours to find."], null, resolveTurn);
+    return;
+  }
+  if(key==='puffer_jacket'){ openChapter(CHAPTER_DEFS.forest, resolveTurn); return; }
+  if(key==='dj_table'){ openChapter(CHAPTER_DEFS.undertow, resolveTurn); return; }
+  if(key==='key'){ openChapter(CHAPTER_DEFS.finalChapter, resolveTurn); return; }
+  resolveTurn();
+}
+
+// A small paginated reader, built on the same panel the quest log and
+// settings use. def = {title, sub, pages:[[para,para],...]}
+function openChapter(def, onClose){
+  openPanel();
+  let pageIdx = 0;
+  function render(){
+    el.panel.innerHTML = '';
+    const h1 = document.createElement('h1'); h1.style.fontSize='22px'; h1.textContent = def.title;
+    const sub = document.createElement('div'); sub.className='sub'; sub.textContent = def.sub+' ... PAGE '+(pageIdx+1)+' OF '+def.pages.length;
+    el.panel.appendChild(h1); el.panel.appendChild(sub);
+    def.pages[pageIdx].forEach(para=>{
+      const p = document.createElement('p'); p.className='flavor'; p.textContent = para;
+      el.panel.appendChild(p);
+    });
+    const btn = document.createElement('div'); btn.className='btn primary';
+    const isLast = pageIdx===def.pages.length-1;
+    btn.textContent = isLast ? 'CLOSE' : 'CONTINUE';
+    btn.onclick = ()=>{
+      playSfx('blip');
+      if(isLast){ closePanel(); onClose && onClose(); }
+      else { pageIdx++; render(); }
+    };
+    el.panel.appendChild(btn);
+  }
+  render();
+}
+const CHAPTER_DEFS = {
+  forest: { title:'THE DEEP FOREST', sub:"THE OP-SHOP WOMAN'S JACKET", pages:[
+    [ "The jacket knows the way before you do ... too big, warm regardless, patched at one elbow like it's already been somewhere and come back.",
+      "The Filing Department doesn't have forests. It has this instead: pine smell where there shouldn't be pine, and a path that wasn't on any floor plan the Concierge ever filed." ],
+    [ "Nobody comes with you. That's the point of a forest like this one ... it's for the walk, not the company.",
+      "Somewhere in it, low to the ground, something small and winged watches from a branch without ever quite resolving into a shape. Sparkwing again, keeping its distance the way it always does out here." ],
+    [ "You don't find anything else in the trees. You're not meant to. Some chapters are just about being let outside for a while, jacket zipped, before the door back to the paperwork finds you again.",
+      "The op-shop woman was right, back at the register. It did want a forest." ],
+  ]},
+  undertow: { title:'DJ DADDY COOL', sub:"A BACK ROOM NOBODY FILED PROPERLY", pages:[
+    [ "Before the department, before any of it had a floor plan or a filing system, there was a back room with better acoustics than it had any right to.",
+      "\"Everyone down here's got a version of themselves they left running somewhere else,\" he says, dropping a needle onto a record that shouldn't still play. \"This was mine.\"" ],
+    [ "He talks with his hands more than his mouth when it's about the music ... cueing up nothing, mixing nothing, out of a habit that outlived the equipment.",
+      "\"Logistics by day, all this by night. Didn't used to be a contradiction. Still isn't, really ... just took people a while to notice both were the same guy checking his work twice.\"" ],
+    [ "On the wall behind the decks: a small dragon, drawn in marker, mid-flight, exactly like the one scratched into the toy platter you're carrying.",
+      "\"Mark what matters,\" he says again, like it's the only rule he's ever needed. \"Even down here. Especially down here.\"" ],
+  ]},
+  finalChapter: { title:'THE LAST DOOR', sub:"THE NINE-FINGER WISE WOMAN", pages:[
+    [ "She doesn't lead you to the door so much as stop pretending it wasn't always visible from here.",
+      "\"Everyone who reaches this floor already has everything they need,\" she says. \"The key was never the hard part. Deciding to use it was.\"" ],
+    [ "\"You'll want the willow before the end,\" she adds, almost offhand. \"Not because the door needs it. Because you will.\"",
+      "She holds up her hand, nine fingers spread like it's nothing, like the count was never really the point of her. \"The gap doesn't stop the lock from turning. Neither should whatever you're missing.\"" ],
+    [ "Then she steps aside, and the corridor beyond her is quieter than anywhere else in Filing ... the particular quiet of a room that's been waiting for exactly one specific visitor.",
+      "\"Go on,\" she says. \"It's your file. Close it however you like.\"" ],
+  ]},
+};
+
+// Calculator wall puzzle ... light, no fail state, matches the little
+// boy's memory (7×8=12 and proud of it).
+function openCalculatorPuzzle(onClose){
+  openPanel();
+  el.panel.innerHTML = '';
+  const h1 = document.createElement('h1'); h1.style.fontSize='22px'; h1.textContent='THE CALCULATOR WALL';
+  const sub = document.createElement('div'); sub.className='sub'; sub.textContent='CHALK, SOMEHOW STILL DUSTY';
+  el.panel.appendChild(h1); el.panel.appendChild(sub);
+  const p = document.createElement('p'); p.className='flavor';
+  p.textContent = 'Scrawled on the wall in a kid\'s handwriting: "7 × 8 = 12. Proven true, forever, by me." Underneath, in smaller writing, a dare: pick the one that keeps it standing.';
+  el.panel.appendChild(p);
+  const opts = [
+    { text:'Erase it and fix the math.', resp:"You lift the chalk, look at his proof again, and put the chalk back down. Some things don't need correcting." },
+    { text:'Add your own proof underneath.', resp:'You write: "Witnessed, and agreed with." The wall feels a little more crowded, in a good way.' },
+    { text:'Leave it exactly as it is.', resp:"You leave it. Whatever this wall is keeping true, it's not really about the arithmetic." },
+  ];
+  const wrap = document.createElement('div'); wrap.style.cssText='display:flex;flex-direction:column;gap:8px;width:340px;margin-bottom:14px;';
+  opts.forEach(opt=>{
+    const b = document.createElement('div'); b.className='btn'; b.style.cssText='font-size:11px;text-align:left;';
+    b.textContent = opt.text;
+    b.onclick = ()=>{
+      playSfx('puzzle');
+      el.panel.innerHTML='';
+      el.panel.appendChild(h1); el.panel.appendChild(sub);
+      const rp = document.createElement('p'); rp.className='flavor'; rp.textContent = opt.resp;
+      el.panel.appendChild(rp);
+      const close = document.createElement('div'); close.className='btn primary'; close.textContent='CLOSE';
+      close.onclick = ()=>{ playSfx('blip'); closePanel(); onClose && onClose(); };
+      el.panel.appendChild(close);
+    };
+    wrap.appendChild(b);
+  });
+  el.panel.appendChild(wrap);
+}
+
+// Sparkle-trail puzzle ... a short Simon-Says with the fairy's glow.
+// No punishment for a wrong sequence beyond "try again"; this is meant
+// to feel like play, not a gate.
+function openSparkleTrailPuzzle(onClose){
+  openPanel();
+  const GLYPHS = [
+    {g:'✳', c:'#ffe07a'}, {g:'✦', c:'#e0c05a'}, {g:'❧', c:'#7fbf8f'}, {g:'☾', c:'#8ad0e0'},
+  ];
+  const seqLen = 4;
+  const sequence = Array.from({length:seqLen}, ()=>Math.floor(Math.random()*GLYPHS.length));
+  let showing = true, showIdx = 0, inputIdx = 0;
+  function renderShow(){
+    el.panel.innerHTML='';
+    const h1 = document.createElement('h1'); h1.style.fontSize='22px'; h1.textContent='THE SPARKLE TRAIL';
+    const sub = document.createElement('div'); sub.className='sub'; sub.textContent='WATCH WHERE THE LIGHT LANDS';
+    el.panel.appendChild(h1); el.panel.appendChild(sub);
+    const big = document.createElement('div'); big.style.cssText='font-size:48px;height:70px;color:'+GLYPHS[sequence[showIdx]].c+';';
+    big.textContent = GLYPHS[sequence[showIdx]].g;
+    el.panel.appendChild(big);
+    const hint = document.createElement('div'); hint.className='sub'; hint.textContent = (showIdx+1)+' / '+sequence.length;
+    el.panel.appendChild(hint);
+    setTimeout(()=>{
+      showIdx++;
+      if(showIdx>=sequence.length){ showing=false; inputIdx=0; renderInput(); }
+      else renderShow();
+    }, 700);
+  }
+  function renderInput(){
+    el.panel.innerHTML='';
+    const h1 = document.createElement('h1'); h1.style.fontSize='22px'; h1.textContent='THE SPARKLE TRAIL';
+    const sub = document.createElement('div'); sub.className='sub'; sub.textContent='NOW FOLLOW IT BACK';
+    el.panel.appendChild(h1); el.panel.appendChild(sub);
+    const row = document.createElement('div'); row.style.cssText='display:flex;gap:14px;margin-bottom:16px;';
+    GLYPHS.forEach((gl,gi)=>{
+      const b = document.createElement('div'); b.className='btn'; b.style.cssText='font-size:26px;color:'+gl.c+';padding:14px 18px;';
+      b.textContent = gl.g;
+      b.onclick = ()=>{
+        playSfx('blip');
+        if(gi===sequence[inputIdx]){
+          inputIdx++;
+          if(inputIdx>=sequence.length) finish(true);
+        } else finish(false);
+      };
+      row.appendChild(b);
+    });
+    el.panel.appendChild(row);
+    const prog = document.createElement('div'); prog.className='sub'; prog.textContent = inputIdx+' / '+sequence.length+' CORRECT';
+    el.panel.appendChild(prog);
+  }
+  function finish(won){
+    el.panel.innerHTML='';
+    const h1 = document.createElement('h1'); h1.style.fontSize='22px'; h1.textContent = won ? 'TRAIL FOLLOWED' : 'LOST THE TRAIL';
+    const sub = document.createElement('div'); sub.className='sub'; sub.textContent = won ? "IT LEADS BACK EVERY TIME, IF YOU'RE PATIENT" : 'THE LIGHT SCATTERS ... NO HARM DONE';
+    el.panel.appendChild(h1); el.panel.appendChild(sub);
+    const p = document.createElement('p'); p.className='flavor';
+    p.textContent = won
+      ? "You follow it all the way back to where it started. For a second the whole trail lights at once, and something that isn't quite a voice says thank you, isn't quite anything at all."
+      : "The sparkle trail scatters into nonsense before you're halfway through. It doesn't seem to mind. It'll happily do this again, whenever you're back this way.";
+    el.panel.appendChild(p);
+    const btnRow = document.createElement('div'); btnRow.style.cssText='display:flex;gap:8px;';
+    if(!won){
+      const retry = document.createElement('div'); retry.className='btn'; retry.textContent='TRY AGAIN';
+      retry.onclick = ()=>{ playSfx('blip'); openSparkleTrailPuzzle(onClose); };
+      btnRow.appendChild(retry);
+    }
+    const close = document.createElement('div'); close.className='btn primary'; close.textContent='CLOSE';
+    close.onclick = ()=>{ playSfx('blip'); closePanel(); onClose && onClose(); };
+    btnRow.appendChild(close);
+    el.panel.appendChild(btnRow);
+  }
+  renderShow();
+}
+
+// Hidden sky text ... a short readable unlocked by the moon-halo, styled
+// like the rest of the panel readables rather than a new HUD element.
+function openSkyText(onClose){
+  openPanel();
+  el.panel.innerHTML = '';
+  const h1 = document.createElement('h1'); h1.style.fontSize='22px'; h1.textContent='WHAT THE SKY SAYS';
+  const sub = document.createElement('div'); sub.className='sub'; sub.textContent='HELD UP TO THE LIGHT';
+  el.panel.appendChild(h1); el.panel.appendChild(sub);
+  [ "Tilt the sliver of halo until it throws its shadow flat against the floor.",
+    "Small. Winged. Gone if you look at it head-on, there again the second you look away ... the same trick the whole sky's been pulling for as long as anyone's been filing paperwork underneath it.",
+    "It doesn't spell out a message. It doesn't need to. Buona notte, sogni d'oro. For always, and forever, whether or not the sky ever says so in words." ]
+    .forEach(t=>{ const p=document.createElement('p'); p.className='flavor'; p.textContent=t; el.panel.appendChild(p); });
+  const btn = document.createElement('div'); btn.className='btn primary'; btn.textContent='CLOSE';
+  btn.onclick = ()=>{ playSfx('blip'); closePanel(); onClose && onClose(); };
+  el.panel.appendChild(btn);
 }
 
 // ---------------------------------------------------------------------
@@ -911,6 +1041,30 @@ const RIVAL_DUEL_LINES = [
       {text:"Originality was never the department's strong suit anyway.", correct:false},
     ]},
 ];
+// The final tier ... no jokes left in it. An exit interview, not a duel,
+// framed the same way for consistency. Unlocked only after the Chief
+// Auditor's file is closed; the "correct" lines here are the honest ones,
+// not the clever ones, which is the whole point of the escalation.
+const EXIT_DUEL_LINES = [
+  { insult:"So. You made it through the whole department. Most don't. What was it worth, in the end?",
+    options:[
+      {text:"I won't know until I stop being asked that question.", correct:true},
+      {text:"Everything. Obviously. Wasn't it worth it to you?", correct:false},
+      {text:"Worth is a filing term. I don't work here.", correct:false},
+    ]},
+  { insult:"You'll be replaced down here within the week. Someone always is. Does that bother you?",
+    options:[
+      {text:"It bothers me less than staying would have.", correct:true},
+      {text:"No one replaces this. I made sure of that.", correct:false},
+      {text:"That's the department's problem, not mine.", correct:false},
+    ]},
+  { insult:"You never once asked how you actually died. Doesn't that strike you as strange?",
+    options:[
+      {text:"I noticed. I'm still deciding if I want the answer.", correct:true},
+      {text:"I did ask. Nobody down here would tell me.", correct:false},
+      {text:"Strange is relative, considering where we're standing.", correct:false},
+    ]},
+];
 function shuffleCopy(arr){
   const a = arr.slice();
   for(let i=a.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [a[i],a[j]]=[a[j],a[i]]; }
@@ -928,6 +1082,7 @@ function loadSave(){
 function getSaveData(){
   return {
     shards: Object.keys(state.shards).filter(k=>state.shards[k]),
+    fusions: Object.keys(state.fusions).filter(k=>state.fusions[k]),
     vaultSolved: state.vaultSolved,
     archiveSolved: state.archiveSolved,
     bossDefeated: state.bossDefeated,
@@ -935,8 +1090,10 @@ function getSaveData(){
     finalBossDefeated: state.finalBossDefeated,
     memoryDone: state.memoryDone,
     andyUnlocked: state.andyUnlocked,
+    sempreFound: state.sempreFound,
     difficulty: state.difficulty,
     equippedTrinket: state.equippedTrinket,
+    trinketBox: state.trinketBox.slice(),
     ngPlusCount: state.ngPlusCount,
     maxHpBonus: state.maxHpBonus,
     level: state.player.level,
@@ -950,8 +1107,7 @@ function getSaveData(){
     subbasementClaimed: state.subbasementClaimed,
     duelWon: state.duelWon,
     rivalDuelWon: state.rivalDuelWon,
-    skillPoints: state.skillPoints,
-    skills: Object.assign({}, state.skills),
+    exitDuelWon: state.exitDuelWon,
   };
 }
 function writeSave(){
@@ -962,6 +1118,7 @@ const state = {
   mode: 'MENU', // MENU, HUB, DUNGEON, PUZZLE, ARCHIVE, MEMORY, GAMEOVER, WIN, DIALOGUE
   prevMode: 'HUB',
   shards: emptyShards(),
+  fusions: emptyFusions(),
   vaultSolved: false,
   archiveSolved: false,
   bossDefeated: false,
@@ -969,9 +1126,11 @@ const state = {
   memoryDone: false,
   usedSecondWind: false,
   andyUnlocked: false,
+  sempreFound: false,
   difficulty: 'standard', // 'standard' | 'hardcore' | 'nightmare'
   finalBossDefeated: false,
   equippedTrinket: null,
+  trinketBox: [],
   ngPlusCount: 0,
   runStartTime: null,
   maxHpBonus: 0,
@@ -982,16 +1141,15 @@ const state = {
   subbasementClaimed: false,
   duelWon: false,
   rivalDuelWon: false,
-  skillPoints: 0,
-  skills: { vigor:0, precision:0, procedure:0, tenacity:0 },
+  exitDuelWon: false,
   player: {
     hp: 30, maxHp: 30,
     tileX: 3, tileY: 3,
     dashCd: 0,
     weakenTurns: 0,
+    timeLoopTurns: 0,
     level: 1, xp: 0,
     limit: 0, limitMax: 100,
-    abilityCd: { ember:0, tape:0 },
   },
   dialogue: null, // {speaker, lines:[...], choices:[], onDone}
   keys: {},
@@ -1012,7 +1170,15 @@ function trinketBonus(stat){
   const t = TRINKET_DEFS[state.equippedTrinket];
   return (t && t[stat]) || 0;
 }
-function maxHp(){ return 30 + state.maxHpBonus + (state.player.level-1)*5 + trinketBonus('hp') + state.skills.vigor*4; }
+function fullLedger(){ return SHARD_KEYS.every(k=>state.shards[k]); }
+function checkFullLedger(){
+  if(fullLedger() && !stats.achievementsSeen.fullledger){
+    achieve('fullledger','The Full Ledger');
+    flashBanner('THE LEDGER IS COMPLETE ... every shard accounted for. (+2 damage, +10 max HP)');
+    screenFlash('#c9a15a', 0.3);
+  }
+}
+function maxHp(){ return 30 + state.maxHpBonus + (state.player.level-1)*5 + trinketBonus('hp') + (fullLedger()?10:0) + (state.inventory.includes('titanium_ring')?5:0); }
 function grantXp(amount){
   state.player.xp += amount;
   let leveled = false;
@@ -1023,8 +1189,7 @@ function grantXp(amount){
   }
   if(leveled){
     state.player.hp = maxHp();
-    state.skillPoints += 1;
-    flashBanner('PROMOTED ... LEVEL '+state.player.level+' CLERK · +1 SKILL POINT (📜 to spend it)');
+    flashBanner('PROMOTED ... LEVEL '+state.player.level+' CLERK (Max HP up, attacks hit harder)');
     screenFlash('#c9a15a', 0.35);
     writeSave();
   }
@@ -1150,7 +1315,7 @@ window.addEventListener('keydown', ensureAudio, {once:true});
 el.muteBtn.addEventListener('click', ()=>{
   ensureAudio();
   soundMuted = !soundMuted;
-  el.muteBtn.textContent = soundMuted ? '🔇' : '🔊';
+  el.muteBtn.textContent = soundMuted ? '🔇 Unmute Sound' : '🔊 Mute Sound';
   updateAmbientVolume();
 });
 el.buildStamp.addEventListener('click', ()=>{
@@ -1173,7 +1338,6 @@ el.buildStamp.addEventListener('click', ()=>{
 function openPanel(){
   state.prevMode = state.mode;
   state.mode = 'PANEL';
-  el.panel.className = '';
   el.panel.style.display = 'flex';
 }
 function closePanel(){
@@ -1194,25 +1358,42 @@ window.addEventListener('keydown', (e)=>{
     else leaveNonSolvedArea();
   }
 });
+// ---------------------------------------------------------------------
+// 0c2. TOP MENU DROPDOWN ... everything that used to be a row of loose
+// icons now lives in one dropdown, opened/closed from a single button.
+// ---------------------------------------------------------------------
+function closeMenuDropdown(){ el.menuList.classList.remove('open'); }
+el.menuBtn.addEventListener('click', (e)=>{
+  e.stopPropagation();
+  playSfx('blip');
+  el.menuList.classList.toggle('open');
+});
+document.addEventListener('click', (e)=>{
+  if(el.menuList.classList.contains('open') && !el.menuDropdown.contains(e.target)){
+    closeMenuDropdown();
+  }
+});
+window.addEventListener('keydown', (e)=>{
+  if(e.key==='Escape') closeMenuDropdown();
+});
+
 el.questBtn.addEventListener('click', ()=>{
+  closeMenuDropdown();
   if(!['HUB','DUNGEON','ARCHIVE'].includes(state.mode)) return;
   playSfx('blip');
   showQuestLog();
 });
 el.invBtn.addEventListener('click', ()=>{
+  closeMenuDropdown();
   if(!['HUB','DUNGEON','ARCHIVE'].includes(state.mode)) return;
   playSfx('blip');
   showInventory();
 });
 el.settingsBtn.addEventListener('click', ()=>{
+  closeMenuDropdown();
   if(!['HUB','DUNGEON','ARCHIVE','MENU'].includes(state.mode)) return;
   playSfx('blip');
   showSettings();
-});
-el.skillsBtn.addEventListener('click', ()=>{
-  if(!['HUB','DUNGEON','ARCHIVE'].includes(state.mode)) return;
-  playSfx('blip');
-  showSkills();
 });
 function showQuestLog(){
   openPanel();
@@ -1231,6 +1412,7 @@ function showQuestLog(){
     ['Answer for the Chief Auditor ... Floor 8', state.finalBossDefeated],
     ['Reassemble the Stamp of Approval (combine in 🎒)', state.inventory.includes('workingstamp') || state.subbasementUnlocked],
     ['Unseal the Sub-Basement', state.subbasementUnlocked],
+    ['Personal Effects Recovered ('+keepsakeCount()+' / '+KEEPSAKE_KEYS.length+')', allKeepsakesCollected()],
   ];
   const list = document.createElement('div'); list.className='questlist';
   objectives.forEach(([label,done])=>{
@@ -1307,51 +1489,113 @@ function renderInventoryPanel(){
     const desc = document.createElement('div'); desc.className='itemdesc';
     desc.textContent = _invSelected!=null ? ITEM_DEFS[state.inventory[_invSelected]].desc : 'Select an item to inspect it, or select two to try combining them.';
     el.panel.appendChild(desc);
+    if(_invSelected!=null && MEMORY_DEFS[state.inventory[_invSelected]]){
+      const replay = document.createElement('div'); replay.className='btn'; replay.style.cssText='margin-bottom:10px;font-size:11px;';
+      replay.textContent = 'REVISIT THIS MEMORY';
+      replay.onclick = ()=>{
+        playSfx('blip');
+        const mem = MEMORY_DEFS[state.inventory[_invSelected]];
+        closePanel();
+        openDialogue(mem.speaker, mem.lines, null, ()=>{ showInventory(); });
+      };
+      el.panel.appendChild(replay);
+    }
   }
 
-  const btn = document.createElement('div'); btn.className='btn primary'; btn.textContent='CLOSE';
-  btn.onclick = ()=>{ playSfx('blip'); closePanel(); };
-  el.panel.appendChild(btn);
-}
+  if(state.trinketBox.length || state.equippedTrinket){
+    const th = document.createElement('div'); th.style.cssText='font-size:11px;color:#7a7f8c;margin:12px 0 6px;text-align:left;width:320px;';
+    th.textContent = 'MEMORY BOX';
+    el.panel.appendChild(th);
+    if(state.equippedTrinket){
+      const def = TRINKET_DEFS[state.equippedTrinket];
+      const row = document.createElement('div');
+      row.style.cssText = 'width:320px;border:1px solid var(--terminal);padding:8px 10px;margin-bottom:6px;text-align:left;';
+      row.innerHTML = '<div style="font-size:12px;color:var(--terminal);margin-bottom:3px;">'+def.name+' (WORN)</div><div style="font-size:10.5px;color:#9a9fac;">'+def.desc+'</div>';
+      el.panel.appendChild(row);
+    }
+    state.trinketBox.forEach(key=>{
+      const def = TRINKET_DEFS[key];
+      const row = document.createElement('div');
+      row.style.cssText = 'width:320px;border:1px solid var(--brass-dim);padding:8px 10px;margin-bottom:6px;text-align:left;display:flex;justify-content:space-between;align-items:center;gap:10px;';
+      const info = document.createElement('div');
+      info.innerHTML = '<div style="font-size:12px;color:var(--brass);margin-bottom:3px;">'+def.name+'</div><div style="font-size:10.5px;color:#9a9fac;">'+def.desc+'</div>';
+      const equipBtn = document.createElement('div'); equipBtn.className='toggle'; equipBtn.style.cssText='font-size:10px;flex-shrink:0;'; equipBtn.textContent='EQUIP';
+      equipBtn.onclick = ()=>{
+        playSfx('blip');
+        const idx = state.trinketBox.indexOf(key);
+        state.trinketBox.splice(idx,1);
+        if(state.equippedTrinket) state.trinketBox.push(state.equippedTrinket);
+        state.equippedTrinket = key;
+        writeSave();
+        flashBanner('EQUIPPED: '+def.name.toUpperCase());
+        updateHud();
+        renderInventoryPanel();
+      };
+      row.appendChild(info); row.appendChild(equipBtn);
+      el.panel.appendChild(row);
+    });
+  }
 
-function showSkills(){
-  openPanel();
-  renderSkillsPanel();
-}
-function renderSkillsPanel(){
-  el.panel.innerHTML = '';
-  const h1 = document.createElement('h1'); h1.style.fontSize='24px'; h1.textContent='CLERK ADVANCEMENT';
-  const sub = document.createElement('div'); sub.className='sub';
-  sub.textContent = 'FORM 22-C, PERSONNEL FILE · '+state.skillPoints+' POINT'+(state.skillPoints===1?'':'S')+' UNSPENT';
-  el.panel.appendChild(h1); el.panel.appendChild(sub);
+  const fusableTrinkets = Object.keys(TRINKET_FUSION_DEFS).filter(fk=>trinketFusionAvailable(fk));
+  if(fusableTrinkets.length){
+    const fth = document.createElement('div'); fth.style.cssText='font-size:11px;color:#7a7f8c;margin:12px 0 6px;text-align:left;width:320px;';
+    fth.textContent = 'TRINKET FUSION';
+    el.panel.appendChild(fth);
+    fusableTrinkets.forEach(fk=>{
+      const f = TRINKET_FUSION_DEFS[fk];
+      const resultDef = TRINKET_DEFS[f.result];
+      const row = document.createElement('div');
+      row.style.cssText = 'width:320px;border:1px solid var(--brass-dim);padding:8px 10px;margin-bottom:8px;text-align:left;';
+      const title = document.createElement('div');
+      title.style.cssText = 'font-size:12px;color:var(--brass);margin-bottom:3px;';
+      title.textContent = resultDef.name;
+      const desc = document.createElement('div');
+      desc.style.cssText = 'font-size:10.5px;color:#9a9fac;margin-bottom:6px;';
+      desc.textContent = resultDef.desc;
+      row.appendChild(title); row.appendChild(desc);
+      const fuseBtn = document.createElement('div'); fuseBtn.className='toggle'; fuseBtn.style.fontSize='10px'; fuseBtn.textContent='FUSE (PERMANENT)';
+      fuseBtn.onclick = ()=>{
+        playSfx('puzzle');
+        fuseTrinket(fk);
+        flashBanner('FUSED: '+resultDef.name.toUpperCase());
+        updateHud();
+        renderInventoryPanel();
+      };
+      row.appendChild(fuseBtn);
+      el.panel.appendChild(row);
+    });
+  }
 
-  const intro = document.createElement('p'); intro.className='flavor';
-  intro.style.cssText = 'font-size:11px;max-width:340px;margin-bottom:14px;';
-  intro.textContent = 'Every promotion earns a point of standing. Spend it however the position seems to demand.';
-  el.panel.appendChild(intro);
-
-  Object.values(SKILL_DEFS).forEach(def=>{
-    const rank = state.skills[def.key] || 0;
-    const row = document.createElement('div'); row.className='skillrow';
-    const left = document.createElement('div');
-    left.innerHTML = '<div class="sname">'+def.glyph+' '+def.name+' ... rank '+rank+'</div><div class="sdesc" style="max-width:100%;">'+def.desc+'</div>';
-    const plus = document.createElement('div');
-    plus.className = 'skillplus'+(state.skillPoints<=0 ? ' disabled' : '');
-    plus.textContent = '+';
-    plus.onclick = ()=>{
-      if(state.skillPoints<=0) return;
-      state.skillPoints--;
-      state.skills[def.key] = (state.skills[def.key]||0)+1;
-      state.player.hp = Math.min(maxHp(), state.player.hp + (def.key==='vigor'?4:0));
-      writeSave();
-      playSfx('shard');
-      flashBanner('RANK UP ... '+def.name.toUpperCase());
-      renderSkillsPanel();
-      updateHud();
-    };
-    row.appendChild(left); row.appendChild(plus);
-    el.panel.appendChild(row);
-  });
+  const fusable = FUSION_KEYS.filter(fk=>FUSION_DEFS[fk].pair.every(s=>state.shards[s]));
+  if(fusable.length){
+    const fh = document.createElement('div'); fh.style.cssText='font-size:11px;color:#7a7f8c;margin:12px 0 6px;text-align:left;width:320px;';
+    fh.textContent = 'SHARD FUSION';
+    el.panel.appendChild(fh);
+    fusable.forEach(fk=>{
+      const def = FUSION_DEFS[fk];
+      const row = document.createElement('div');
+      row.style.cssText = 'width:320px;border:1px solid var(--brass-dim);padding:8px 10px;margin-bottom:8px;text-align:left;';
+      const title = document.createElement('div');
+      title.style.cssText = 'font-size:12px;color:var(--brass);margin-bottom:3px;';
+      title.textContent = def.name + (state.fusions[fk] ? ' (FUSED)' : '');
+      const desc = document.createElement('div');
+      desc.style.cssText = 'font-size:10.5px;color:#9a9fac;margin-bottom:6px;';
+      desc.textContent = def.desc;
+      row.appendChild(title); row.appendChild(desc);
+      if(!state.fusions[fk]){
+        const fuseBtn = document.createElement('div'); fuseBtn.className='toggle'; fuseBtn.style.fontSize='10px'; fuseBtn.textContent='FUSE (PERMANENT)';
+        fuseBtn.onclick = ()=>{
+          playSfx('puzzle');
+          state.fusions[fk] = true;
+          writeSave();
+          flashBanner('FUSED: '+def.name.toUpperCase());
+          renderInventoryPanel();
+        };
+        row.appendChild(fuseBtn);
+      }
+      el.panel.appendChild(row);
+    });
+  }
 
   const btn = document.createElement('div'); btn.className='btn primary'; btn.textContent='CLOSE';
   btn.onclick = ()=>{ playSfx('blip'); closePanel(); };
@@ -1380,35 +1624,46 @@ function enterSubbasement(){
   const grantLines = ["The hatch drops open onto a room nobody's filed a form for in decades.", "Under the dust: "+def.name+" ... "+def.desc];
   openDialogueChoices('THE SUB-BASEMENT', grantLines.join(' '),
     current ? [
-      {label:'Equip it (swap out '+current.name+').', next: ()=>{ state.equippedTrinket='seal'; writeSave(); flashBanner('EQUIPPED: '+def.name.toUpperCase()); updateHud(); }},
-      {label:'Leave it stored for now.', next: ()=>{}},
+      {label:'Equip it (swap out '+current.name+').', next: ()=>{ state.trinketBox.push(state.equippedTrinket); state.equippedTrinket='seal'; writeSave(); flashBanner('EQUIPPED: '+def.name.toUpperCase()); updateHud(); }},
+      {label:'File it in the Memory Box for now.', next: ()=>{ state.trinketBox.push('seal'); writeSave(); flashBanner('FILED: '+def.name.toUpperCase()); }},
     ] : [
       {label:'Equip it.', next: ()=>{ state.equippedTrinket='seal'; writeSave(); flashBanner('EQUIPPED: '+def.name.toUpperCase()); updateHud(); }},
-      {label:'Leave it stored for now.', next: ()=>{}},
+      {label:'File it in the Memory Box for now.', next: ()=>{ state.trinketBox.push('seal'); writeSave(); flashBanner('FILED: '+def.name.toUpperCase()); }},
     ]
   );
 }
 
 let _duel = null;
-function startDuel(rival){
+const DUEL_TIERS = {
+  normal: { pool:DUEL_LINES, title:'TRADING COMPLAINTS', sub:'DESK 14, INFORMAL PROCEEDING', sweepNeeded:false,
+    win:"Desk 14 has no comeback for that. A rare, satisfying silence.", lose:"Desk 14 wins this round. There's always tomorrow ... or whatever this place has instead.",
+    flag:'duelWon', achId:'duel', achLabel:'Won the War of Complaints', xp:10 },
+  rival: { pool:RIVAL_DUEL_LINES, title:'A REAL ARGUMENT', sub:'THE INSPECTOR, FORMAL HEARING', sweepNeeded:true,
+    win:"The Inspector goes quiet, then nods once ... the closest thing to respect this office issues.", lose:"The Inspector isn't impressed. Nothing short of a clean sweep will do here ... try again when you're sharper.",
+    flag:'rivalDuelWon', achId:'rivalduel', achLabel:'Outargued the Inspector', xp:20 },
+  exit: { pool:EXIT_DUEL_LINES, title:'EXIT INTERVIEW', sub:'THE CHIEF AUDITOR, LAST FILE ON THE DESK', sweepNeeded:false,
+    win:"No stamp for this one. Just a long pause, and the file finally sliding shut on its own.", lose:"Not today, it seems. The file stays open a little longer.",
+    flag:'exitDuelWon', achId:'exitduel', achLabel:'The Last Word', xp:40 },
+};
+function startDuel(tier){
   openPanel();
-  el.panel.classList.add('duel-mode');
-  const pool = rival ? RIVAL_DUEL_LINES : DUEL_LINES;
-  _duel = { rounds: shuffleCopy(pool).slice(0,3), idx:0, score:0, rival: !!rival };
+  const cfg = DUEL_TIERS[tier||'normal'];
+  _duel = { tier: tier||'normal', rounds: shuffleCopy(cfg.pool).slice(0,3), idx:0, score:0 };
   renderDuelRound();
 }
 function renderDuelRound(){
   el.panel.innerHTML='';
-  const h1=document.createElement('h1'); h1.className='duel-h1'; h1.style.fontSize='22px'; h1.textContent = _duel.rival ? 'A REAL ARGUMENT' : 'TRADING COMPLAINTS';
-  const sub=document.createElement('div'); sub.className='sub'; sub.textContent = (_duel.rival ? 'THE INSPECTOR, FORMAL HEARING' : 'DESK 14, INFORMAL PROCEEDING')+' ... ROUND '+(_duel.idx+1)+' OF '+_duel.rounds.length;
+  const cfg = DUEL_TIERS[_duel.tier];
+  const h1=document.createElement('h1'); h1.style.fontSize='22px'; h1.textContent = cfg.title;
+  const sub=document.createElement('div'); sub.className='sub'; sub.textContent = cfg.sub+' ... ROUND '+(_duel.idx+1)+' OF '+_duel.rounds.length;
   el.panel.appendChild(h1); el.panel.appendChild(sub);
   const round = _duel.rounds[_duel.idx];
-  const insult = document.createElement('p'); insult.className='flavor duel-insult';
+  const insult = document.createElement('p'); insult.className='flavor'; insult.style.cssText='color:#d47a5a;max-width:340px;';
   insult.textContent = '"'+round.insult+'"';
   el.panel.appendChild(insult);
-  const optsWrap = document.createElement('div'); optsWrap.style.cssText='display:flex;flex-direction:column;gap:8px;width:min(340px,90vw);margin-bottom:14px;';
+  const optsWrap = document.createElement('div'); optsWrap.style.cssText='display:flex;flex-direction:column;gap:8px;width:340px;margin-bottom:14px;';
   shuffleCopy(round.options).forEach(opt=>{
-    const b = document.createElement('div'); b.className='btn duel-opt'; b.style.cssText='font-size:11.5px;text-align:left;';
+    const b = document.createElement('div'); b.className='btn'; b.style.cssText='font-size:11px;text-align:left;';
     b.textContent = opt.text;
     b.onclick = ()=>{
       playSfx('blip');
@@ -1423,36 +1678,27 @@ function renderDuelRound(){
 }
 function finishDuel(){
   el.panel.innerHTML='';
-  const needed = _duel.rival ? _duel.rounds.length : Math.ceil(_duel.rounds.length/2); // the Inspector requires a clean sweep
+  const cfg = DUEL_TIERS[_duel.tier];
+  const needed = cfg.sweepNeeded ? _duel.rounds.length : Math.ceil(_duel.rounds.length/2);
   const won = _duel.score >= needed;
   const h1=document.createElement('h1'); h1.style.fontSize='24px'; h1.textContent = won ? 'CASE DISMISSED' : 'OVERRULED';
   const sub=document.createElement('div'); sub.className='sub'; sub.textContent = _duel.score+' OF '+_duel.rounds.length+' LANDED';
   el.panel.appendChild(h1); el.panel.appendChild(sub);
   const p=document.createElement('p'); p.className='flavor';
   if(won){
-    if(_duel.rival){
-      p.textContent = "The Inspector goes quiet, then nods once ... the closest thing to respect this office issues.";
-      if(!state.rivalDuelWon){
-        state.rivalDuelWon = true;
-        grantXp(20);
-        achieve('rivalduel','Outargued the Inspector');
-        writeSave();
-        p.textContent += ' (+20 XP)';
-      }
-    } else {
-      p.textContent = "Desk 14 has no comeback for that. A rare, satisfying silence.";
-      if(!state.duelWon){
-        state.duelWon = true;
-        grantXp(10);
-        achieve('duel','Won the War of Complaints');
-        writeSave();
-        p.textContent += ' (+10 XP)';
-      }
+    p.textContent = cfg.win;
+    if(_duel.tier==='exit' && allKeepsakesCollected()){
+      p.textContent += ' The file slides shut ... and for just a second, caught in the light off the desk lamp, something small and winged settles on top of it before fading. Every personal effect in Filing found its way back to whoever it belonged to. Including you.';
+    }
+    if(!state[cfg.flag]){
+      state[cfg.flag] = true;
+      grantXp(cfg.xp);
+      achieve(cfg.achId, cfg.achLabel);
+      writeSave();
+      p.textContent += ' (+'+cfg.xp+' XP)';
     }
   } else {
-    p.textContent = _duel.rival
-      ? "The Inspector isn't impressed. Nothing short of a clean sweep will do here ... try again when you're sharper."
-      : "Desk 14 wins this round. There's always tomorrow ... or whatever this place has instead.";
+    p.textContent = cfg.lose;
   }
   el.panel.appendChild(p);
   const btn=document.createElement('div'); btn.className='btn primary'; btn.textContent='CLOSE';
@@ -1550,7 +1796,41 @@ try{ if(localStorage.getItem('ledgerOfTheLost_colorblind')==='1') document.body.
 // 0d. JUICE ... screen shake, particle sparks, floating damage numbers.
 // All purely cosmetic; game logic never depends on these.
 // ---------------------------------------------------------------------
-const fx = { shakeFrames:0, shakeMag:0, particles:[], floaters:[], flash:null };
+const fx = { shakeFrames:0, shakeMag:0, particles:[], floaters:[], flash:null, motes:null };
+// A slow drifting layer of glowing motes ... a nod to the mako-green glow
+// of a lifestream and the dust-in-lamplight look of a well-lit noir
+// afterlife alike. Purely ambient, additive-blended, never blocks input.
+function ensureMotes(w,h,n){
+  if(!fx.motes || fx.motes.length!==n){
+    fx.motes = [];
+    for(let i=0;i<n;i++){
+      fx.motes.push({
+        x:Math.random()*w, y:Math.random()*h,
+        r:0.6+Math.random()*1.5,
+        vy:-(0.08+Math.random()*0.20), vx:(Math.random()-0.5)*0.05,
+        phase:Math.random()*Math.PI*2,
+      });
+    }
+  }
+  return fx.motes;
+}
+function drawAmbientMotes(color){
+  const motes = ensureMotes(canvas2d.width, canvas2d.height, 26);
+  const now = performance.now();
+  ctx.save();
+  ctx.globalCompositeOperation = 'lighter';
+  for(const m of motes){
+    m.y += m.vy;
+    m.x += m.vx + Math.sin(now*0.0006+m.phase)*0.05;
+    if(m.y < -10){ m.y = canvas2d.height+10; m.x = Math.random()*canvas2d.width; }
+    const tw = 0.4+0.6*Math.sin(now*0.0012+m.phase);
+    ctx.globalAlpha = Math.max(0, 0.32*tw);
+    ctx.fillStyle = color;
+    ctx.beginPath(); ctx.arc(m.x, m.y, m.r, 0, Math.PI*2); ctx.fill();
+  }
+  ctx.restore();
+  ctx.globalAlpha = 1;
+}
 function screenShake(mag, frames){ fx.shakeMag = Math.max(fx.shakeMag, mag); fx.shakeFrames = Math.max(fx.shakeFrames, frames); }
 function screenFlash(color, alpha){ fx.flash = { color, alpha, t:1 }; }
 function spawnParticles(x, y, color, count){
@@ -1614,27 +1894,6 @@ function lerpVisual(obj, speed){
   obj.animX += (tx-obj.animX)*(speed||0.35);
   obj.animY += (ty-obj.animY)*(speed||0.35);
 }
-// Small procedural "breathing" bob so idle characters don't read as frozen
-// stickers ... a cheap stand-in for a real walk/idle animation frame set.
-// Objects mid-stride (still tweening toward their tile) skip the bob so
-// the walk motion itself reads clearly instead of fighting the bounce.
-function idleBobPx(obj, phaseSeed){
-  if(obj.animX!==undefined){
-    const tx = obj.x!==undefined?obj.x:obj.tileX, ty = obj.y!==undefined?obj.y:obj.tileY;
-    if(Math.abs(tx-obj.animX)+Math.abs(ty-obj.animY) > 0.03) return 0;
-  }
-  return Math.sin(performance.now()*0.0038 + (phaseSeed||0)) * 1.1;
-}
-// Two-beat "footfall" bounce while an object is mid-stride between tiles ...
-// a cheap stand-in for a real walk-cycle frame set. Complements idleBobPx,
-// which returns 0 while moving so the two never fight each other.
-function walkBouncePx(obj){
-  if(obj.animX===undefined) return 0;
-  const tx = obj.x!==undefined?obj.x:obj.tileX, ty = obj.y!==undefined?obj.y:obj.tileY;
-  const dist = Math.abs(tx-obj.animX)+Math.abs(ty-obj.animY);
-  if(dist<=0.03) return 0;
-  return -Math.abs(Math.sin(dist*Math.PI*2)) * 1.6;
-}
 
 // ---------------------------------------------------------------------
 // 0e. RUN STATS & ACHIEVEMENTS
@@ -1652,7 +1911,7 @@ function writeStats(){
 // Canonical list of every achievement id used anywhere in the game ...
 // showStats() reads its length instead of a hardcoded number, so the
 // total can't silently drift out of sync when new ones are added.
-const ACHIEVEMENT_IDS = ['firstblood','firstshard','vault','archive','boss','miniboss','finalboss','floor5','floor8','intern','konami','win','stamp','overtime','duel','rivalduel'];
+const ACHIEVEMENT_IDS = ['firstblood','firstshard','vault','archive','boss','miniboss','finalboss','floor5','floor8','intern','konami','win','stamp','overtime','duel','rivalduel','exitduel','fullledger','keepsakes'];
 function achieve(id, label){
   if(stats.achievementsSeen[id]) return;
   stats.achievementsSeen[id] = true;
@@ -1666,14 +1925,14 @@ function achieve(id, label){
 // informational, persists across case files like the stats above.
 // ---------------------------------------------------------------------
 const BESTIARY_DEFS = [
-  { name:'Filing Rat', desc:'The most common thing down here. Fast ... it gets two turns for every one of yours.' },
-  { name:'Repo Man', desc:'Slow, heavy, and hits like an overdue invoice. Only moves every other turn.' },
-  { name:'Ghost Auditor', desc:'Attacks from range along a straight hallway. Keep a wall between you.' },
-  { name:'Notary Wraith', desc:"Its touch notarizes your next few strikes as \"insufficient\" ... expect weaker hits for a short while after it lands one." },
-  { name:'Bound Archivist', desc:"Deep Archive only. Heals off every hit it lands on you ... burst it down fast, or it outlasts your patience." },
-  { name:'The Auditor', desc:'Floor 3. The first thing down here that can actually end you.' },
-  { name:'The Repossessor', desc:'Floor 5. Answers for what it takes, eventually.' },
-  { name:'The Chief Auditor', desc:'Floor 8. Gets meaner once you hurt it enough.' },
+  { name:'Filing Rat', desc:'The most common thing down here. Bites, mostly out of habit.' },
+  { name:'Repo Man', desc:'Slow, heavy, and hits like an overdue invoice. Only moves every other turn. Too slow to brace for an Overtime Clause burst.' },
+  { name:'Ghost Auditor', desc:'Attacks from range along a straight hallway. Keep a wall between you. Closing the gap with a Hollow Step catches it flat-footed.' },
+  { name:'Notary Wraith', desc:"Its touch notarizes your next few strikes as \"insufficient\" ... expect weaker hits for a short while after it lands one. An Audit Sweep unravels the paperwork before it can file it." },
+  { name:'Bound Archivist', desc:"Deep Archive only. Heals off every hit it lands on you ... burst it down fast, or it outlasts your patience. An Overtime Clause burst outpaces the healing entirely." },
+  { name:'The Auditor', desc:'Floor 3. The first thing down here that can actually end you. Vulnerable to a well-timed Overtime Clause.' },
+  { name:'The Repossessor', desc:'Floor 5. Answers for what it takes, eventually. A Hollow Step Strike catches it off its guard.' },
+  { name:'The Chief Auditor', desc:'Floor 8. Gets meaner once you hurt it enough. An Audit Sweep exploits an opening a single strike never would.' },
   { name:'The Intern (Unpaid)', desc:'Extremely rare. Extremely fragile. Extremely tired.' },
 ];
 function noteEnemySeen(name){
@@ -1700,9 +1959,71 @@ function showBestiary(){
   el.panel.appendChild(btn);
 }
 el.bestiaryBtn.addEventListener('click', ()=>{
+  closeMenuDropdown();
   if(!['HUB','DUNGEON','ARCHIVE'].includes(state.mode)) return;
   playSfx('blip');
   showBestiary();
+});
+
+// ---------------------------------------------------------------------
+// 0e2. THE FULL STORY ... a plain-language case summary for anyone who
+// wants the whole thing laid out at once instead of found piecemeal
+// across keepsakes and dialogue. Framed as one more piece of Department
+// paperwork, in keeping with everything else in the build.
+// ---------------------------------------------------------------------
+function showStory(){
+  openPanel();
+  el.panel.innerHTML = '';
+  const h1 = document.createElement('h1'); h1.style.fontSize='22px'; h1.textContent='THE FULL CASE FILE';
+  const sub = document.createElement('div'); sub.className='sub'; sub.textContent='A SUMMARY, FOR THE RECORD';
+  el.panel.appendChild(h1); el.panel.appendChild(sub);
+
+  const wrap = document.createElement('div');
+  wrap.style.cssText = 'text-align:left;width:min(560px,86vw);max-height:52vh;overflow-y:auto;padding-right:6px;';
+
+  const section = (title, body)=>{
+    const t = document.createElement('div');
+    t.textContent = title;
+    t.style.cssText = 'color:var(--brass);font-family:"Playfair Display",serif;font-weight:700;letter-spacing:1.5px;font-size:13px;margin:14px 0 6px 0;';
+    wrap.appendChild(t);
+    const p = document.createElement('p');
+    p.innerHTML = body;
+    p.style.cssText = 'color:#c9c3b0;font-size:11.5px;line-height:1.75;margin:0;';
+    wrap.appendChild(p);
+  };
+
+  section('THE SETUP', "When you die, apparently, the paperwork doesn't stop. You surface out of the infinite black into the waiting room of the Department of Postmortem Affairs ... bureaucracy as the shape the afterlife takes, brass fixtures, stamped forms, everybody dead and mostly fine about it. Below the Records Office sits the Filing Department: a dungeon that keeps score in levels, turns, and hit chances, dressed as audits and repossession notices instead of anything with teeth. The shards you're hunting (Ember Regret, Hollow Step, and the rest) are pieces of one evening you already lived, once, before any of this ... the same evening the people down here keep handing back to you, the only way this Department knows how to return anything: as something you have to fight to keep. Spend a shard to hit harder, move faster, survive one more room further into a night you're only getting back in pieces. And the puzzle-solving down here, weight against weight, switches before locks, insulting a hatch rather than picking it, only ever runs on one rule: the right answer is almost never the obvious one.");
+
+  section('THE PEOPLE IN IT', "Every keepsake you recover plays a short scene instead of just adding a stat, because the point was never really the stats ... it's the evening they're all pulled from, handed back one piece at a time. <b>THE LITTLE BOY</b> keeps handing you afternoons that already happened. <b>THE OP-SHOP WOMAN</b> sells things that already belonged to somebody and never apologizes for it. <b>THE TALL WOMAN</b> keeps a notebook that isn't for you yet and a TV that only replays the good days. <b>THE NINE-FINGER WISE WOMAN</b> hands over a ring engraved with a small coiled shape, wings folded, and calls it Sparkwing. <b>THE WILLOW TREE</b> is the place under everything, roots going all the way down into the infinite black itself. <b>THE MOON</b> and <b>THE FAIRY</b> are the two that keep turning up as light: a halo you can hold, and a jar of caught motes that fold into wings when you shake it. And <b>DJ UNDERTOW</b>, running a back room nobody filed properly, cup balanced on a spinning deck, marking everything that matters with a small dragon scratched into the platter ... is AC. Not a separate character standing next to him: wherever DJ Undertow shows up in this story, on that back-room turntable, that IS AC, one more name he goes by down here. Every one of them already gave him all of this once, on an ordinary evening, before any of it needed filing. Down here just makes him earn it a second time.");
+
+  section('THE ONE RUNNING THE SHOW', "Behind the Auditor, the Repossessor, and finally the Chief Auditor is the same thing the whole way down: not a monster, just an entire Department run on procedure, deciding case by case what gets denied and what gets carried forward. Beat it enough times and the signature itself gets revoked. It's the one setting every rule everybody else down here has to survive by ... the whole reason any of this needs filing in the first place.");
+
+  section('WHO LIVES', "AC is the one who makes it out. Every ending runs through the willow, and every willow ending is really about the photograph: whether it comes back whole. When it does, the Auditor's silenced, the Repossessor answered for, and on the true ending the Chief Auditor's own signature gets revoked for good, an entire cabinet slides shut above and locks. That's AC, case closed, walking out of Filing with Sparkwing still glowing at his shoulder the whole way, the guardian fairy that was never just a keepsake. The infinite black is still down there, underneath everything, patient the way it's always been. It just doesn't get to keep him.");
+
+  el.panel.appendChild(wrap);
+
+  const btn = document.createElement('div'); btn.className='btn primary'; btn.textContent='CLOSE';
+  btn.onclick = ()=>{ playSfx('blip'); closePanel(); };
+  el.panel.appendChild(btn);
+}
+el.storyBtn.addEventListener('click', ()=>{
+  closeMenuDropdown();
+  if(['WIN','GAMEOVER'].includes(state.mode)) return;
+  playSfx('blip');
+  showStory();
+});
+
+// ---------------------------------------------------------------------
+// 0e3. RETURN TO MAIN MENU ... always available mid-run, autosaves first
+// so nothing is lost by backing out.
+// ---------------------------------------------------------------------
+el.homeBtn.addEventListener('click', ()=>{
+  closeMenuDropdown();
+  if(['MENU','WIN','GAMEOVER'].includes(state.mode)) return;
+  playSfx('blip');
+  if(state.mode==='PUZZLE') cancelAnimationFrame(puzzleRAF);
+  writeSave();
+  voidBlink(900, "Case file saved. Back to the front desk.", ()=>showMenu());
 });
 
 // ---------------------------------------------------------------------
@@ -1718,6 +2039,9 @@ window.addEventListener('keydown', (e)=>{
     _typedBuffer = (_typedBuffer + k).slice(-8);
     if(_typedBuffer.endsWith('andy') && !state.andyUnlocked){
       unlockAndy();
+    }
+    if(_typedBuffer.endsWith('sempre') && !state.sempreFound){
+      unlockSempre();
     }
   }
   // Konami code ... tracked independently of the letter buffer above
@@ -1737,6 +2061,13 @@ function unlockAndy(){
   screenFlash('#8a5fce', 0.4);
   playSfx('achieve');
   flashBanner('A NEW VISITOR HAS ENTERED THE RECORDS OFFICE');
+}
+function unlockSempre(){
+  state.sempreFound = true;
+  writeSave();
+  screenFlash('#ffd98a', 0.35);
+  playSfx('shard');
+  flashBanner('sempre e per sempre ... always and forever');
 }
 function triggerKonami(){
   achieve('konami','Testing, Testing');
@@ -1788,32 +2119,6 @@ function drawSprite(ctx, sx, sy, grid, palette, scale){
       ctx.fillRect(sx + c*s, sy + r*s, s+0.5, s+0.5);
     }
   }
-  // Rim-light / AO pass: a soft highlight along each filled region's
-  // upper-left edge and a soft shadow along its lower-right, so flat
-  // pixel fills read as lit, carved forms (PS1-era painterly shading)
-  // instead of stickers. Cheap ... no new art assets, just edge detection
-  // against the neighboring cells in the same 8x8 grid.
-  const edge = Math.max(1, s*0.28);
-  for(let r=0;r<grid.length;r++){
-    const row = grid[r], rowAbove = grid[r-1], rowBelow = grid[r+1];
-    for(let c=0;c<row.length;c++){
-      if(row[c]==='.') continue;
-      const topOpen = !rowAbove || rowAbove[c]==='.';
-      const leftOpen = c===0 || row[c-1]==='.';
-      if(topOpen || leftOpen){
-        ctx.fillStyle = 'rgba(255,255,255,0.16)';
-        if(topOpen) ctx.fillRect(sx+c*s, sy+r*s, s+0.5, edge);
-        if(leftOpen) ctx.fillRect(sx+c*s, sy+r*s, edge, s+0.5);
-      }
-      const bottomOpen = !rowBelow || rowBelow[c]==='.';
-      const rightOpen = c===row.length-1 || row[c+1]==='.';
-      if(bottomOpen || rightOpen){
-        ctx.fillStyle = 'rgba(0,0,0,0.24)';
-        if(bottomOpen) ctx.fillRect(sx+c*s, sy+r*s+s-edge, s+0.5, edge);
-        if(rightOpen) ctx.fillRect(sx+c*s+s-edge, sy+r*s, edge, s+0.5);
-      }
-    }
-  }
 }
 function drawGroundShadow(ctx, cx, cy, w){
   ctx.fillStyle = 'rgba(0,0,0,0.32)';
@@ -1848,37 +2153,25 @@ function drawTorchlight(ctx, cx, cy, radius){
   ctx.fill();
 }
 function drawVignette(ctx,w,h){
-  // Filmic split-tone: a faint warm bloom low-left, a faint cool cast
-  // high-right, then the usual dark vignette on top ... a cheap stand-in
-  // for real color grading that gives the board more depth than a flat
-  // radial darken alone.
-  const warm = ctx.createRadialGradient(w*0.22,h*0.85,0, w*0.22,h*0.85,h*0.7);
-  warm.addColorStop(0,'rgba(232,130,58,0.05)');
-  warm.addColorStop(1,'rgba(232,130,58,0)');
-  ctx.fillStyle = warm;
-  ctx.fillRect(0,0,w,h);
-  const cool = ctx.createRadialGradient(w*0.8,h*0.12,0, w*0.8,h*0.12,h*0.6);
-  cool.addColorStop(0,'rgba(111,224,160,0.04)');
-  cool.addColorStop(1,'rgba(111,224,160,0)');
-  ctx.fillStyle = cool;
-  ctx.fillRect(0,0,w,h);
   const grad = ctx.createRadialGradient(w/2,h/2,h*0.32, w/2,h/2,h*0.78);
   grad.addColorStop(0,'rgba(0,0,0,0)');
   grad.addColorStop(1,'rgba(0,0,0,0.5)');
   ctx.fillStyle = grad;
   ctx.fillRect(0,0,w,h);
-  // faint top-down grain band, like light falling through office blinds
-  const t = performance.now()*0.00006;
-  ctx.save();
-  ctx.globalAlpha = 0.03;
-  ctx.fillStyle = '#fff';
-  for(let i=-2;i<8;i++){
-    const x = ((i*140 + t*400) % (w+280)) - 140;
-    ctx.beginPath();
-    ctx.moveTo(x,0); ctx.lineTo(x+60,0); ctx.lineTo(x+10,h); ctx.lineTo(x-50,h);
-    ctx.closePath(); ctx.fill();
-  }
-  ctx.restore();
+}
+// A warm duotone pass over the actual gameplay render ... not menu chrome,
+// the canvas itself ... so the hub and dungeon read like an aged case-file
+// photograph rather than a flat digital scene. Cheap: two full-canvas
+// fills with blend modes, run once per frame after everything else.
+function drawFilmGrade(ctx,w,h){
+  const prevOp = ctx.globalCompositeOperation;
+  ctx.globalCompositeOperation = 'overlay';
+  ctx.fillStyle = 'rgba(58,44,28,0.16)';
+  ctx.fillRect(0,0,w,h);
+  ctx.globalCompositeOperation = 'multiply';
+  ctx.fillStyle = 'rgba(214,198,162,0.05)';
+  ctx.fillRect(0,0,w,h);
+  ctx.globalCompositeOperation = prevOp;
 }
 function drawMarkerGlow(tileX, tileY, colorRgba){
   const glow = ctx.createRadialGradient(tileX+TILE/2,tileY+TILE/2,0, tileX+TILE/2,tileY+TILE/2,TILE*1.3);
@@ -2150,16 +2443,6 @@ function handleKeyOnce(k, e){
       archiveToggle();
       e.preventDefault();
     }
-    if(k==='1' && state.mode==='DUNGEON' && state.shards.ember){
-      if(state.player.abilityCd.ember>0) flashBanner('Scorched Ledger is still cooling down.');
-      else useEmberAbility();
-      e.preventDefault();
-    }
-    if(k==='2' && state.mode==='DUNGEON' && state.shards.tape){
-      if(state.player.abilityCd.tape>0) flashBanner('File Everything is still cooling down.');
-      else useTapeAbility();
-      e.preventDefault();
-    }
   }
 }
 
@@ -2348,6 +2631,20 @@ function drawHub(){
   ctx.font = '8px monospace';
   ctx.fillText('BOOTH', offX+hub.memory.x*TILE-6, offY+hub.memory.y*TILE+20);
 
+  // a small warm light that only ever appears once "sempre" has been
+  // typed somewhere ... a second, quieter echo of the willow, findable
+  // rather than announced, hovering just above the booth from then on
+  if(state.sempreFound){
+    const fx0 = offX+hub.memory.x*TILE+TILE/2, fy0 = offY+hub.memory.y*TILE - 6 + Math.sin(performance.now()*0.0017)*3;
+    const glint = ctx.createRadialGradient(fx0,fy0,0, fx0,fy0,10);
+    glint.addColorStop(0, 'rgba(255,230,184,0.85)');
+    glint.addColorStop(1, 'rgba(255,217,138,0)');
+    ctx.fillStyle = glint;
+    ctx.fillRect(fx0-10, fy0-10, 20, 20);
+    ctx.fillStyle = '#ffe6b8';
+    ctx.beginPath(); ctx.arc(fx0, fy0, 1.6, 0, Math.PI*2); ctx.fill();
+  }
+
 
   // sub-basement hatch
   const hatchOpen = state.subbasementUnlocked;
@@ -2360,14 +2657,14 @@ function drawHub(){
 
   // npcs
   drawGroundShadow(ctx, offX+hub.npcs.concierge.x*TILE+TILE/2, offY+hub.npcs.concierge.y*TILE+TILE*0.82, TILE);
-  drawSprite(ctx, offX+hub.npcs.concierge.x*TILE, offY+hub.npcs.concierge.y*TILE+idleBobPx(hub.npcs.concierge,0), SPR_NPC1, PAL_NPC1);
+  drawSprite(ctx, offX+hub.npcs.concierge.x*TILE, offY+hub.npcs.concierge.y*TILE, SPR_NPC1, PAL_NPC1);
   drawGroundShadow(ctx, offX+hub.npcs.clerk.x*TILE+TILE/2, offY+hub.npcs.clerk.y*TILE+TILE*0.82, TILE);
-  drawSprite(ctx, offX+hub.npcs.clerk.x*TILE, offY+hub.npcs.clerk.y*TILE+idleBobPx(hub.npcs.clerk,1.4), SPR_NPC2, PAL_NPC2);
+  drawSprite(ctx, offX+hub.npcs.clerk.x*TILE, offY+hub.npcs.clerk.y*TILE, SPR_NPC2, PAL_NPC2);
   drawGroundShadow(ctx, offX+hub.npcs.archivist.x*TILE+TILE/2, offY+hub.npcs.archivist.y*TILE+TILE*0.82, TILE);
-  drawSprite(ctx, offX+hub.npcs.archivist.x*TILE, offY+hub.npcs.archivist.y*TILE+idleBobPx(hub.npcs.archivist,2.7), SPR_NPC3, PAL_NPC3);
+  drawSprite(ctx, offX+hub.npcs.archivist.x*TILE, offY+hub.npcs.archivist.y*TILE, SPR_NPC3, PAL_NPC3);
   if(state.andyUnlocked && hub.npcs.andy){
     drawGroundShadow(ctx, offX+hub.npcs.andy.x*TILE+TILE/2, offY+hub.npcs.andy.y*TILE+TILE*0.82, TILE);
-    drawSprite(ctx, offX+hub.npcs.andy.x*TILE, offY+hub.npcs.andy.y*TILE+idleBobPx(hub.npcs.andy,4.1), SPR_ANDY, PAL_ANDY);
+    drawSprite(ctx, offX+hub.npcs.andy.x*TILE, offY+hub.npcs.andy.y*TILE, SPR_ANDY, PAL_ANDY);
     ctx.fillStyle='rgba(138,95,206,0.9)'; ctx.font='8px monospace';
     ctx.fillText('?', offX+hub.npcs.andy.x*TILE+13, offY+hub.npcs.andy.y*TILE-4);
   }
@@ -2376,12 +2673,14 @@ function drawHub(){
   lerpVisual(state.player, 0.45);
   const hpx = offX+state.player.animX*TILE, hpy = offY+state.player.animY*TILE;
   drawGroundShadow(ctx, hpx+TILE/2, hpy+TILE*0.82, TILE);
-  drawSprite(ctx, hpx, hpy+idleBobPx(state.player,0.6)+walkBouncePx(state.player), SPR_PLAYER, PAL_PLAYER);
+  drawSprite(ctx, hpx, hpy, SPR_PLAYER, PAL_PLAYER);
 
+  drawAmbientMotes('rgba(127,191,143,0.9)');
   updateFx();
   drawFx();
   endShakeTransform(shaking);
   drawVignette(ctx, canvas2d.width, canvas2d.height);
+  drawFilmGrade(ctx, canvas2d.width, canvas2d.height);
 
   ctx.fillStyle = 'rgba(201,161,90,0.85)';
   ctx.font = '11px "IBM Plex Mono"';
@@ -2455,21 +2754,21 @@ function genDungeon(floorNum){
   if(isBossFloor && !state.bossDefeated){
     dungeon.enemies.push({
       x: dungeon.stairs.x, y: Math.max(1,dungeon.stairs.y-1),
-      hp: 40, maxHp:40, dmg:6, name:'The Auditor', spr:SPR_AUDITOR, pal:PAL_AUDITOR, alive:true, boss:true,
+      hp: 40, maxHp:40, dmg:6, name:'The Auditor', spr:SPR_AUDITOR, pal:PAL_AUDITOR, alive:true, boss:true, weakTo:'overtime',
     });
   }
   if(isMinibossFloor && !state.minibossDefeated){
     dungeon.enemies.push({
       x: dungeon.stairs.x, y: Math.max(1,dungeon.stairs.y-1),
       hp: 55, maxHp:55, dmg:7, name:'The Repossessor', spr:SPR_MINIBOSS, pal:PAL_MINIBOSS, alive:true,
-      miniboss:true, dropShard:'tape',
+      miniboss:true, dropShard:'tape', weakTo:'dash',
     });
   }
   if(isFinalBossFloor && !state.finalBossDefeated){
     dungeon.enemies.push({
       x: dungeon.stairs.x, y: Math.max(1,dungeon.stairs.y-1),
       hp: 90, maxHp:90, dmg:8, name:'The Chief Auditor', spr:SPR_FINALBOSS, pal:PAL_FINALBOSS, alive:true,
-      finalboss:true, enraged:false,
+      finalboss:true, enraged:false, weakTo:'sweep',
     });
   }
 
@@ -2499,6 +2798,16 @@ function genDungeon(floorNum){
     const iy = r.y+Math.floor(rng()*r.h);
     dungeon.items.push({x: (grid[iy]&&grid[iy][ix]==='.')?ix:dungeon.start.x, y:(grid[iy]&&grid[iy][ix]==='.')?iy:dungeon.start.y, type:'item', item:itemForFloor});
   }
+  // personal-effects keepsakes for this floor (see KEEPSAKE_FLOOR_MAP) ...
+  // each spawns once, ever; already-collected ones just don't reappear
+  const keepsakesHere = KEEPSAKE_FLOOR_MAP[floorNum] || [];
+  keepsakesHere.forEach(kkey=>{
+    if(state.inventory.includes(kkey)) return;
+    const r = rooms[Math.min(rooms.length-1, 1+Math.floor(rng()*(rooms.length-1)))];
+    const ix = r.x+Math.floor(rng()*r.w);
+    const iy = r.y+Math.floor(rng()*r.h);
+    dungeon.items.push({x: (grid[iy]&&grid[iy][ix]==='.')?ix:dungeon.start.x, y:(grid[iy]&&grid[iy][ix]==='.')?iy:dungeon.start.y, type:'item', item:kkey});
+  });
   // occasional equippable trinket, independent of the shard track
   if(rng() < 0.55){
     const keys = Object.keys(TRINKET_DEFS);
@@ -2509,6 +2818,24 @@ function genDungeon(floorNum){
     if(grid[iy] && grid[iy][ix]==='.'){
       dungeon.items.push({x:ix,y:iy,type:'trinket',trinket:pick});
     }
+  }
+
+  // Hidden hazard tiles ... sprung filing-cabinet tripwires. Invisible until
+  // triggered (or, with the Case Compass equipped, faintly visible in
+  // advance ... the trinket's "you see a little further into the dark"
+  // description earns its keep here). Never on the start tile or stairs.
+  dungeon.traps = [];
+  const trapCount = 2 + Math.floor(floorNum/2);
+  for(let i=0;i<trapCount;i++){
+    const r = rooms[1+Math.floor(rng()*(rooms.length-1))];
+    const tx = r.x+Math.floor(rng()*r.w);
+    const ty = r.y+Math.floor(rng()*r.h);
+    if(grid[ty]&&grid[ty][tx]!=='.') continue;
+    if(tx===dungeon.start.x && ty===dungeon.start.y) continue;
+    if(tx===dungeon.stairs.x && ty===dungeon.stairs.y) continue;
+    if(dungeon.items.some(it=>it.x===tx&&it.y===ty)) continue;
+    if(dungeon.enemies.some(e=>e.x===tx&&e.y===ty)) continue;
+    dungeon.traps.push({x:tx, y:ty, sprung:false});
   }
 
   state.player.tileX = dungeon.start.x;
@@ -2529,22 +2856,22 @@ function makeEnemy(floorNum, ex, ey){
   const roll = rng();
   if(floorNum>=7 && roll<0.10){
     return { x:ex,y:ey, hp:22+floorNum*2, maxHp:22+floorNum*2, dmg:3+Math.floor(floorNum/3),
-      name:'Bound Archivist', spr:SPR_BOUNDARCH, pal:PAL_BOUNDARCH, alive:true, drains:true };
+      name:'Bound Archivist', spr:SPR_BOUNDARCH, pal:PAL_BOUNDARCH, alive:true, drains:true, weakTo:'overtime' };
   }
   if(floorNum>=6 && roll<0.18){
     return { x:ex,y:ey, hp:10+floorNum*2, maxHp:10+floorNum*2, dmg:3+Math.floor(floorNum/3),
-      name:'Notary Wraith', spr:SPR_WRAITH, pal:PAL_WRAITH, alive:true, weakens:true };
+      name:'Notary Wraith', spr:SPR_WRAITH, pal:PAL_WRAITH, alive:true, weakens:true, weakTo:'sweep' };
   }
   if(floorNum>=4 && roll<0.32){
     return { x:ex,y:ey, hp:5+floorNum, maxHp:5+floorNum, dmg:2+Math.floor(floorNum/2),
-      name:'Ghost Auditor', spr:SPR_GHOST, pal:PAL_GHOST, alive:true, ranged:true };
+      name:'Ghost Auditor', spr:SPR_GHOST, pal:PAL_GHOST, alive:true, ranged:true, weakTo:'dash' };
   }
   if(floorNum>=2 && roll<0.6){
     return { x:ex,y:ey, hp:14+floorNum*3, maxHp:14+floorNum*3, dmg:2+Math.floor(floorNum/2),
-      name:'Repo Man', spr:SPR_REPO, pal:PAL_REPO, alive:true, slow:true };
+      name:'Repo Man', spr:SPR_REPO, pal:PAL_REPO, alive:true, slow:true, weakTo:'overtime' };
   }
   return { x:ex,y:ey, hp:6+floorNum*2, maxHp:6+floorNum*2, dmg:2+floorNum,
-    name:'Filing Rat', spr:SPR_RAT, pal:PAL_RAT, alive:true, fast:true };
+    name:'Filing Rat', spr:SPR_RAT, pal:PAL_RAT, alive:true };
 }
 
 const VISION_RADIUS = 5.2;
@@ -2697,6 +3024,29 @@ function drawDungeon(){
       ctx.stroke();
     }
   }
+  // hazard tiles ... sprung ones stay marked as a warning; unsprung ones are
+  // invisible unless the Case Compass is equipped, in which case they show
+  // as a faint telegraphed outline (a real reason to pick that trinket)
+  if(dungeon.traps){
+    for(const tr of dungeon.traps){
+      if(!tileVisibleNow(tr.x,tr.y)) continue;
+      const px = offX+tr.x*t, py = offY+tr.y*t;
+      if(tr.sprung){
+        ctx.strokeStyle = 'rgba(180,69,58,0.55)';
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        ctx.moveTo(px+t*0.25, py+t*0.25); ctx.lineTo(px+t*0.75, py+t*0.75);
+        ctx.moveTo(px+t*0.75, py+t*0.25); ctx.lineTo(px+t*0.25, py+t*0.75);
+        ctx.stroke();
+      } else if(state.equippedTrinket==='compass' || state.equippedTrinket==='bound_compass'){
+        ctx.strokeStyle = 'rgba(201,161,90,0.35)';
+        ctx.setLineDash([2,3]);
+        ctx.lineWidth = 1.5;
+        ctx.strokeRect(px+t*0.18, py+t*0.18, t*0.64, t*0.64);
+        ctx.setLineDash([]);
+      }
+    }
+  }
   // enemies ... only drawn while inside current vision radius
   for(const e of dungeon.enemies){
     if(!e.alive){ e.animX=undefined; continue; }
@@ -2704,9 +3054,8 @@ function drawDungeon(){
     noteEnemySeen(e.name);
     lerpVisual(e, 0.4);
     const ex = offX+e.animX*t, ey = offY+e.animY*t;
-    const ebob = idleBobPx(e, (e.x*3+e.y*7)) + walkBouncePx(e);
     drawGroundShadow(ctx, ex+t/2, ey+t*0.82, t);
-    drawSprite(ctx, ex, ey+ebob, e.spr, e.pal, t/8);
+    drawSprite(ctx, ex, ey, e.spr, e.pal, t/8);
     ctx.fillStyle='#000'; ctx.fillRect(ex, ey-5, t, 3);
     ctx.fillStyle= (e.boss||e.miniboss)? '#b4453a':'#7fbf8f';
     ctx.fillRect(ex, ey-5, t*(e.hp/e.maxHp), 3);
@@ -2719,12 +3068,14 @@ function drawDungeon(){
   lerpVisual(state.player, 0.45);
   const pxp = offX+state.player.animX*t, pyp = offY+state.player.animY*t;
   drawGroundShadow(ctx, pxp+t/2, pyp+t*0.82, t);
-  drawSprite(ctx, pxp, pyp+idleBobPx(state.player,0.6)+walkBouncePx(state.player), SPR_PLAYER, PAL_PLAYER, t/8);
+  drawSprite(ctx, pxp, pyp, SPR_PLAYER, PAL_PLAYER, t/8);
 
+  drawAmbientMotes('rgba('+hexToRgb(biome.accent)+',0.85)');
   updateFx();
   drawFx();
   endShakeTransform(shaking);
   drawVignette(ctx, canvas2d.width, canvas2d.height);
+  drawFilmGrade(ctx, canvas2d.width, canvas2d.height);
 
   ctx.fillStyle='rgba(201,161,90,0.85)';
   ctx.font='11px "IBM Plex Mono"';
@@ -2840,49 +3191,60 @@ function dashMove(){
   ];
   let dir = [0,1];
   for(const [k,v] of dirs){ if(state.keys[k]){ dir=v; break; } }
-  let nx = state.player.tileX + dir[0]*2, ny = state.player.tileY + dir[1]*2;
-  if(dungeonSolid(nx,ny)){ nx = state.player.tileX+dir[0]; ny = state.player.tileY+dir[1]; }
+  const midX = state.player.tileX+dir[0], midY = state.player.tileY+dir[1];
+  const farX = state.player.tileX+dir[0]*2, farY = state.player.tileY+dir[1]*2;
+
+  // Hollow Step Strike ... dashing into an enemy, at either step of the
+  // path, lands a bonus hit instead of silently sharing its tile (which
+  // is what plain movement used to do here, since dash only ever checked
+  // for walls). Whichever tile is reached first along the path wins.
+  const midEnemy = !dungeonSolid(midX,midY) ? enemyAt(midX,midY) : null;
+  const farEnemy = (!midEnemy && !dungeonSolid(midX,midY) && !dungeonSolid(farX,farY)) ? enemyAt(farX,farY) : null;
+  const target = midEnemy || farEnemy;
+  if(target){
+    state.player.dashCd = 8;
+    playSfx('dash');
+    flashBanner('HOLLOW STEP STRIKE');
+    let dmg = 5 + Math.floor(Math.random()*3) + (state.player.level-1) + trinketBonus('dmg') + (state.shards.ember?2:0) + (fullLedger()?2:0);
+    if(state.player.weakenTurns>0) dmg = Math.max(1, dmg-2);
+    gainLimit(10);
+    if(state.fusions.hollow_wind) state.player.invincibleUntil = Date.now()+300;
+    applyDamageToEnemy(target, dmg, {crit:true, source:'dash'});
+    updateVisibility();
+    enemyTurn();
+    return;
+  }
+
+  let nx = farX, ny = farY;
+  if(dungeonSolid(nx,ny)){ nx = midX; ny = midY; }
   if(!dungeonSolid(nx,ny)){
     state.player.tileX = nx; state.player.tileY = ny;
     state.player.dashCd = 8;
     checkDungeonTile(nx,ny);
     updateVisibility();
-    flashBanner('HOLLOW STEP');
+    if(state.fusions.hollow_wind){
+      state.player.invincibleUntil = Date.now()+300;
+      flashBanner('VANISHING ACT');
+    } else {
+      flashBanner('HOLLOW STEP');
+    }
     playSfx('dash');
   }
 }
 
-function useEmberAbility(){
-  if(!state.shards.ember || state.player.abilityCd.ember>0) return;
-  const dirs = [[0,-1],[0,1],[-1,0],[1,0]];
-  let hitAny = false;
-  const dmg = Math.max(1, 2 + Math.floor((state.player.level-1)/2) + state.skills.procedure);
-  dirs.forEach(([dx,dy])=>{
-    const e = enemyAt(state.player.tileX+dx, state.player.tileY+dy);
-    if(e){ hitAny = true; applyDamageToEnemy(e, dmg, {}); }
-  });
-  state.player.abilityCd.ember = 5;
-  flashBanner(hitAny ? 'SCORCHED LEDGER ... every adjacent file burns.' : 'SCORCHED LEDGER ... nothing in reach caught fire.');
-  screenFlash('#b4453a', 0.25);
-  playSfx('dash');
-  if(state.mode==='DUNGEON') enemyTurn();
-}
-function useTapeAbility(){
-  if(!state.shards.tape || state.player.abilityCd.tape>0) return;
-  const dirs = [[0,-1],[0,1],[-1,0],[1,0]];
-  let hitAny = false;
-  dirs.forEach(([dx,dy])=>{
-    const e = enemyAt(state.player.tileX+dx, state.player.tileY+dy);
-    if(e){ hitAny = true; e.stunned = true; }
-  });
-  state.player.abilityCd.tape = 6;
-  flashBanner(hitAny ? 'FILE EVERYTHING ... nearby forms are bound in procedure.' : 'FILE EVERYTHING ... no one nearby to bind.');
-  screenFlash('#c9a15a', 0.2);
-  playSfx('shard');
-  if(state.mode==='DUNGEON') enemyTurn();
-}
-
 function checkDungeonTile(x,y){
+  const trap = dungeon.traps && dungeon.traps.find(tr=>tr.x===x&&tr.y===y&&!tr.sprung);
+  if(trap){
+    trap.sprung = true;
+    const {t,offX,offY} = dungeonMetrics();
+    const tpx = offX+x*t+t/2, tpy = offY+y*t+t/2;
+    const dmg = Math.max(1, Math.round((2+state.floor) * difficultyMultiplier()));
+    flashBanner('TRIPWIRE ... an old cabinet lets go right on top of you.');
+    screenShake(6,14);
+    spawnParticles(tpx,tpy,'#b4453a',10);
+    applyDamageToPlayer(dmg);
+    if(state.mode==='GAMEOVER') return;
+  }
   const idx = dungeon.items.findIndex(it=>it.x===x&&it.y===y);
   if(idx>=0){
     const it = dungeon.items[idx];
@@ -2900,6 +3262,7 @@ function checkDungeonTile(x,y){
       spawnParticles(px,py,'#c9a15a',14);
       writeSave();
       if(Object.values(state.shards).filter(Boolean).length===1) achieve('firstshard','First Shard Recovered');
+      checkFullLedger();
     } else if(it.type==='trinket'){
       playSfx('pickup');
       spawnParticles(px,py,'#8a5fce',10);
@@ -2910,6 +3273,13 @@ function checkDungeonTile(x,y){
       playSfx('pickup');
       spawnParticles(px,py,'#e8e1d0',10);
       writeSave();
+      const mem = MEMORY_DEFS[it.item];
+      if(mem){
+        const resolveTurn = ()=>{ if(state.mode==='DUNGEON'){ enemyTurn(); } };
+        const followUp = ()=>keepsakeFollowUp(it.item, resolveTurn);
+        openDialogue(mem.speaker, mem.lines, null, followUp);
+        if(keepsakeCount()===KEEPSAKE_KEYS.length) achieve('keepsakes','Every Personal Effect Recovered');
+      }
     }
     dungeon.items.splice(idx,1);
   }
@@ -2928,6 +3298,8 @@ function checkDungeonTile(x,y){
     }
     state.floor++;
     playSfx('door');
+    screenFlash('#000', 0.7);
+    spawnParticles(canvas2d.width/2, canvas2d.height/2, 'rgba(228,224,245,0.55)', 12);
     genDungeon(state.floor);
     locationLabel = getBiome(state.floor).name;
     updateAmbientPitch(getBiome(state.floor).ambientHz);
@@ -2935,54 +3307,53 @@ function checkDungeonTile(x,y){
     if(state.floor > stats.deepestFloor){ stats.deepestFloor = state.floor; writeStats(); }
     if(state.floor >= 5) achieve('floor5','Reached the Fifth Floor');
     if(state.floor >= 8) achieve('floor8','Reached the Deep Archive');
-    if(state.floor===3 && !state._floor3IntroDone){
-      state._floor3IntroDone = true;
-      setTimeout(()=>openDialogue('THE AUDITOR', [
-        "Something down this hall has been counting your steps since you arrived.",
-        "Auditors don't judge ... that's a different office, a higher one. They tally. Everything you did, and everything you meant to and never got around to.",
-        "It will ask you for the difference. You won't like the number. Answer for it anyway.",
-      ], null, ()=>{}), 250);
-    }
-    if(state.floor===5 && !state._floor5IntroDone){
-      state._floor5IntroDone = true;
-      setTimeout(()=>openDialogue('SOMETHING HEAVIER', [
-        "This far down, the paperwork stops pretending to be paperwork.",
-        "The Repossessor doesn't take souls. It takes the things you were still using ... time, chances, people who waited on you. It's already decided you're overdue.",
-      ], null, ()=>{}), 250);
-    }
-    if(state.floor===8 && !state._floor8IntroDone){
-      state._floor8IntroDone = true;
-      setTimeout(()=>openDialogue('THE CHIEF AUDITOR', [
-        "Every stamp you collected, every switch you threw, every shard you dragged up out of the dark ... it all led to one office, and this is it.",
-        "The Chief Auditor doesn't work from a ledger. It IS the ledger ... every unfinished thing you ever were, filed under your own name and left open.",
-        "Close it, if you can. Most people never get the chance to try.",
-      ], null, ()=>{}), 250);
-    }
   }
 }
 
 function offerTrinket(key){
   const def = TRINKET_DEFS[key];
+  const resolveTurn = ()=>{ if(state.mode==='DUNGEON'){ enemyTurn(); } };
+  if(ownsTrinket(key)){
+    openDialogueChoices('FOUND SOMETHING', "Another "+def.name+". You're already carrying one of these, filed away or otherwise. No use for a second.", [
+      {label:'Leave it.', next: resolveTurn},
+    ]);
+    return;
+  }
   const current = state.equippedTrinket ? TRINKET_DEFS[state.equippedTrinket] : null;
   const text = current
-    ? "A trinket: "+def.name+". "+def.desc+" You're already carrying "+current.name+" ... swap it in?"
-    : "A trinket: "+def.name+". "+def.desc+" Equip it?";
-  const resolveTurn = ()=>{ if(state.mode==='DUNGEON'){ enemyTurn(); } };
-  openDialogueChoices('FOUND SOMETHING', text, [
-    {label:'Equip it.', next: ()=>{ state.equippedTrinket = key; writeSave(); flashBanner('EQUIPPED: '+def.name.toUpperCase()); updateHud(); resolveTurn(); }},
+    ? "A trinket: "+def.name+". "+def.desc+" You're already carrying "+current.name+" ... swap it in, or file it away for later?"
+    : "A trinket: "+def.name+". "+def.desc+" Equip it, or file it away for later?";
+  const choices = [
+    {label:'Equip it.', next: ()=>{
+      if(state.equippedTrinket) state.trinketBox.push(state.equippedTrinket);
+      state.equippedTrinket = key;
+      writeSave();
+      flashBanner('EQUIPPED: '+def.name.toUpperCase());
+      updateHud();
+      resolveTurn();
+    }},
+    {label:'File it in the Memory Box.', next: ()=>{
+      state.trinketBox.push(key);
+      writeSave();
+      flashBanner('FILED: '+def.name.toUpperCase());
+      resolveTurn();
+    }},
     {label:'Leave it.', next: resolveTurn},
-  ]);
+  ];
+  openDialogueChoices('FOUND SOMETHING', text, choices);
 }
 
 function playerAttack(enemy){
-  let dmg = 3 + Math.floor(Math.random()*3) + (state.player.level-1) + trinketBonus('dmg') + state.skills.procedure;
+  let dmg = 3 + Math.floor(Math.random()*3) + (state.player.level-1) + trinketBonus('dmg');
   if(state.shards.ember) dmg += 2;
+  if(fullLedger()) dmg += 2;
   if(state.player.weakenTurns>0) dmg = Math.max(1, dmg-2);
-  const critChance = 0.15 + trinketBonus('crit') + state.skills.precision*0.03;
+  if(state.player.timeLoopTurns>0) dmg += 2;
+  const critChance = 0.15 + trinketBonus('crit');
   let crit = Math.random() < critChance;
   if(crit) dmg = Math.round(dmg*1.6);
   gainLimit(crit ? 14 : 8);
-  applyDamageToEnemy(enemy, dmg, {crit});
+  applyDamageToEnemy(enemy, dmg, {crit, source:'normal'});
 }
 
 // Shared by both the normal attack and the Overtime Clause burst below ...
@@ -2991,17 +3362,32 @@ function playerAttack(enemy){
 function applyDamageToEnemy(enemy, dmg, opts){
   opts = opts || {};
   const crit = !!opts.crit;
+  let weakHit = false;
+  if(opts.source && enemy.weakTo && opts.source===enemy.weakTo){
+    dmg = Math.round(dmg*1.4);
+    weakHit = true;
+  }
   enemy.hp -= dmg;
   if(!opts.noStamp) spawnStamp(crit);
   playSfx(crit?'crit':'hit');
   screenShake(crit?4:2, crit?10:5);
   const {t,offX,offY} = dungeonMetrics();
   const ex = offX+(enemy.animX!==undefined?enemy.animX:enemy.x)*t+t/2, ey = offY+(enemy.animY!==undefined?enemy.animY:enemy.y)*t;
-  spawnParticles(ex, ey, crit?'#b4453a':'#e8e1d0', crit?10:5);
-  spawnFloater(ex-6, ey, '-'+dmg, crit?'#ff6b5a':'#e8e1d0');
-  if(state.shards.tape && Math.random()<0.3 && enemy.hp>0){
+  spawnParticles(ex, ey, weakHit?'#e0c05a':(crit?'#b4453a':'#e8e1d0'), weakHit?12:(crit?10:5));
+  spawnFloater(ex-6, ey, '-'+dmg, weakHit?'#ffe07a':(crit?'#ff6b5a':'#e8e1d0'));
+  if(weakHit && enemy.hp>0){
+    flashBanner('WEAKNESS EXPOSED ... the '+enemy.name+' never saw that coming.');
+  }
+  if(state.shards.tape && Math.random()<(state.fusions.ember_tape?0.45:0.3) && enemy.hp>0){
     enemy.stunned = true;
-    flashBanner('RED TAPE ... the '+enemy.name+' is bound in procedure.');
+    if(state.fusions.ember_tape){
+      const burnDmg = 2;
+      enemy.hp = Math.max(0, enemy.hp-burnDmg);
+      spawnFloater(ex-6, ey-14, '-'+burnDmg, '#e0793a');
+      flashBanner('BURNING DOCKET ... the '+enemy.name+' is bound and burning.');
+    } else {
+      flashBanner('RED TAPE ... the '+enemy.name+' is bound in procedure.');
+    }
   }
   if(enemy.hp<=0){
     enemy.alive = false;
@@ -3015,11 +3401,13 @@ function applyDamageToEnemy(enemy, dmg, opts){
       grantXp(30);
       screenShake(8,20); screenFlash('#b4453a',0.3); playSfx('win');
       achieve('boss','The Auditor Silenced');
+      checkFullLedger();
     } else if(enemy.miniboss){
       state.minibossDefeated = true;
       if(enemy.dropShard && !state.shards[enemy.dropShard]){
         state.shards[enemy.dropShard] = true;
         flashBanner('THE REPOSSESSOR YIELDS: '+SHARD_DEFS[enemy.dropShard].name.toUpperCase());
+        checkFullLedger();
       } else {
         flashBanner('THE REPOSSESSOR IS DISMISSED.');
       }
@@ -3074,11 +3462,11 @@ function overtimeAttack(enemy){
   flashBanner('OVERTIME CLAUSE INVOKED ... every hour, all at once.');
   screenShake(10,24); screenFlash('#e0c05a', 0.4); playSfx('overtime');
   const dmg = 10 + Math.floor(Math.random()*5) + (state.player.level-1)*2 + trinketBonus('dmg')*2 + (state.shards.ember?4:0);
-  applyDamageToEnemy(enemy, dmg, {crit:true});
+  applyDamageToEnemy(enemy, dmg, {crit:true, source:'overtime'});
   for(const other of dungeon.enemies){
     if(!other.alive || other===enemy) continue;
     if(Math.abs(other.x-enemy.x)+Math.abs(other.y-enemy.y) <= 1){
-      applyDamageToEnemy(other, Math.round(dmg*0.55), {noStamp:true});
+      applyDamageToEnemy(other, Math.round(dmg*0.55), {noStamp:true, source:'overtime'});
     }
   }
   const healAmt = Math.round(maxHp()*0.25);
@@ -3104,7 +3492,7 @@ function auditSweep(primary){
   let hitCount = 0;
   for(const e of dungeon.enemies){
     if(!e.alive || !tileVisibleNow(e.x,e.y)) continue;
-    applyDamageToEnemy(e, dmg, {noStamp: e!==primary});
+    applyDamageToEnemy(e, dmg, {noStamp: e!==primary, source:'sweep'});
     if(e.hp>0) e.stunned = true; // guaranteed Red Tape, independent of the shard
     hitCount++;
   }
@@ -3132,71 +3520,62 @@ function difficultyMultiplier(){
 
 function enemyTurn(){
   if(state.player.dashCd>0) state.player.dashCd--;
-  if(state.player.abilityCd.ember>0) state.player.abilityCd.ember--;
-  if(state.player.abilityCd.tape>0) state.player.abilityCd.tape--;
   if(state.player.weakenTurns>0) state.player.weakenTurns--;
+  if(state.player.timeLoopTurns>0) state.player.timeLoopTurns--;
   for(const e of dungeon.enemies){
     if(!e.alive) continue;
     if(e.stunned){ e.stunned=false; continue; } // Red Tape: skip this enemy's turn entirely
     if(e.slow){ e._skip = !e._skip; if(e._skip) continue; } // Repo Man acts every other turn
-    enemyAct(e);
-    if(state.mode==='GAMEOVER') return;
-    if(e.fast && e.alive){ enemyAct(e); if(state.mode==='GAMEOVER') return; } // Filing Rat: acts twice per player turn
+    if(e.finalboss && !e.enraged && e.hp <= e.maxHp*0.5){
+      e.enraged = true;
+      e.dmg = Math.round(e.dmg*1.4);
+      flashBanner('THE CHIEF AUDITOR REVOKES ALL PENDING APPEALS.');
+      screenShake(7,18); screenFlash('#e0c05a',0.3);
+      const {t,offX,offY} = dungeonMetrics();
+      spawnParticles(offX+e.x*t+t/2, offY+e.y*t+t/2, '#e0c05a', 16);
+    }
+
+    const ddx = state.player.tileX - e.x, ddy = state.player.tileY - e.y;
+    const dist = Math.abs(ddx)+Math.abs(ddy);
+    const sameLine = (e.x===state.player.tileX || e.y===state.player.tileY);
+
+    if(e.ranged && sameLine && dist<=5 && dist>1){
+      let dmg = Math.max(1, Math.round((e.dmg - weightReduction()) * difficultyMultiplier()));
+      applyDamageToPlayer(dmg);
+      if(state.mode==='GAMEOVER') return;
+      continue;
+    }
+    if(dist===1){
+      let dmg = Math.max(1, Math.round((e.dmg - weightReduction()) * difficultyMultiplier()));
+      applyDamageToPlayer(dmg);
+      if(state.mode==='GAMEOVER') return;
+      if(e.weakens && state.player.weakenTurns<=0){
+        state.player.weakenTurns = 3;
+        flashBanner('NOTARIZED INSUFFICIENT ... your strikes land lighter for a few turns.');
+      }
+      if(e.drains){
+        const healAmt = Math.max(1, Math.round(dmg*0.5));
+        e.hp = Math.min(e.maxHp, e.hp+healAmt);
+        const {t,offX,offY} = dungeonMetrics();
+        const ex2 = offX+e.x*t+t/2, ey2 = offY+e.y*t;
+        spawnFloater(ex2-6, ey2, '+'+healAmt, '#e0c05a');
+        spawnParticles(ex2, ey2, '#e0c05a', 6);
+      }
+    } else if(dist<=6){
+      const sx = Math.sign(ddx), sy = Math.sign(ddy);
+      let nx=e.x, ny=e.y;
+      if(Math.abs(ddx)>Math.abs(ddy)) nx = e.x+sx; else ny = e.y+sy;
+      if(!dungeonSolid(nx,ny) && !enemyAt(nx,ny) && !(nx===state.player.tileX&&ny===state.player.tileY)){
+        e.x=nx; e.y=ny;
+      }
+    } else if(Math.random()<0.3){
+      const dirs=[[1,0],[-1,0],[0,1],[0,-1]];
+      const d = dirs[Math.floor(Math.random()*4)];
+      const nx=e.x+d[0], ny=e.y+d[1];
+      if(!dungeonSolid(nx,ny) && !enemyAt(nx,ny)) { e.x=nx; e.y=ny; }
+    }
   }
   updateHud();
-}
-
-// A single enemy's action for one beat of initiative ... factored out of
-// enemyTurn so "fast" enemies (Filing Rats) can be run through it twice
-// per player turn without duplicating the whole loop body.
-function enemyAct(e){
-  if(e.finalboss && !e.enraged && e.hp <= e.maxHp*0.5){
-    e.enraged = true;
-    e.dmg = Math.round(e.dmg*1.4);
-    flashBanner('THE CHIEF AUDITOR REVOKES ALL PENDING APPEALS.');
-    screenShake(7,18); screenFlash('#e0c05a',0.3);
-    const {t,offX,offY} = dungeonMetrics();
-    spawnParticles(offX+e.x*t+t/2, offY+e.y*t+t/2, '#e0c05a', 16);
-  }
-
-  const ddx = state.player.tileX - e.x, ddy = state.player.tileY - e.y;
-  const dist = Math.abs(ddx)+Math.abs(ddy);
-  const sameLine = (e.x===state.player.tileX || e.y===state.player.tileY);
-
-  if(e.ranged && sameLine && dist<=5 && dist>1){
-    let dmg = Math.max(1, Math.round((e.dmg - (state.shards.weight?1:0)) * difficultyMultiplier()));
-    applyDamageToPlayer(dmg);
-    return;
-  }
-  if(dist===1){
-    let dmg = Math.max(1, Math.round((e.dmg - (state.shards.weight?1:0)) * difficultyMultiplier()));
-    applyDamageToPlayer(dmg);
-    if(state.mode==='GAMEOVER') return;
-    if(e.weakens && state.player.weakenTurns<=0){
-      state.player.weakenTurns = 3;
-      flashBanner('NOTARIZED INSUFFICIENT ... your strikes land lighter for a few turns.');
-    }
-    if(e.drains){
-      const healAmt = Math.max(1, Math.round(dmg*0.5));
-      e.hp = Math.min(e.maxHp, e.hp+healAmt);
-      const {t,offX,offY} = dungeonMetrics();
-      const ex2 = offX+e.x*t+t/2, ey2 = offY+e.y*t;
-      spawnFloater(ex2-6, ey2, '+'+healAmt, '#e0c05a');
-      spawnParticles(ex2, ey2, '#e0c05a', 6);
-    }
-  } else if(dist<=6){
-    const sx = Math.sign(ddx), sy = Math.sign(ddy);
-    let nx=e.x, ny=e.y;
-    if(Math.abs(ddx)>Math.abs(ddy)) nx = e.x+sx; else ny = e.y+sy;
-    if(!dungeonSolid(nx,ny) && !enemyAt(nx,ny) && !(nx===state.player.tileX&&ny===state.player.tileY)){
-      e.x=nx; e.y=ny;
-    }
-  } else if(Math.random()<0.3){
-    const dirs=[[1,0],[-1,0],[0,1],[0,-1]];
-    const d = dirs[Math.floor(Math.random()*4)];
-    const nx=e.x+d[0], ny=e.y+d[1];
-    if(!dungeonSolid(nx,ny) && !enemyAt(nx,ny)) { e.x=nx; e.y=ny; }
-  }
 }
 
 function spawnPlayerHitFx(dmg){
@@ -3213,7 +3592,6 @@ function applyDamageToPlayer(dmg){
     flashBanner('untouchable ... for now');
     return;
   }
-  dmg = Math.max(1, dmg - state.skills.tenacity);
   state.player.hp -= dmg;
   spawnPlayerHitFx(dmg);
   gainLimit(Math.round(dmg*1.4));
@@ -3255,7 +3633,7 @@ function gameOver(){
   stats.deaths++; writeStats();
   playSfx('gameover');
   screenFlash('#b4453a', 0.5);
-  showOverlayGameOver();
+  voidBlink(1500, "The body lets go again. The infinite black doesn't mind waiting.", ()=>showOverlayGameOver());
 }
 
 // ---------------------------------------------------------------------
@@ -3268,7 +3646,6 @@ const NPC_LINES = {
       if(!state._archivistTalked && state.floor<=1 && !Object.values(state.shards).some(Boolean)){
         return [
           "Ah. New to the position, are we. Everyone arrives looking exactly like that.",
-          "This isn't punishment, whatever the paperwork implies. It's inventory. Every life leaves things unfiled, and someone has to go down and close the drawer.",
           "Filing Department is through the east door. Souls don't sort themselves, sadly.",
           "Do bring back what you find down there. We keep everything. Everything.",
         ];
@@ -3332,6 +3709,13 @@ function talkToNpc(key){
       "Somebody put a lot of hours into handing you this game, by the way. That's not nothing. Take care of it. And of them.",
       "Anyway. Don't tell the Concierge I'm here. I'm not supposed to still be in this build.",
     ];
+    if(state.inventory.includes('dj_table')){
+      lines.push("You found the little spin table, I take it. Before any of this I went by DJ Daddy Cool behind a set of decks ... don't ask what happened to the name people actually called me. That one's retired, on purpose, and it's staying that way.");
+      lines.push("Scratched a tiny dragon into that platter myself, years back. Sparkwing, if you're keeping track of the recurring one. Old habit ... mark what matters, even the toys.");
+    }
+    if(state.inventory.includes('computer')){
+      lines.push("And if that beige tower's humming for you unplugged, that's the last thing I left running on purpose. Everything else in this build, I built to be found. That one, I built to still be looking back.");
+    }
     const bonus = specialDateLine();
     if(bonus) lines.push(bonus);
     openDialogue('???', lines, null, ()=>{});
@@ -3377,6 +3761,22 @@ function talkToNpc(key){
     );
     return;
   }
+  if(key==='concierge' && state.finalBossDefeated && !state.exitDuelWon && !state.inventory.includes('willow_leaf')){
+    openDialogue('THE CONCIERGE',
+      ["The Chief Auditor's ready for you, but ... hold on.", "You're not carrying a willow leaf. Filing's insistent about it, for reasons nobody upstairs will explain.", "Find one before you go up. It won't take long, if it hasn't already found you."],
+      null, ()=>{});
+    return;
+  }
+  if(key==='concierge' && state.finalBossDefeated && !state.exitDuelWon){
+    openDialogueChoices('THE CONCIERGE',
+      "The Chief Auditor wants to see you before you go. Not a fight, they said. Just a conversation. Take it or don't ... but they don't usually ask twice.",
+      [
+        {label:'Hear them out.', next: ()=>startDuel('exit')},
+        {label:'Not yet.', next: ()=>{}},
+      ]
+    );
+    return;
+  }
   if(key==='clerk'){
     const base = typeof NPC_LINES.clerk.lines === 'function' ? NPC_LINES.clerk.lines() : NPC_LINES.clerk.lines;
     openDialogue(NPC_LINES.clerk.speaker, base, null, ()=>{
@@ -3384,7 +3784,7 @@ function talkToNpc(key){
         openDialogueChoices('FELLOW CLERK, DESK 14',
           "Word of your little victory reached the Inspector upstairs. They don't lose arguments ... but they've asked for you by name, if you're brave enough.",
           [
-            {label:'Face the Inspector.', next: ()=>startDuel(true)},
+            {label:'Face the Inspector.', next: ()=>startDuel('rival')},
             {label:"I'll pass, for now.", next: ()=>{}},
           ]
         );
@@ -3566,6 +3966,7 @@ function solvePuzzle(){
     state.shards.wind = true;
     state.player.hp = Math.min(maxHp(), state.player.hp+15);
     writeSave();
+    checkFullLedger();
     cancelAnimationFrame(puzzleRAF);
     goToHub();
     openDialogue('THE VAULT', ["The scale settles. Something in the wall clicks free.", "A shard, and fifteen pounds of case file added to your name. (+15 Max HP, SECOND WIND)"], null, ()=>{});
@@ -3617,6 +4018,7 @@ function archiveToggle(){
       state.maxHpBonus += 5;
       state.player.hp = Math.min(maxHp(), state.player.hp+5);
       writeSave();
+      checkFullLedger();
       goToHub();
       openDialogue('THE ARCHIVE', ["Every switch catches at once ... a small, satisfying click of finality.", "A shard rolls out of a drawer that wasn't there a moment ago. (LEDGER'S WEIGHT)"], null, ()=>{});
     }, 900);
@@ -3656,6 +4058,7 @@ function enterMemory(){
   el.hudTop.style.display='none';
   el.controlsNote.textContent = 'W to walk forward, ←/→ to turn.';
   memDone=false; memYaw=0;
+  el.memoryCaption.style.opacity = '0';
 
   try{
     buildMemoryScene();
@@ -3667,7 +4070,8 @@ function enterMemory(){
     canvas3d.style.display='none';
     openDialogue('A MEMORY', [
       "The room won't render tonight ... some screens don't carry that kind of light.",
-      "Still: a willow. A moon. Somewhere far off, the sound of a name.",
+      "Still: a willow. A moon. A small warm light that isn't the clerk's shape at all, keeping pace beside you.",
+      "Sempre e per sempre. Always and forever.",
     ], null, ()=>{ finishMemory(); });
   }
 }
@@ -3749,6 +4153,42 @@ function buildMemoryScene(){
   willowGroup.position.set(1.5, 0, -68);
   memScene.add(willowGroup);
 
+  // The fairy ... not a costume, not a role. Whatever's underneath the
+  // clerk's shape, on nights like this one it shows. A small warm light,
+  // a soft trailing glow, weaving its own path rather than following the
+  // camera in lockstep ... a companion, not a guide.
+  const fairyGroup = new THREE.Group();
+  const fairyCore = new THREE.Mesh(
+    new THREE.SphereGeometry(0.14,12,12),
+    new THREE.MeshBasicMaterial({color:0xffe6b8})
+  );
+  fairyGroup.add(fairyCore);
+  const fairyHalo = new THREE.Mesh(
+    new THREE.SphereGeometry(0.4,12,12),
+    new THREE.MeshBasicMaterial({color:0xffd98a, transparent:true, opacity:0.16})
+  );
+  fairyGroup.add(fairyHalo);
+  const fairyLight = new THREE.PointLight(0xffe0a0, 1.1, 8);
+  fairyGroup.add(fairyLight);
+  fairyGroup.position.set(-1.5, 1.7, 8);
+  memScene.add(fairyGroup);
+
+  // a faint trailing wake of motes behind the fairy
+  const fairyTrailCount = 40;
+  const fairyTrailGeo = new THREE.BufferGeometry();
+  const fairyTrailPos = new Float32Array(fairyTrailCount*3);
+  const fairyTrail = [];
+  for(let i=0;i<fairyTrailCount;i++){
+    fairyTrail.push(fairyGroup.position.clone());
+    fairyTrailPos[i*3]=fairyGroup.position.x; fairyTrailPos[i*3+1]=fairyGroup.position.y; fairyTrailPos[i*3+2]=fairyGroup.position.z;
+  }
+  fairyTrailGeo.setAttribute('position', new THREE.BufferAttribute(fairyTrailPos,3));
+  const fairyTrailMat = new THREE.PointsMaterial({color:0xffe6b8, size:0.09, transparent:true, opacity:0.5, sizeAttenuation:true});
+  const fairyTrailPoints = new THREE.Points(fairyTrailGeo, fairyTrailMat);
+  memScene.add(fairyTrailPoints);
+
+  let captionShown = false;
+
   function loop(){
     if(state.keys['arrowleft']) memYaw += 0.03;
     if(state.keys['arrowright']) memYaw -= 0.03;
@@ -3763,7 +4203,25 @@ function buildMemoryScene(){
     memCamera.position.y = 1.6 + Math.sin(performance.now()*0.003)*0.03;
     memCamera.rotation.y = memYaw;
 
+    const now = performance.now();
+    fairyGroup.position.x = memCamera.position.x + Math.sin(now*0.0011)*2.6;
+    fairyGroup.position.y = 1.5 + Math.sin(now*0.0017)*0.35;
+    fairyGroup.position.z = memCamera.position.z - 3.5 + Math.cos(now*0.0009)*1.4;
+    fairyHalo.scale.setScalar(1 + Math.sin(now*0.004)*0.15);
+    fairyTrail.pop();
+    fairyTrail.unshift(fairyGroup.position.clone());
+    for(let i=0;i<fairyTrailCount;i++){
+      const p = fairyTrail[i] || fairyGroup.position;
+      fairyTrailPos[i*3]=p.x; fairyTrailPos[i*3+1]=p.y; fairyTrailPos[i*3+2]=p.z;
+    }
+    fairyTrailGeo.attributes.position.needsUpdate = true;
+
     memRenderer.render(memScene, memCamera);
+
+    if(!captionShown && memCamera.position.z < -42){
+      captionShown = true;
+      el.memoryCaption.style.opacity = '1';
+    }
 
     if(!memDone && memCamera.position.z < -60){
       memDone = true;
@@ -3777,7 +4235,10 @@ function buildMemoryScene(){
 function finishMemory(){
   cancelAnimationFrame(memRAF);
   state.memoryDone = true;
+  const gotLeaf = !state.inventory.includes('willow_leaf');
+  if(gotLeaf) addItemToInventory('willow_leaf');
   writeSave();
+  el.memoryCaption.style.opacity = '0';
   const isEnding = state.bossDefeated;
   setTimeout(()=>{
     canvas3d.style.display='none';
@@ -3785,7 +4246,9 @@ function finishMemory(){
       showWin();
     } else {
       goToHub();
-      openDialogue('A MEMORY', ["A hallway you don't recognize, and yet every door is one you've closed.", "The light at the end isn't an exit. It's a stamp, waiting to fall."], null, ()=>{});
+      const lines = ["A hallway you don't recognize, and yet every door is one you've closed.", "For a moment out there, under the willow, you weren't wearing the clerk's shape at all.", "The light at the end isn't an exit. It's a stamp, waiting to fall."];
+      if(gotLeaf) lines.push("One leaf came loose and followed you back out. It seemed important to keep.");
+      openDialogue('A MEMORY', lines, null, ()=>{});
     }
   }, 400);
 }
@@ -3810,9 +4273,10 @@ function enterDungeon(){
   if(!state._firstDescentDone){
     state._firstDescentDone = true;
     openDialogue('YOU', [
-      "Nobody warns you the paperwork survives you. You'd think dying would at least close the file.",
-      "Instead: a Records Office, a Filing Department below it, and ... somewhere further down than anyone will admit to ... a version of you the ledger still says is owed something.",
-      "Best to go find out what.",
+      "Nobody tells you the paperwork keeps going after you're gone. You'd think dying would be the end of the forms.",
+      "But no ... there's a Records Office, and a Filing Department below it, and somewhere further down, apparently, a version of you that still owes something.",
+      "And under all of it, still, the infinite black ... patient, the way it's always been.",
+      "Might as well go collect it.",
     ], null, ()=>doEnterDungeon());
     return;
   }
@@ -3824,7 +4288,7 @@ function doEnterDungeon(){
   canvas3d.style.display='none';
   el.hudTop.style.display='flex';
   locationLabel='FILING DEPARTMENT';
-  el.controlsNote.textContent = 'WASD / arrows to move & attack.'+(state.shards.hollow?' SPACE to dash.':'')+(state.shards.ember?' [1] Scorched Ledger.':'')+(state.shards.tape?' [2] File Everything.':'');
+  el.controlsNote.textContent = 'WASD / arrows to move & attack.'+(state.shards.hollow?' SPACE to dash.':'');
   state.floor = 1;
   genDungeon(state.floor);
   el.floorTag.textContent='FLOOR 1';
@@ -3848,28 +4312,6 @@ function updateHud(){
     el.shardrow.appendChild(d);
   });
   el.locationTag.textContent = locationLabel + '  ⏱ ' + formatTime(elapsedRunTime());
-  el.skillsBtn.classList.toggle('pip', state.skillPoints>0);
-  const abilityParts = [];
-  if(state.shards.ember) abilityParts.push('[1] Scorched Ledger'+(state.player.abilityCd.ember>0?' ('+state.player.abilityCd.ember+')':' <span class="atb-ready">READY</span>'));
-  if(state.shards.tape) abilityParts.push('[2] File Everything'+(state.player.abilityCd.tape>0?' ('+state.player.abilityCd.tape+')':' <span class="atb-ready">READY</span>'));
-  el.abilityRow.innerHTML = abilityParts.join('   ');
-
-  if(state.mode==='DUNGEON' && dungeon && dungeon.enemies){
-    const nearby = dungeon.enemies.filter(e=>e.alive && typeof tileVisibleNow==='function' && tileVisibleNow(e.x,e.y));
-    if(nearby.length===0){
-      el.turnOrderRow.textContent = '';
-    } else {
-      const parts = nearby.slice(0,4).map(e=>{
-        if(e.stunned) return e.name+' (bound)';
-        if(e.slow && !e._skip) return e.name+' (resting)';
-        if(e.fast) return e.name+' (×2)';
-        return e.name;
-      });
-      el.turnOrderRow.textContent = 'NEXT TO ACT: '+parts.join(', ')+(nearby.length>4?' …':'');
-    }
-  } else {
-    el.turnOrderRow.textContent = '';
-  }
 }
 
 // ---------------------------------------------------------------------
@@ -3886,12 +4328,9 @@ function showMenu(){
   el.overlay.style.display='flex';
   const h1 = document.createElement('h1'); h1.textContent='LEDGER OF THE LOST';
   const sub = document.createElement('div'); sub.className='sub'; sub.textContent='DEPARTMENT OF POSTMORTEM AFFAIRS';
-  const chevron = document.createElement('div'); chevron.className='chevron-trim';
-  const trim = document.createElement('div'); trim.className='deco-trim';
-  el.overlay.appendChild(h1); el.overlay.appendChild(chevron); el.overlay.appendChild(sub); el.overlay.appendChild(trim);
   const p = document.createElement('p'); p.className='flavor';
-  p.textContent = "Cause of death: unspecified. Status: resolved, pending review. Somewhere in the infinite black between what you were and what comes next, your file was recovered ... and, against standard procedure, you were healed. No one down here will explain why. Report to the Records Office. The Filing Department waits below: several floors of unclosed cases, unpaid debts, and paperwork that has outlived everyone who ever filed it, including you. Try not to leave anything undone a second time.";
-  el.overlay.appendChild(p);
+  p.textContent = "Your file has been received, processed, and ... per Section 12 ... deemed complete. This does not mean closed. Report to the Records Office, reconcile what remains of the Filing Department below, and note that incomplete cases are not forgiven so much as carried forward ... back out of the infinite black, one form at a time.";
+  el.overlay.appendChild(h1); el.overlay.appendChild(sub); el.overlay.appendChild(p);
 
   // Difficulty toggle
   const diffWrap = document.createElement('div');
@@ -3974,20 +4413,22 @@ function showStats(){
 
 function resetProgress(){
   state.shards = emptyShards();
+  state.fusions = emptyFusions();
   state.vaultSolved=false; state.archiveSolved=false;
   state.bossDefeated=false; state.minibossDefeated=false; state.finalBossDefeated=false;
   state.memoryDone=false; state.usedSecondWind=false; state.maxHpBonus=0;
   state.andyUnlocked=false;
+  state.sempreFound=false;
   state.equippedTrinket=null;
+  state.trinketBox=[];
   state.inventory=[];
   state.subbasementUnlocked=false;
   state.subbasementClaimed=false;
   state.duelWon=false;
   state.rivalDuelWon=false;
+  state.exitDuelWon=false;
   state.player.level=1; state.player.xp=0;
   state.player.limit=0;
-  state.skillPoints=0;
-  state.skills={ vigor:0, precision:0, procedure:0, tenacity:0 };
   state.player.hp = maxHp();
 }
 function startNewGame(difficulty, seed){
@@ -4008,6 +4449,7 @@ function startNewGame(difficulty, seed){
 }
 function continueGame(save){
   state.shards = { ...emptyShards(), ...Object.fromEntries((save.shards||[]).map(k=>[k,true])) };
+  state.fusions = { ...emptyFusions(), ...Object.fromEntries((save.fusions||[]).map(k=>[k,true])) };
   state.vaultSolved = !!save.vaultSolved;
   state.archiveSolved = !!save.archiveSolved;
   state.bossDefeated = !!save.bossDefeated;
@@ -4015,8 +4457,10 @@ function continueGame(save){
   state.finalBossDefeated = !!save.finalBossDefeated;
   state.memoryDone = !!save.memoryDone;
   state.andyUnlocked = !!save.andyUnlocked;
+  state.sempreFound = !!save.sempreFound;
   state.difficulty = save.difficulty || 'standard';
   state.equippedTrinket = save.equippedTrinket || null;
+  state.trinketBox = Array.isArray(save.trinketBox) ? save.trinketBox.slice() : [];
   state.ngPlusCount = save.ngPlusCount || 0;
   state.maxHpBonus = save.maxHpBonus||0;
   state.player.level = save.level||1;
@@ -4029,8 +4473,7 @@ function continueGame(save){
   state.subbasementClaimed = !!save.subbasementClaimed;
   state.duelWon = !!save.duelWon;
   state.rivalDuelWon = !!save.rivalDuelWon;
-  state.skillPoints = save.skillPoints || 0;
-  state.skills = Object.assign({ vigor:0, precision:0, procedure:0, tenacity:0 }, save.skills||{});
+  state.exitDuelWon = !!save.exitDuelWon;
   setSeed(save.seed || '');
   el.fileTag.textContent = 'CASE FILE NO. '+String(state.caseNo).padStart(4,'0');
   state.player.hp = maxHp();
@@ -4077,6 +4520,11 @@ function showWin(){
     newBest = true;
     writeStats();
   }
+  const blinkLine = trueEnding ? "The file, at last, is closed." : "The file, for now, is closed.";
+  const blinkLines = (trueEnding && state.sempreFound) ? [blinkLine, "sempre e per sempre"] : blinkLine;
+  voidBlink(1700, blinkLines, ()=>revealWinOverlay(trueEnding, runMs, newBest));
+}
+function revealWinOverlay(trueEnding, runMs, newBest){
   canvas3d.style.display='none';
   canvas2d.style.display='none';
   el.hudTop.style.display='none';
@@ -4086,8 +4534,8 @@ function showWin(){
   const sub=document.createElement('div'); sub.className='sub'; sub.textContent = trueEnding ? 'FORM 14-B, SEALED ENTRY' : 'FORM 14-B, FINAL ENTRY';
   const p=document.createElement('p'); p.className='flavor';
   p.textContent = trueEnding
-    ? "The Auditor is silenced, the Repossessor answered for, and the Chief Auditor's own signature finally revoked. The photograph is yours again, all the way down. Somewhere above, an entire cabinet slides shut ... and locks. Whatever you were still owed, the ledger finally agrees the debt runs the other way now."
-    : "The Auditor is silenced, the photograph returned to whoever you were. The Department, for once, has nothing left to ask of you. Somewhere above, a drawer slides shut. (Deeper floors remain, if you're not done yet.)";
+    ? "The Auditor is silenced, the Repossessor answered for, and the Chief Auditor's own signature finally revoked. The photograph is yours again, all the way down. Somewhere above, an entire cabinet slides shut ... and locks. The infinite black, for once, has nothing left of yours to hold."
+    : "The Auditor is silenced, the photograph returned to whoever you were. The Department, for once, has nothing left to ask of you. Somewhere above, a drawer slides shut. The infinite black keeps the rest, for now. (Deeper floors remain, if you're not done yet.)";
   el.overlay.appendChild(h1); el.overlay.appendChild(sub); el.overlay.appendChild(p);
   const shardCount = Object.values(state.shards).filter(Boolean).length;
   const summary = document.createElement('p'); summary.className='flavor';
@@ -4119,11 +4567,13 @@ function startNewGamePlus(){
   state.runStartTime = Date.now();
   stats.runsStarted++; writeStats();
   el.fileTag.textContent = 'CASE FILE NO. '+String(state.caseNo).padStart(4,'0')+' (NG+'+state.ngPlusCount+')';
-  el.overlay.style.display='none';
   writeSave();
-  goToHub();
-  updateHud();
-  openDialogue('NEW GAME+', ["The ledger resets, but you don't ... not entirely. Level "+carriedLevel+", and everyone's a little more suspicious of you this time."], null, ()=>{});
+  el.overlay.style.display='none';
+  voidBlink(1300, "The ledger resets. You, somehow, do not ... not entirely.", ()=>{
+    goToHub();
+    updateHud();
+    openDialogue('NEW GAME+', ["Level "+carriedLevel+" carries forward. Everyone's a little more suspicious of you this time."], null, ()=>{});
+  });
 }
 
 // ---------------------------------------------------------------------
@@ -4182,12 +4632,118 @@ function pollGamepad(){
 }
 
 // ---------------------------------------------------------------------
-// 9. THE VOID ... a short, skippable overture that plays before the menu.
-// No office yet, no forms, just the dark the player arrived from. Drawn
-// directly on canvas2d (a faint drifting starfield + slow fading lines)
-// so it needs no new assets and can't collide with mainLoop, which stays
-// idle in MENU mode until this hands off to showMenu().
+// 9. THE VOID ... a short, skippable overture that plays before the menu,
+// and a lighter shared variant (voidBlink) reused at death, victory, and
+// floor transitions so the same "unnamed dark" motif recurs throughout
+// the run instead of living only at boot.
 // ---------------------------------------------------------------------
+function makeStarfield(n, w, h){
+  const stars = [];
+  for(let i=0;i<n;i++){
+    stars.push({
+      x: Math.random()*w, y: Math.random()*h,
+      r: Math.random()*1.3+0.3, phase: Math.random()*Math.PI*2, speed: 0.4+Math.random()*0.9,
+    });
+  }
+  return stars;
+}
+function drawVoidFrame(stars, t, line, lineAlpha){
+  ctx.fillStyle = '#000';
+  ctx.fillRect(0,0,canvas2d.width,canvas2d.height);
+  for(const s of stars){
+    const tw = 0.3 + 0.3*Math.sin(t*0.0006*s.speed + s.phase);
+    ctx.fillStyle = 'rgba(228,224,245,'+(tw*0.55)+')';
+    ctx.beginPath();
+    ctx.arc(s.x, s.y, s.r, 0, Math.PI*2);
+    ctx.fill();
+  }
+  if(line && lineAlpha>0){
+    const lines = Array.isArray(line) ? line : [line];
+    ctx.textAlign = 'center';
+    lines.forEach((ln, i)=>{
+      const soft = i>0;
+      ctx.font = soft ? 'italic 13px "Playfair Display"' : '15px "IBM Plex Mono"';
+      ctx.fillStyle = 'rgba(232,225,208,'+(lineAlpha*(soft?0.8:1))+')';
+      ctx.fillText(ln, canvas2d.width/2, canvas2d.height/2 + i*24);
+    });
+    ctx.textAlign = 'left';
+  }
+}
+// A brief, skippable dip back into the dark ... used before the game-over
+// and victory screens reveal themselves. Not the full overture: shorter,
+// no skip prompt text, just the same stars and a single line.
+function voidBlink(durationMs, line, onDone){
+  canvas2d.style.display='block';
+  canvas3d.style.display='none';
+  el.hudTop.style.display='none';
+  el.dialogue.style.display='none';
+  el.overlay.style.display='none';
+  const stars = makeStarfield(90, canvas2d.width, canvas2d.height);
+  const start = performance.now();
+  const fadeIn = Math.min(280, durationMs*0.3);
+  const fadeOut = Math.min(280, durationMs*0.3);
+  let done = false;
+  function finish(){
+    if(done) return;
+    done = true;
+    window.removeEventListener('keydown', skip);
+    canvas2d.removeEventListener('click', skip);
+    ctx.textAlign = 'left';
+    onDone();
+  }
+  function skip(){ finish(); }
+  window.addEventListener('keydown', skip);
+  canvas2d.addEventListener('click', skip);
+  function frame(now){
+    if(done) return;
+    const t = now-start;
+    let alpha = 1;
+    if(t<fadeIn) alpha = t/fadeIn;
+    else if(t>durationMs-fadeOut) alpha = Math.max(0,(durationMs-t)/fadeOut);
+    drawVoidFrame(stars, t, line, alpha*0.9);
+    if(t>=durationMs){ finish(); return; }
+    requestAnimationFrame(frame);
+  }
+  requestAnimationFrame(frame);
+}
+// The very first thing anyone sees: a still, solid title over the infinite
+// black itself, and nothing else asking for attention yet. No flashing ---
+// the invitation is the slow drifting stars behind the text and the soft
+// breathing of "CLICK TO ENTER" underneath it. Dismissed by click, tap, or
+// any key, then hands off into the existing void overture.
+function showSplash(onDone){
+  canvas2d.style.display='block';
+  canvas3d.style.display='none';
+  el.hudTop.style.display='none';
+  el.overlay.style.display='none';
+  el.dialogue.style.display='none';
+  el.panel.style.display='none';
+  el.controlsNote.textContent='';
+  el.splash.style.display='flex';
+
+  const stars = makeStarfield(70, canvas2d.width, canvas2d.height);
+  let done = false;
+  function finish(){
+    if(done) return;
+    done = true;
+    window.removeEventListener('keydown', dismiss);
+    el.splash.removeEventListener('click', dismiss);
+    el.splash.removeEventListener('touchstart', dismiss);
+    el.splash.style.display='none';
+    onDone();
+  }
+  function dismiss(){ playSfx('blip'); finish(); }
+  window.addEventListener('keydown', dismiss);
+  el.splash.addEventListener('click', dismiss);
+  el.splash.addEventListener('touchstart', dismiss);
+
+  function frame(now){
+    if(done) return;
+    drawVoidFrame(stars, now, null, 0);
+    requestAnimationFrame(frame);
+  }
+  requestAnimationFrame(frame);
+}
 function playVoidIntro(onDone){
   canvas2d.style.display='block';
   canvas3d.style.display='none';
@@ -4204,48 +4760,29 @@ function playVoidIntro(onDone){
     });
   }
   const LINES = [
-    "First, the infinite black. Not a room, not a road ... no edges to it at all.",
-    "You don't remember arriving. You remember stopping. The two feel the same, down there.",
-    "Something down in that dark found what was broken in you and healed it. Not gently. Thoroughly, the way a form gets stamped.",
-    "No one can tell you how long you were down there, only that you didn't stay broken.",
-    "What healed wasn't the body. The body was never the part that needed filing.",
-    "Eventually, someone found your file, and decided you were owed a desk.",
+    "Before the office. Before the forms. Before any of it had a name.",
+    "There was only the infinite black ... quiet, and you, somewhere inside it.",
+    "No one down here can tell you what it was, exactly, or how long you were in it.",
+    "Only that eventually, someone found your file.",
   ];
-  let lineIdx = 0;
+  const lineDur = 3400, fadeDur = 900;
+  const totalDur = LINES.length*lineDur + 1200;
+  const start = performance.now();
   let done = false;
-  let lineStart = performance.now();
-  // Reading time scales with how much text is on screen, with a generous
-  // floor, so nobody has to rush a line or tap through it manually.
-  function readDurationFor(line){
-    return Math.max(5200, line.length * 95);
-  }
 
   function finish(){
     if(done) return;
     done = true;
-    window.removeEventListener('keydown', onSkipKey);
-    canvas2d.removeEventListener('click', onSkipClick);
-    canvas2d.removeEventListener('touchstart', onSkipClick);
+    window.removeEventListener('keydown', onSkip);
+    canvas2d.removeEventListener('click', onSkip);
+    canvas2d.removeEventListener('touchstart', onSkip);
     ctx.textAlign = 'left';
     onDone();
   }
-  // Skipping ahead (click/tap/key) is still available for anyone who wants
-  // to move faster, but nothing here requires it ... the intro reads
-  // itself through on its own on a per-line timer.
-  function skipLine(){
-    if(done) return;
-    lineIdx++;
-    lineStart = performance.now();
-    if(lineIdx >= LINES.length) finish();
-  }
-  function onSkipKey(e){
-    if(e.key==='Escape'){ finish(); return; }
-    skipLine();
-  }
-  function onSkipClick(){ skipLine(); }
-  window.addEventListener('keydown', onSkipKey);
-  canvas2d.addEventListener('click', onSkipClick);
-  canvas2d.addEventListener('touchstart', onSkipClick);
+  function onSkip(){ finish(); }
+  window.addEventListener('keydown', onSkip);
+  canvas2d.addEventListener('click', onSkip);
+  canvas2d.addEventListener('touchstart', onSkip);
 
   function frame(now){
     if(done) return;
@@ -4265,68 +4802,26 @@ function playVoidIntro(onDone){
     ctx.fillStyle = g;
     ctx.fillRect(0,0,canvas2d.width,canvas2d.height);
 
-    const line = LINES[lineIdx] || '';
-    // Text is large, fully opaque, and stationary for the whole dwell
-    // time ... no fade in, no fade out, nothing shrinking or sliding.
-    const alpha = 1;
-
-    // Word-wrap so long lines never run off the edges of the canvas.
-    // Font is large and scales up a little on the wider desktop canvas.
-    const maxTextWidth = canvas2d.width - 90;
-    const fontPx = Math.round(canvas2d.width * 0.034) + 14; // ~40px at 800 wide
-    ctx.font = 'bold '+fontPx+'px "IBM Plex Mono"';
-    const words = line.split(' ');
-    const wrapped = [];
-    let cur = '';
-    for(const w of words){
-      const test = cur ? cur+' '+w : w;
-      if(ctx.measureText(test).width > maxTextWidth && cur){
-        wrapped.push(cur); cur = w;
-      } else cur = test;
-    }
-    if(cur) wrapped.push(cur);
-
-    const lineHeight = fontPx*1.5;
-    const blockHeight = wrapped.length*lineHeight;
-    const cy = canvas2d.height/2;
-    const blockTop = cy - blockHeight/2 - 10;
-
-    // Solid backing panel so the text reads as grounded, not floating.
-    let panelW = 0;
-    wrapped.forEach(l=>{ panelW = Math.max(panelW, ctx.measureText(l).width); });
-    panelW = Math.min(canvas2d.width-40, panelW + 72);
-    const panelH = blockHeight + 50;
-    ctx.fillStyle = 'rgba(6,5,9,'+(alpha*0.8)+')';
-    ctx.fillRect(canvas2d.width/2 - panelW/2, blockTop - 26, panelW, panelH);
-    ctx.strokeStyle = 'rgba(201,161,90,'+(alpha*0.4)+')';
-    ctx.lineWidth = 1;
-    ctx.strokeRect(canvas2d.width/2 - panelW/2 + 0.5, blockTop - 26 + 0.5, panelW-1, panelH-1);
-
+    const lineIdx = Math.min(LINES.length-1, Math.floor(t/lineDur));
+    const lineT = t - lineIdx*lineDur;
+    let alpha = 1;
+    if(lineT < fadeDur) alpha = lineT/fadeDur;
+    else if(lineT > lineDur-fadeDur) alpha = Math.max(0, (lineDur-lineT)/fadeDur);
     ctx.textAlign = 'center';
-    ctx.fillStyle = 'rgba(238,232,216,0.98)';
-    wrapped.forEach((l,i)=>{
-      ctx.fillText(l, canvas2d.width/2, blockTop + i*lineHeight);
-    });
+    ctx.font = '16px "IBM Plex Mono"';
+    ctx.fillStyle = 'rgba(232,225,208,'+(alpha*0.92)+')';
+    ctx.fillText(LINES[lineIdx], canvas2d.width/2, canvas2d.height/2);
 
-    // Progress dots, so it's clear more is coming without needing to read a timer
-    const dotY = blockTop + blockHeight + 30;
-    const dotSpacing = 16, dotsW = (LINES.length-1)*dotSpacing;
-    for(let i=0;i<LINES.length;i++){
-      ctx.beginPath();
-      ctx.arc(canvas2d.width/2 - dotsW/2 + i*dotSpacing, dotY, i===lineIdx?3.2:2, 0, Math.PI*2);
-      ctx.fillStyle = i===lineIdx ? 'rgba(201,161,90,0.9)' : 'rgba(201,161,90,0.3)';
-      ctx.fill();
+    if(t > 900){
+      ctx.textAlign = 'right';
+      ctx.font = '10px "IBM Plex Mono"';
+      ctx.fillStyle = 'rgba(150,150,165,0.4)';
+      ctx.fillText('click / press any key to skip', canvas2d.width-16, canvas2d.height-16);
     }
 
-    ctx.textAlign = 'right';
-    ctx.font = '11px "IBM Plex Mono"';
-    ctx.fillStyle = 'rgba(180,180,195,0.5)';
-    ctx.fillText('reads on its own \u2013 tap to skip ahead', canvas2d.width-16, canvas2d.height-16);
-
-    if(now - lineStart >= readDurationFor(line)) skipLine();
+    if(t >= totalDur){ finish(); return; }
     requestAnimationFrame(frame);
   }
-  const start = performance.now();
   requestAnimationFrame(frame);
 }
 
@@ -4345,7 +4840,7 @@ function mainLoop(){
 }
 requestAnimationFrame(mainLoop);
 loadStats();
-playVoidIntro(showMenu);
+showSplash(()=>playVoidIntro(showMenu));
 </script>
 </body>
 </html>
