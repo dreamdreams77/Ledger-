@@ -76,6 +76,8 @@
     border-bottom:2px solid var(--brass-dim);
     font-family:'Playfair Display',serif;
     letter-spacing:2px;
+    position:relative;z-index:55; /* stay above #panel (z-index:50) so the
+      menu bar/dropdown remain reachable while a panel is open */
   }
   #title-bar .name{font-weight:700;color:var(--brass);font-size:15px;}
   #title-bar .file{font-family:'IBM Plex Mono',monospace;font-size:11px;color:#8a8f9c;}
@@ -759,6 +761,7 @@
             <div class="menu-item" id="galleryBtn">🖼 Gallery</div>
             <div class="menu-item" id="exhibitsBtn">📎 The Exhibits</div>
             <div class="menu-item" id="storyBtn">📖 The Full Story</div>
+            <div class="menu-item" id="comicBtn">🖍 The Case, Illustrated</div>
             <div class="menu-item" id="rulebookBtn">📕 Procedures Manual</div>
             <div class="menu-item" id="settingsBtn">⚙ Settings</div>
             <div class="menu-item" id="muteBtn">🔊 Mute Sound</div>
@@ -874,6 +877,7 @@ const el = {
   seedTag: document.getElementById('seedTag'),
   splash: document.getElementById('splash'),
   storyBtn: document.getElementById('storyBtn'),
+  comicBtn: document.getElementById('comicBtn'),
   rulebookBtn: document.getElementById('rulebookBtn'),
   homeBtn: document.getElementById('homeBtn'),
   menuBtn: document.getElementById('menuBtn'),
@@ -1979,19 +1983,19 @@ window.addEventListener('keydown', (e)=>{
 
 el.questBtn.addEventListener('click', ()=>{
   closeMenuDropdown();
-  if(!['HUB','DUNGEON','ARCHIVE'].includes(state.mode)) return;
+  if(!['HUB','DUNGEON','ARCHIVE','PANEL'].includes(state.mode)) return;
   playSfx('blip');
   showQuestLog();
 });
 el.invBtn.addEventListener('click', ()=>{
   closeMenuDropdown();
-  if(!['HUB','DUNGEON','ARCHIVE'].includes(state.mode)) return;
+  if(!['HUB','DUNGEON','ARCHIVE','PANEL'].includes(state.mode)) return;
   playSfx('blip');
   showInventory();
 });
 el.settingsBtn.addEventListener('click', ()=>{
   closeMenuDropdown();
-  if(!['HUB','DUNGEON','ARCHIVE','MENU'].includes(state.mode)) return;
+  if(!['HUB','DUNGEON','ARCHIVE','MENU','PANEL'].includes(state.mode)) return;
   playSfx('blip');
   showSettings();
 });
@@ -2586,13 +2590,13 @@ function showBestiary(){
 }
 el.bestiaryBtn.addEventListener('click', ()=>{
   closeMenuDropdown();
-  if(!['HUB','DUNGEON','ARCHIVE'].includes(state.mode)) return;
+  if(!['HUB','DUNGEON','ARCHIVE','PANEL'].includes(state.mode)) return;
   playSfx('blip');
   showBestiary();
 });
 el.galleryBtn.addEventListener('click', ()=>{
   closeMenuDropdown();
-  if(!['HUB','DUNGEON','ARCHIVE','WIN'].includes(state.mode)) return;
+  if(!['HUB','DUNGEON','ARCHIVE','WIN','PANEL'].includes(state.mode)) return;
   playSfx('blip');
   showGallery();
 });
@@ -2717,6 +2721,174 @@ el.storyBtn.addEventListener('click', ()=>{
   if(['WIN','GAMEOVER'].includes(state.mode)) return;
   playSfx('blip');
   showStory();
+});
+
+// ---------------------------------------------------------------------
+// 0e2z. THE CASE, ILLUSTRATED ... a full comic-strip retelling of the
+// same case file as showStory() above, panel by panel, built the same
+// way as Exhibit C: styled DOM frames + small procedural canvas art.
+// Reuses the actual in-game pixel sprites (SPR_PLAYER, SPR_NPC1, the
+// bosses, etc.) so the cast reads as the same cast, just drawn bigger.
+// ---------------------------------------------------------------------
+function comicPlaceSprite(cvsCtx, grid, pal, cx, groundY, scale){
+  const w = grid[0].length*scale, h = grid.length*scale;
+  drawGroundShadow(cvsCtx, cx, groundY+2, w*0.9);
+  drawSprite(cvsCtx, cx-w/2, groundY-h, grid, pal, scale);
+}
+function comicSceneBg(cvsCtx, w, h, top, bottom){
+  const g = cvsCtx.createLinearGradient(0,0,0,h);
+  g.addColorStop(0, top); g.addColorStop(1, bottom);
+  cvsCtx.fillStyle = g; cvsCtx.fillRect(0,0,w,h);
+}
+function comicFloorLine(cvsCtx, w, h, y, color){
+  cvsCtx.strokeStyle = color || 'rgba(0,0,0,0.4)'; cvsCtx.lineWidth = 2;
+  cvsCtx.beginPath(); cvsCtx.moveTo(w*0.04,y); cvsCtx.lineTo(w*0.96,y); cvsCtx.stroke();
+}
+const STORY_COMIC_FRAMES = [
+  { tilt:-1.2,
+    caption:"You didn't wake up so much as get found. The infinite black doesn't explain itself, and no one down here can either.",
+    draw(cvs){
+      const c = cvs.getContext('2d'), w=cvs.width, h=cvs.height;
+      comicSceneBg(c,w,h,'#05040a','#100c18');
+      c.fillStyle='rgba(232,225,208,0.55)';
+      for(let i=0;i<26;i++){ const x=(i*41.3)%w, y=(i*57.7)%(h*0.7); c.fillRect(x,y,1.3,1.3); }
+      comicPlaceSprite(c, SPR_PLAYER, PAL_PLAYER, w*0.5, h*0.88, 6.5);
+      drawVignette(c,w,h);
+    }
+  },
+  { tilt:0.9,
+    caption:"Downstairs, the Department of Postmortem Affairs has been waiting on your file. It has brass fixtures. It has forms. It has opinions.",
+    draw(cvs){
+      const c = cvs.getContext('2d'), w=cvs.width, h=cvs.height;
+      comicSceneBg(c,w,h,'#1c1710','#0d0a07');
+      c.fillStyle='#3a2a18'; c.fillRect(w*0.16,h*0.66,w*0.68,h*0.13);
+      c.strokeStyle='#17130d'; c.lineWidth=2; c.strokeRect(w*0.16,h*0.66,w*0.68,h*0.13);
+      drawTorchlight(c, w*0.5, h*0.3, w*0.5);
+      comicPlaceSprite(c, SPR_NPC1, PAL_NPC1, w*0.7, h*0.66, 5.2);
+      comicPlaceSprite(c, SPR_PLAYER, PAL_PLAYER, w*0.28, h*0.9, 5.6);
+      drawVignette(c,w,h);
+    }
+  },
+  { tilt:-0.7, sfx:'CLANG',
+    caption:"Below the Records Office sits the Filing Department: eight floors, turns, and hit chances, dressed as audits instead of anything with teeth.",
+    draw(cvs){
+      const c = cvs.getContext('2d'), w=cvs.width, h=cvs.height;
+      comicSceneBg(c,w,h,'#141014','#08070a');
+      comicFloorLine(c,w,h,h*0.82);
+      c.fillStyle='#8a713c'; c.font='bold 10px monospace'; c.textAlign='left';
+      c.fillText('FLOOR 01', w*0.06, h*0.14);
+      comicPlaceSprite(c, SPR_RAT, PAL_RAT, w*0.68, h*0.82, 4.2);
+      comicPlaceSprite(c, SPR_PLAYER, PAL_PLAYER, w*0.32, h*0.85, 5.4);
+      drawVignette(c,w,h);
+    }
+  },
+  { tilt:1.1,
+    caption:"Every keepsake you recover hands back a piece of one evening, and someone standing in it: the Warden, the Chronicler, the Oracle, and Andy, always turning up as light.",
+    draw(cvs){
+      const c = cvs.getContext('2d'), w=cvs.width, h=cvs.height;
+      comicSceneBg(c,w,h,'#171018','#0a070c');
+      comicFloorLine(c,w,h,h*0.86,'rgba(201,161,90,0.3)');
+      comicPlaceSprite(c, SPR_NPC2, PAL_NPC2, w*0.2, h*0.86, 4.4);
+      comicPlaceSprite(c, SPR_REPO, PAL_REPO, w*0.42, h*0.86, 4.4);
+      comicPlaceSprite(c, SPR_NPC3, PAL_NPC3, w*0.64, h*0.86, 4.4);
+      comicPlaceSprite(c, SPR_ANDY, PAL_ANDY, w*0.86, h*0.86, 4.4);
+      drawVignette(c,w,h);
+    }
+  },
+  { tilt:-1.0, sfx:'CRACK',
+    caption:"Floor 3. The Assessor keeps its desk in the Records Hall, and it does not care for latecomers.",
+    draw(cvs){
+      const c = cvs.getContext('2d'), w=cvs.width, h=cvs.height;
+      comicSceneBg(c,w,h,'#200a0a','#0a0404');
+      comicFloorLine(c,w,h,h*0.84,'rgba(180,69,58,0.4)');
+      comicPlaceSprite(c, SPR_ASSESSOR, PAL_ASSESSOR, w*0.66, h*0.84, 6.2);
+      comicPlaceSprite(c, SPR_PLAYER, PAL_PLAYER, w*0.26, h*0.88, 5.2);
+      drawVignette(c,w,h);
+    }
+  },
+  { tilt:0.8, sfx:'SNAP',
+    caption:"Floor 5. The Collector answers for what it takes, eventually ... a Hollow Step Strike catches it off its guard.",
+    draw(cvs){
+      const c = cvs.getContext('2d'), w=cvs.width, h=cvs.height;
+      comicSceneBg(c,w,h,'#160c1e','#08050c');
+      comicFloorLine(c,w,h,h*0.84,'rgba(138,95,206,0.4)');
+      comicPlaceSprite(c, SPR_MINIBOSS, PAL_MINIBOSS, w*0.68, h*0.84, 6.0);
+      comicPlaceSprite(c, SPR_PLAYER, PAL_PLAYER, w*0.26, h*0.88, 5.2);
+      drawVignette(c,w,h);
+    }
+  },
+  { tilt:-1.3, sfx:'REVOKED!',
+    caption:"Floor 8. Behind the Assessor and the Collector is the same thing the whole way down: the Director, and an entire Department run on procedure.",
+    draw(cvs){
+      const c = cvs.getContext('2d'), w=cvs.width, h=cvs.height;
+      comicSceneBg(c,w,h,'#100a06','#050302');
+      comicFloorLine(c,w,h,h*0.84,'rgba(224,192,90,0.35)');
+      comicPlaceSprite(c, SPR_FINALBOSS, PAL_FINALBOSS, w*0.66, h*0.84, 6.6);
+      comicPlaceSprite(c, SPR_PLAYER, PAL_PLAYER, w*0.24, h*0.88, 5.2);
+      drawVignette(c,w,h);
+    }
+  },
+  { tilt:0.6,
+    caption:"Every ending runs through the willow, and every willow ending is really about the photograph: whether it comes back whole.",
+    draw(cvs){
+      const c = cvs.getContext('2d'), w=cvs.width, h=cvs.height;
+      comicSceneBg(c,w,h,'#0a1410','#050a08');
+      c.fillStyle='rgba(111,224,160,0.5)';
+      for(let i=0;i<16;i++){ const x=(i*29.3)%w, y=(i*19.1)%(h*0.6); c.fillRect(x,y,1.2,1.2); }
+      comicPlaceSprite(c, SPR_PLAYER, PAL_PLAYER, w*0.5, h*0.86, 6);
+      drawTorchlight(c, w*0.5, h*0.5, w*0.55);
+      drawVignette(c,w,h);
+    }
+  },
+  { tilt:-0.5,
+    caption:"AC is the one who makes it out. Case closed, walking out of Filing with Sparkwing still glowing at his shoulder the whole way.",
+    draw(cvs){
+      const c = cvs.getContext('2d'), w=cvs.width, h=cvs.height;
+      comicSceneBg(c,w,h,'#1a1610','#0c0906');
+      comicFloorLine(c,w,h,h*0.86,'rgba(201,161,90,0.35)');
+      comicPlaceSprite(c, SPR_PLAYER, PAL_PLAYER, w*0.42, h*0.86, 5.6);
+      // Sparkwing: a small glowing companion mote beside AC's shoulder
+      const gx=w*0.62, gy=h*0.6;
+      const glow = c.createRadialGradient(gx,gy,0, gx,gy,14);
+      glow.addColorStop(0,'rgba(111,224,160,0.95)'); glow.addColorStop(1,'rgba(111,224,160,0)');
+      c.fillStyle = glow; c.beginPath(); c.arc(gx,gy,14,0,Math.PI*2); c.fill();
+      c.fillStyle = '#e8ffe8'; c.beginPath(); c.arc(gx,gy,2.4,0,Math.PI*2); c.fill();
+      drawVignette(c,w,h);
+    }
+  },
+];
+function showStoryComic(){
+  openPanel();
+  el.panel.className = '';
+  el.panel.classList.add('comic-mode');
+  el.panel.innerHTML = '';
+  const h1 = document.createElement('h1'); h1.style.fontSize='22px'; h1.textContent='THE CASE, ILLUSTRATED';
+  const sub = document.createElement('div'); sub.className='sub'; sub.textContent='FORM 14-C, PICTORIAL SUPPLEMENT';
+  el.panel.appendChild(h1); el.panel.appendChild(sub);
+
+  const strip = document.createElement('div'); strip.className='comic-strip';
+  STORY_COMIC_FRAMES.forEach(f=>{
+    const frame = document.createElement('div'); frame.className='comic-frame';
+    frame.style.setProperty('--tilt', f.tilt+'deg');
+    const canvas = document.createElement('canvas'); canvas.width=260; canvas.height=150;
+    frame.appendChild(canvas);
+    if(f.sfx){ const sfx = document.createElement('div'); sfx.className='comic-sfx'; sfx.textContent=f.sfx; frame.appendChild(sfx); }
+    if(f.caption){ const cap = document.createElement('div'); cap.className='comic-caption'; cap.textContent=f.caption; frame.appendChild(cap); }
+    if(f.bubble){ const b = document.createElement('div'); b.className='comic-bubble'; b.textContent=f.bubble; frame.appendChild(b); }
+    strip.appendChild(frame);
+    f.draw(canvas);
+  });
+  el.panel.appendChild(strip);
+
+  const btn = document.createElement('div'); btn.className='btn primary'; btn.textContent='CLOSE';
+  btn.onclick = ()=>{ playSfx('blip'); closePanel(); };
+  el.panel.appendChild(btn);
+}
+el.comicBtn.addEventListener('click', ()=>{
+  closeMenuDropdown();
+  if(['WIN','GAMEOVER'].includes(state.mode)) return;
+  playSfx('blip');
+  showStoryComic();
 });
 
 // ---------------------------------------------------------------------
