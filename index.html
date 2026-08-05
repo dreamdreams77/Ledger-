@@ -76,8 +76,6 @@
     border-bottom:2px solid var(--brass-dim);
     font-family:'Playfair Display',serif;
     letter-spacing:2px;
-    position:relative;z-index:55; /* stay above #panel (z-index:50) so the
-      menu bar/dropdown remain reachable while a panel is open */
   }
   #title-bar .name{font-weight:700;color:var(--brass);font-size:15px;}
   #title-bar .file{font-family:'IBM Plex Mono',monospace;font-size:11px;color:#8a8f9c;}
@@ -761,7 +759,6 @@
             <div class="menu-item" id="galleryBtn">🖼 Gallery</div>
             <div class="menu-item" id="exhibitsBtn">📎 The Exhibits</div>
             <div class="menu-item" id="storyBtn">📖 The Full Story</div>
-            <div class="menu-item" id="comicBtn">🖍 The Case, Illustrated</div>
             <div class="menu-item" id="rulebookBtn">📕 Procedures Manual</div>
             <div class="menu-item" id="settingsBtn">⚙ Settings</div>
             <div class="menu-item" id="muteBtn">🔊 Mute Sound</div>
@@ -877,7 +874,6 @@ const el = {
   seedTag: document.getElementById('seedTag'),
   splash: document.getElementById('splash'),
   storyBtn: document.getElementById('storyBtn'),
-  comicBtn: document.getElementById('comicBtn'),
   rulebookBtn: document.getElementById('rulebookBtn'),
   homeBtn: document.getElementById('homeBtn'),
   menuBtn: document.getElementById('menuBtn'),
@@ -960,6 +956,8 @@ const TRINKET_DEFS = {
   seal:     { key:'seal',     name:"Notary's Seal",   desc:'+15 Max HP and +1 to every blow. Bureaucracy, properly weaponized.', hp:15, dmg:1 },
   notarys_flourish: { key:'notarys_flourish', name:"Notary's Flourish", desc:'Cufflink and Stamp, fused: +2 to every blow, and more of them land as critical notices.', dmg:2, crit:0.15 },
   bound_compass:    { key:'bound_compass',    name:'Bound Compass',    desc:'Ledger and Compass, fused: +10 Max HP, and the dark gives up a little more ground.', hp:10, vision:2.0 },
+  badge:    { key:'badge',    name:'Laminated Badge', desc:"You notice a little more, and land a little more of what you aim for.", vision:1, crit:0.05 },
+  frostbound_ledger: { key:'frostbound_ledger', name:'Frostbound Ledger', desc:"Cold Storage's own record, kept on whoever answers for the Registrar. +3 to every blow, +10 Max HP, and more of your hits land as critical notices.", dmg:3, hp:10, crit:0.08 },
 };
 
 // ---------------------------------------------------------------------
@@ -1603,6 +1601,38 @@ const INTERN_DUEL_LINES = [
       {text:"Go ask your supervisor, then. I'll hold.", correct:false},
     ]},
 ];
+const STENOGRAPHER_DUEL_LINES = [
+  { insult:"That comeback's on file already. Forty-two prior uses this fiscal year alone. I checked while you were talking.",
+    options:[
+      {text:"Forty-three, then. I'm not proud. I'm consistent.", correct:true},
+      {text:"Then it's clearly working. Why fix what isn't broken?", correct:false},
+      {text:"You checked THAT fast? Get out more.", correct:false},
+    ]},
+  { insult:"Everything said in this room gets transcribed verbatim and read aloud at the next staff meeting. Do try to be quotable.",
+    options:[
+      {text:"Put my name in bold, then. I intend to be cited.", correct:true},
+      {text:"Nobody reads the minutes anyway. Least of all me.", correct:false},
+      {text:"I'll speak slower, then, for the stenography.", correct:false},
+    ]},
+  { insult:"I've heard better closing arguments from the vending machine. It jams with more conviction than you're showing.",
+    options:[
+      {text:"The vending machine's been arguing with itself since 1987. Set the bar higher.", correct:true},
+      {text:"I'll have you know that machine has excellent taste in snacks.", correct:false},
+      {text:"At least the machine gives you something back eventually.", correct:false},
+    ]},
+  { insult:"For the record: you hesitated just now. Half a second. It's noted.",
+    options:[
+      {text:"Note it in pencil. Everyone down here hesitates. It's the only proof any of us were ever alive.", correct:true},
+      {text:"I did not. Strike that from the record immediately.", correct:false},
+      {text:"Half a second's nothing. You've had centuries to prepare that line.", correct:false},
+    ]},
+  { insult:"I've transcribed this exact argument eleven times this week, from eleven different people. You're not special.",
+    options:[
+      {text:"Eleven's a start. Ask me again once it's twelve.", correct:true},
+      {text:"Then you already know how it ends. Save us both the time.", correct:false},
+      {text:"Maybe it's not me. Maybe it's the argument. Try a different one.", correct:false},
+    ]},
+];
 
 // ---------------------------------------------------------------------
 // 0a4. THE CHRONICLER, IN THE VENTS ... a Glottis-flavored recurring bit.
@@ -1632,6 +1662,11 @@ const CHRONICLER_FLOOR_LINES = {
   8: ["Floor Eight. The Deep Archive. Even the jokes get repossessed down here, so I'll make this quick: good luck.",
       "Mark eight. Last one, probably. I'll leave the chalk right here, just in case.",
       "Nobody on staff has ever actually met the Director. Not once, not ever. Everybody's filed something they signed, though. Good luck arguing with a signature."],
+  9: ["Floor Nine. I said 'last one' back at Eight. Meant it, too, for the record. This part isn't even mine to chart anymore.",
+      "Mark nine, past the edge of the wall. I'm making this one up as we go, same as you."],
+  10:["Floor Ten. Whatever's down here has been down here longer than the tally has. Longer than most of us, probably.",
+      "Mark ten, off the end of the chalk. If you're still counting, so am I.",
+      "Nobody put a name on this one for you to look up beforehand. You'll meet the Registrar the same way everyone else here eventually does: unannounced."],
 };
 function chroniclerFloorBark(){
   const lines = CHRONICLER_FLOOR_LINES[state.floor];
@@ -1665,9 +1700,11 @@ function getSaveData(){
     bossDefeated: state.bossDefeated,
     minibossDefeated: state.minibossDefeated,
     finalBossDefeated: state.finalBossDefeated,
+    registrarDefeated: state.registrarDefeated,
     memoryDone: state.memoryDone,
     andyUnlocked: state.andyUnlocked,
     sempreFound: state.sempreFound,
+    candygramFound: state.candygramFound,
     difficulty: state.difficulty,
     equippedTrinket: state.equippedTrinket,
     trinketBox: state.trinketBox.slice(),
@@ -1686,6 +1723,7 @@ function getSaveData(){
     rivalDuelWon: state.rivalDuelWon,
     exitDuelWon: state.exitDuelWon,
     internDuelWon: state.internDuelWon,
+    stenographerDuelWon: state.stenographerDuelWon,
     learnedInsults: Object.keys(state.learnedInsults),
     chroniclerFloorsHeard: Object.keys(state.chroniclerFloorsHeard),
     shardUses: state.shardUses,
@@ -1710,8 +1748,10 @@ const state = {
   usedSecondWind: false,
   andyUnlocked: false,
   sempreFound: false,
+  candygramFound: false,
   difficulty: 'standard', // 'standard' | 'hardcore' | 'nightmare'
   finalBossDefeated: false,
+  registrarDefeated: false,
   equippedTrinket: null,
   trinketBox: [],
   ngPlusCount: 0,
@@ -1726,6 +1766,7 @@ const state = {
   rivalDuelWon: false,
   exitDuelWon: false,
   internDuelWon: false,
+  stenographerDuelWon: false,
   sparkwingUnlockedSeen: false,
   learnedInsults: {}, // insult text -> true, once you've been on the receiving end of it
   chroniclerFloorsHeard: {}, // floor number -> true, so the vent voice doesn't repeat itself
@@ -1983,19 +2024,19 @@ window.addEventListener('keydown', (e)=>{
 
 el.questBtn.addEventListener('click', ()=>{
   closeMenuDropdown();
-  if(!['HUB','DUNGEON','ARCHIVE','PANEL'].includes(state.mode)) return;
+  if(!['HUB','DUNGEON','ARCHIVE'].includes(state.mode)) return;
   playSfx('blip');
   showQuestLog();
 });
 el.invBtn.addEventListener('click', ()=>{
   closeMenuDropdown();
-  if(!['HUB','DUNGEON','ARCHIVE','PANEL'].includes(state.mode)) return;
+  if(!['HUB','DUNGEON','ARCHIVE'].includes(state.mode)) return;
   playSfx('blip');
   showInventory();
 });
 el.settingsBtn.addEventListener('click', ()=>{
   closeMenuDropdown();
-  if(!['HUB','DUNGEON','ARCHIVE','MENU','PANEL'].includes(state.mode)) return;
+  if(!['HUB','DUNGEON','ARCHIVE','MENU'].includes(state.mode)) return;
   playSfx('blip');
   showSettings();
 });
@@ -2263,6 +2304,9 @@ const DUEL_TIERS = {
   intern: { pool:INTERN_DUEL_LINES, title:'BREAK ROOM SHOWDOWN', sub:'THE INTERN (UNPAID), STRICTLY OFF THE RECORD', sweepNeeded:false,
     win:"The Intern beams like they've won an actual case. Technically, you let them believe that. It's kinder this way.", lose:"Somehow, against all odds and experience, the Intern wins this one. They will never let you forget it.",
     flag:'internDuelWon', achId:'internduel', achLabel:'Went Easy On The Intern', xp:5 },
+  stenographer: { pool:STENOGRAPHER_DUEL_LINES, title:'ON THE RECORD', sub:'THE STENOGRAPHER, EVERYTHING SAID HERE IS FINAL', sweepNeeded:true,
+    win:"The Stenographer sets down the pen. \"Filed,\" they say, and for once it sounds like a compliment.", lose:"The Stenographer doesn't even look up. \"Same as the other forty-two,\" they say, and keep writing.",
+    flag:'stenographerDuelWon', achId:'stenographerduel', achLabel:'Struck From The Record', xp:60 },
 };
 function startDuel(tier){
   openPanel();
@@ -2541,7 +2585,7 @@ function writeStats(){
 // Canonical list of every achievement id used anywhere in the game ...
 // showStats() reads its length instead of a hardcoded number, so the
 // total can't silently drift out of sync when new ones are added.
-const ACHIEVEMENT_IDS = ['firstblood','firstshard','vault','archive','boss','miniboss','finalboss','floor5','floor8','intern','konami','win','stamp','overtime','duel','rivalduel','exitduel','internduel','fullledger','keepsakes','summon','embermastery','hollowmastery','tapemastery','threetrials'];
+const ACHIEVEMENT_IDS = ['firstblood','firstshard','vault','archive','boss','miniboss','finalboss','registrar','floor5','floor8','floor10','intern','konami','win','stamp','overtime','duel','rivalduel','exitduel','internduel','stenographerduel','fullledger','keepsakes','summon','embermastery','hollowmastery','tapemastery','threetrials'];
 function achieve(id, label){
   if(stats.achievementsSeen[id]) return;
   stats.achievementsSeen[id] = true;
@@ -2560,9 +2604,12 @@ const BESTIARY_DEFS = [
   { name:'Ghost Assessor', desc:'Attacks from range along a straight hallway. Keep a wall between you. Closing the gap with a Hollow Step catches it flat-footed.' },
   { name:'Notary Wraith', desc:"Its touch notarizes your next few strikes as \"insufficient\" ... expect weaker hits for a short while after it lands one. An Audit Sweep unravels the paperwork before it can file it." },
   { name:'Bound Archivist', desc:"Deep Archive only. Heals off every hit it lands on you ... burst it down fast, or it outlasts your patience. An Overtime Clause burst outpaces the healing entirely." },
+  { name:'Cold Case', desc:"Cold Storage only. Doesn't hit especially hard, but it's patient, and there's always another one behind it. An Audit Sweep clears a room of them before they can pile up." },
+  { name:'The Backlog', desc:"Cold Storage only. Keeps its distance and throws frozen paperwork from across the room. Closing the gap with a Hollow Step is the whole answer." },
   { name:'The Assessor', desc:'Floor 3. The first thing down here that can actually end you. Vulnerable to a well-timed Overtime Clause.' },
   { name:'The Collector', desc:'Floor 5. Answers for what it takes, eventually. A Hollow Step Strike catches it off its guard.' },
   { name:'The Director', desc:'Floor 8. Gets meaner once you hurt it enough. An Audit Sweep exploits an opening a single strike never would.' },
+  { name:'The Registrar', desc:"Floor 10, Cold Storage. Only ever appears once the Director's already been answered for ... an epilogue, not a requirement. Only Summon Sparkwing seems to reach it properly, and that takes finding everything else first." },
   { name:'The Intern (Unpaid)', desc:'Extremely rare. Extremely fragile. Extremely tired.' },
 ];
 function noteEnemySeen(name){
@@ -2590,13 +2637,13 @@ function showBestiary(){
 }
 el.bestiaryBtn.addEventListener('click', ()=>{
   closeMenuDropdown();
-  if(!['HUB','DUNGEON','ARCHIVE','PANEL'].includes(state.mode)) return;
+  if(!['HUB','DUNGEON','ARCHIVE'].includes(state.mode)) return;
   playSfx('blip');
   showBestiary();
 });
 el.galleryBtn.addEventListener('click', ()=>{
   closeMenuDropdown();
-  if(!['HUB','DUNGEON','ARCHIVE','WIN','PANEL'].includes(state.mode)) return;
+  if(!['HUB','DUNGEON','ARCHIVE','WIN'].includes(state.mode)) return;
   playSfx('blip');
   showGallery();
 });
@@ -2688,7 +2735,7 @@ function showStory(){
 
   section('THE SETUP', "When you die, apparently, the paperwork doesn't stop. You surface out of the infinite black into the waiting room of the Department of Postmortem Affairs ... bureaucracy as the shape the afterlife takes, brass fixtures, stamped forms, everybody dead and mostly fine about it. Below the Records Office sits the Filing Department: a dungeon that keeps score in levels, turns, and hit chances, dressed as audits and repossession notices instead of anything with teeth. The shards you're hunting (Ember Regret, Hollow Step, and the rest) are pieces of one evening you already lived, once, before any of this ... the same evening the people down here keep handing back to you, the only way this Department knows how to return anything: as something you have to fight to keep. Spend a shard to hit harder, move faster, survive one more room further into a night you're only getting back in pieces. And the puzzle-solving down here, weight against weight, switches before locks, insulting a hatch rather than picking it, only ever runs on one rule: the right answer is almost never the obvious one.");
 
-  section('THE DESCENT', "Filing runs eight floors and re-skins itself as it goes, the way a building's character changes between departments. <b>FILING DEPARTMENT</b> (floors 1-2) is where everyone starts: brass fixtures, dust, the ordinary business of being recently dead. <b>RECORDS HALL</b> (floors 3-4), warmer-lit and worse-tempered, is where the Assessor keeps its desk. <b>REPOSSESSION WING</b> is a single floor, the fifth, and feels like it ... everything there already halfway packed into a box, the Collector included. <b>THE DEEP ARCHIVE</b> (floors 6-8) is where the jokes get thin and the halls go purple-dark, ending at the Director's floor, the one nobody's ever climbed back out of without a fight. Past that, for whoever's still filing on a second case: <b>COLD STORAGE</b>, colder and stranger than anything upstairs, its own kind of quiet.");
+  section('THE DESCENT', "Filing runs eight floors and re-skins itself as it goes, the way a building's character changes between departments. <b>FILING DEPARTMENT</b> (floors 1-2) is where everyone starts: brass fixtures, dust, the ordinary business of being recently dead. <b>RECORDS HALL</b> (floors 3-4), warmer-lit and worse-tempered, is where the Assessor keeps its desk. <b>REPOSSESSION WING</b> is a single floor, the fifth, and feels like it ... everything there already halfway packed into a box, the Collector included. <b>THE DEEP ARCHIVE</b> (floors 6-8) is where the jokes get thin and the halls go purple-dark, ending at the Director's floor, the one nobody's ever climbed back out of without a fight. Past that, for whoever's still filing on a second case: <b>COLD STORAGE</b>, colder and stranger than anything upstairs, its own kind of quiet ... and, two floors further in, the Registrar, keeping whatever gets sent down here once even the Deep Archive is finished with it.");
 
   section('THE PEOPLE IN IT', "Every keepsake you recover plays a short scene instead of just adding a stat, because the point was never really the stats ... it's the evening they're all pulled from, handed back one piece at a time. <b>THE CABIN BOY</b> keeps handing you afternoons that already happened. <b>THE FLOTSAM WARDEN</b> sells things that already belonged to somebody and never apologizes for it. <b>THE CHRONICLER</b> keeps a notebook that isn't for you yet and a TV that only replays the good days. <b>THE NINE-FINGERED ORACLE</b> hands over a ring engraved with a small coiled shape, wings folded, and calls it Sparkwing. <b>THE DROWNED WILLOW</b> is the place under everything, roots going all the way down into the infinite black itself. <b>THE PALE LANTERN</b> and <b>THE FAIRY</b> are the two that keep turning up as light: a halo you can hold, and a jar of caught motes that fold into wings when you shake it. And <b>DJ UNDERTOW</b>, running a back room nobody filed properly, cup balanced on a spinning deck, marking everything that matters with a small dragon scratched into the platter ... is AC. Not a separate character standing next to him: wherever DJ Undertow shows up in this story, on that back-room turntable, that IS AC, one more name he goes by down here. Every one of them already gave him all of this once, on an ordinary evening, before any of it needed filing. Down here just makes him earn it a second time.");
 
@@ -2721,174 +2768,6 @@ el.storyBtn.addEventListener('click', ()=>{
   if(['WIN','GAMEOVER'].includes(state.mode)) return;
   playSfx('blip');
   showStory();
-});
-
-// ---------------------------------------------------------------------
-// 0e2z. THE CASE, ILLUSTRATED ... a full comic-strip retelling of the
-// same case file as showStory() above, panel by panel, built the same
-// way as Exhibit C: styled DOM frames + small procedural canvas art.
-// Reuses the actual in-game pixel sprites (SPR_PLAYER, SPR_NPC1, the
-// bosses, etc.) so the cast reads as the same cast, just drawn bigger.
-// ---------------------------------------------------------------------
-function comicPlaceSprite(cvsCtx, grid, pal, cx, groundY, scale){
-  const w = grid[0].length*scale, h = grid.length*scale;
-  drawGroundShadow(cvsCtx, cx, groundY+2, w*0.9);
-  drawSprite(cvsCtx, cx-w/2, groundY-h, grid, pal, scale);
-}
-function comicSceneBg(cvsCtx, w, h, top, bottom){
-  const g = cvsCtx.createLinearGradient(0,0,0,h);
-  g.addColorStop(0, top); g.addColorStop(1, bottom);
-  cvsCtx.fillStyle = g; cvsCtx.fillRect(0,0,w,h);
-}
-function comicFloorLine(cvsCtx, w, h, y, color){
-  cvsCtx.strokeStyle = color || 'rgba(0,0,0,0.4)'; cvsCtx.lineWidth = 2;
-  cvsCtx.beginPath(); cvsCtx.moveTo(w*0.04,y); cvsCtx.lineTo(w*0.96,y); cvsCtx.stroke();
-}
-const STORY_COMIC_FRAMES = [
-  { tilt:-1.2,
-    caption:"You didn't wake up so much as get found. The infinite black doesn't explain itself, and no one down here can either.",
-    draw(cvs){
-      const c = cvs.getContext('2d'), w=cvs.width, h=cvs.height;
-      comicSceneBg(c,w,h,'#05040a','#100c18');
-      c.fillStyle='rgba(232,225,208,0.55)';
-      for(let i=0;i<26;i++){ const x=(i*41.3)%w, y=(i*57.7)%(h*0.7); c.fillRect(x,y,1.3,1.3); }
-      comicPlaceSprite(c, SPR_PLAYER, PAL_PLAYER, w*0.5, h*0.88, 6.5);
-      drawVignette(c,w,h);
-    }
-  },
-  { tilt:0.9,
-    caption:"Downstairs, the Department of Postmortem Affairs has been waiting on your file. It has brass fixtures. It has forms. It has opinions.",
-    draw(cvs){
-      const c = cvs.getContext('2d'), w=cvs.width, h=cvs.height;
-      comicSceneBg(c,w,h,'#1c1710','#0d0a07');
-      c.fillStyle='#3a2a18'; c.fillRect(w*0.16,h*0.66,w*0.68,h*0.13);
-      c.strokeStyle='#17130d'; c.lineWidth=2; c.strokeRect(w*0.16,h*0.66,w*0.68,h*0.13);
-      drawTorchlight(c, w*0.5, h*0.3, w*0.5);
-      comicPlaceSprite(c, SPR_NPC1, PAL_NPC1, w*0.7, h*0.66, 5.2);
-      comicPlaceSprite(c, SPR_PLAYER, PAL_PLAYER, w*0.28, h*0.9, 5.6);
-      drawVignette(c,w,h);
-    }
-  },
-  { tilt:-0.7, sfx:'CLANG',
-    caption:"Below the Records Office sits the Filing Department: eight floors, turns, and hit chances, dressed as audits instead of anything with teeth.",
-    draw(cvs){
-      const c = cvs.getContext('2d'), w=cvs.width, h=cvs.height;
-      comicSceneBg(c,w,h,'#141014','#08070a');
-      comicFloorLine(c,w,h,h*0.82);
-      c.fillStyle='#8a713c'; c.font='bold 10px monospace'; c.textAlign='left';
-      c.fillText('FLOOR 01', w*0.06, h*0.14);
-      comicPlaceSprite(c, SPR_RAT, PAL_RAT, w*0.68, h*0.82, 4.2);
-      comicPlaceSprite(c, SPR_PLAYER, PAL_PLAYER, w*0.32, h*0.85, 5.4);
-      drawVignette(c,w,h);
-    }
-  },
-  { tilt:1.1,
-    caption:"Every keepsake you recover hands back a piece of one evening, and someone standing in it: the Warden, the Chronicler, the Oracle, and Andy, always turning up as light.",
-    draw(cvs){
-      const c = cvs.getContext('2d'), w=cvs.width, h=cvs.height;
-      comicSceneBg(c,w,h,'#171018','#0a070c');
-      comicFloorLine(c,w,h,h*0.86,'rgba(201,161,90,0.3)');
-      comicPlaceSprite(c, SPR_NPC2, PAL_NPC2, w*0.2, h*0.86, 4.4);
-      comicPlaceSprite(c, SPR_REPO, PAL_REPO, w*0.42, h*0.86, 4.4);
-      comicPlaceSprite(c, SPR_NPC3, PAL_NPC3, w*0.64, h*0.86, 4.4);
-      comicPlaceSprite(c, SPR_ANDY, PAL_ANDY, w*0.86, h*0.86, 4.4);
-      drawVignette(c,w,h);
-    }
-  },
-  { tilt:-1.0, sfx:'CRACK',
-    caption:"Floor 3. The Assessor keeps its desk in the Records Hall, and it does not care for latecomers.",
-    draw(cvs){
-      const c = cvs.getContext('2d'), w=cvs.width, h=cvs.height;
-      comicSceneBg(c,w,h,'#200a0a','#0a0404');
-      comicFloorLine(c,w,h,h*0.84,'rgba(180,69,58,0.4)');
-      comicPlaceSprite(c, SPR_ASSESSOR, PAL_ASSESSOR, w*0.66, h*0.84, 6.2);
-      comicPlaceSprite(c, SPR_PLAYER, PAL_PLAYER, w*0.26, h*0.88, 5.2);
-      drawVignette(c,w,h);
-    }
-  },
-  { tilt:0.8, sfx:'SNAP',
-    caption:"Floor 5. The Collector answers for what it takes, eventually ... a Hollow Step Strike catches it off its guard.",
-    draw(cvs){
-      const c = cvs.getContext('2d'), w=cvs.width, h=cvs.height;
-      comicSceneBg(c,w,h,'#160c1e','#08050c');
-      comicFloorLine(c,w,h,h*0.84,'rgba(138,95,206,0.4)');
-      comicPlaceSprite(c, SPR_MINIBOSS, PAL_MINIBOSS, w*0.68, h*0.84, 6.0);
-      comicPlaceSprite(c, SPR_PLAYER, PAL_PLAYER, w*0.26, h*0.88, 5.2);
-      drawVignette(c,w,h);
-    }
-  },
-  { tilt:-1.3, sfx:'REVOKED!',
-    caption:"Floor 8. Behind the Assessor and the Collector is the same thing the whole way down: the Director, and an entire Department run on procedure.",
-    draw(cvs){
-      const c = cvs.getContext('2d'), w=cvs.width, h=cvs.height;
-      comicSceneBg(c,w,h,'#100a06','#050302');
-      comicFloorLine(c,w,h,h*0.84,'rgba(224,192,90,0.35)');
-      comicPlaceSprite(c, SPR_FINALBOSS, PAL_FINALBOSS, w*0.66, h*0.84, 6.6);
-      comicPlaceSprite(c, SPR_PLAYER, PAL_PLAYER, w*0.24, h*0.88, 5.2);
-      drawVignette(c,w,h);
-    }
-  },
-  { tilt:0.6,
-    caption:"Every ending runs through the willow, and every willow ending is really about the photograph: whether it comes back whole.",
-    draw(cvs){
-      const c = cvs.getContext('2d'), w=cvs.width, h=cvs.height;
-      comicSceneBg(c,w,h,'#0a1410','#050a08');
-      c.fillStyle='rgba(111,224,160,0.5)';
-      for(let i=0;i<16;i++){ const x=(i*29.3)%w, y=(i*19.1)%(h*0.6); c.fillRect(x,y,1.2,1.2); }
-      comicPlaceSprite(c, SPR_PLAYER, PAL_PLAYER, w*0.5, h*0.86, 6);
-      drawTorchlight(c, w*0.5, h*0.5, w*0.55);
-      drawVignette(c,w,h);
-    }
-  },
-  { tilt:-0.5,
-    caption:"AC is the one who makes it out. Case closed, walking out of Filing with Sparkwing still glowing at his shoulder the whole way.",
-    draw(cvs){
-      const c = cvs.getContext('2d'), w=cvs.width, h=cvs.height;
-      comicSceneBg(c,w,h,'#1a1610','#0c0906');
-      comicFloorLine(c,w,h,h*0.86,'rgba(201,161,90,0.35)');
-      comicPlaceSprite(c, SPR_PLAYER, PAL_PLAYER, w*0.42, h*0.86, 5.6);
-      // Sparkwing: a small glowing companion mote beside AC's shoulder
-      const gx=w*0.62, gy=h*0.6;
-      const glow = c.createRadialGradient(gx,gy,0, gx,gy,14);
-      glow.addColorStop(0,'rgba(111,224,160,0.95)'); glow.addColorStop(1,'rgba(111,224,160,0)');
-      c.fillStyle = glow; c.beginPath(); c.arc(gx,gy,14,0,Math.PI*2); c.fill();
-      c.fillStyle = '#e8ffe8'; c.beginPath(); c.arc(gx,gy,2.4,0,Math.PI*2); c.fill();
-      drawVignette(c,w,h);
-    }
-  },
-];
-function showStoryComic(){
-  openPanel();
-  el.panel.className = '';
-  el.panel.classList.add('comic-mode');
-  el.panel.innerHTML = '';
-  const h1 = document.createElement('h1'); h1.style.fontSize='22px'; h1.textContent='THE CASE, ILLUSTRATED';
-  const sub = document.createElement('div'); sub.className='sub'; sub.textContent='FORM 14-C, PICTORIAL SUPPLEMENT';
-  el.panel.appendChild(h1); el.panel.appendChild(sub);
-
-  const strip = document.createElement('div'); strip.className='comic-strip';
-  STORY_COMIC_FRAMES.forEach(f=>{
-    const frame = document.createElement('div'); frame.className='comic-frame';
-    frame.style.setProperty('--tilt', f.tilt+'deg');
-    const canvas = document.createElement('canvas'); canvas.width=260; canvas.height=150;
-    frame.appendChild(canvas);
-    if(f.sfx){ const sfx = document.createElement('div'); sfx.className='comic-sfx'; sfx.textContent=f.sfx; frame.appendChild(sfx); }
-    if(f.caption){ const cap = document.createElement('div'); cap.className='comic-caption'; cap.textContent=f.caption; frame.appendChild(cap); }
-    if(f.bubble){ const b = document.createElement('div'); b.className='comic-bubble'; b.textContent=f.bubble; frame.appendChild(b); }
-    strip.appendChild(frame);
-    f.draw(canvas);
-  });
-  el.panel.appendChild(strip);
-
-  const btn = document.createElement('div'); btn.className='btn primary'; btn.textContent='CLOSE';
-  btn.onclick = ()=>{ playSfx('blip'); closePanel(); };
-  el.panel.appendChild(btn);
-}
-el.comicBtn.addEventListener('click', ()=>{
-  closeMenuDropdown();
-  if(['WIN','GAMEOVER'].includes(state.mode)) return;
-  playSfx('blip');
-  showStoryComic();
 });
 
 // ---------------------------------------------------------------------
@@ -2945,7 +2824,7 @@ const RULEBOOK_CHAPTERS = [
       <li><b>🏠 Return to Main Menu</b> ... autosaves, then backs out. Always available mid-run.</li>
     </ul>
   `},
-  { title:'The Descent', dek:'eight floors, five biomes, one dungeon', body:`
+  { title:'The Descent', dek:'ten floors and counting, five biomes, one dungeon', body:`
     <p>The Filing Department regenerates a fresh procedural layout every descent: rooms, corridors, enemies, items, and hidden tripwire traps, all re-rolled (or seeded) on arrival. The visual <b>biome</b> changes on its own schedule, independent of layout, purely atmospheric.</p>
     <table>
       <thead><tr><th>Floor(s)</th><th>Biome</th><th>Notable</th></tr></thead>
@@ -2954,9 +2833,10 @@ const RULEBOOK_CHAPTERS = [
         <tr><td class="rb-num">3-4</td><td class="rb-name">Records Hall</td><td>Floor 3: The Assessor (boss). Stairwell seals until answered for.</td></tr>
         <tr><td class="rb-num">5</td><td class="rb-name">Repossession Wing</td><td>The Collector (miniboss), drops the Red Tape shard.</td></tr>
         <tr><td class="rb-num">6-8</td><td class="rb-name">The Deep Archive</td><td>Bound Archivists and Notary Wraiths begin appearing. Floor 8: The Director (final boss).</td></tr>
-        <tr><td class="rb-num">9+</td><td class="rb-name">Cold Storage</td><td>Reachable on a New Game+ case file, past the story's original scope.</td></tr>
+        <tr><td class="rb-num">9+</td><td class="rb-name">Cold Storage</td><td>Only reachable after the Director's been answered for. Cold Case starts appearing. Floor 10: The Registrar (bonus boss). Floor 11 onward just keeps going, for anyone who wants it to.</td></tr>
       </tbody>
     </table>
+    <div class="rb-note">Cold Storage is an epilogue, not a requirement. The story the game is telling completes at floor 8; everything past it is there for whoever wants more descent after the fact.</div>
     <h4>Exploration</h4>
     <ul>
       <li><b>Fog of war</b>: only tiles within your current vision radius are revealed. The Case Compass trinket extends it.</li>
@@ -3036,9 +2916,11 @@ const RULEBOOK_CHAPTERS = [
         <tr><td class="rb-name">Lucky Stamp</td><td>+12% critical hit chance.</td></tr>
         <tr><td class="rb-name">Case Compass</td><td>Extends vision radius.</td></tr>
         <tr><td class="rb-name">Chipped Hourglass</td><td>+4 max HP and +5% crit chance ... a small taste of two stats at once.</td></tr>
+        <tr><td class="rb-name">Laminated Badge</td><td>Extends vision, and +5% crit chance.</td></tr>
         <tr><td class="rb-name">Notary's Seal</td><td>+15 max HP and +1 damage. Sub-basement only.</td></tr>
         <tr><td class="rb-name">Notary's Flourish</td><td>Fusion: Cufflink + Stamp. +2 damage, +15% crit.</td></tr>
         <tr><td class="rb-name">Bound Compass</td><td>Fusion: Ledger + Compass. +10 max HP, further vision.</td></tr>
+        <tr><td class="rb-name">Frostbound Ledger</td><td>+3 damage, +10 max HP, +8% crit. Dropped only by the Registrar, Cold Storage's bonus boss.</td></tr>
       </tbody>
     </table>
     <p>Fusing two eligible trinkets (owned equipped or boxed, in any combination) consumes both and auto-equips the result.</p>
@@ -3066,9 +2948,10 @@ const RULEBOOK_CHAPTERS = [
         <tr><td class="rb-name">A Real Argument</td><td>The Inspector</td><td>Winning the base duel</td><td class="rb-num">3 of 3</td></tr>
         <tr><td class="rb-name">Exit Interview</td><td>The Chief Assessor</td><td>Defeating the Director</td><td>2 of 3</td></tr>
         <tr><td class="rb-name">Break Room Showdown</td><td>The Intern (Unpaid)</td><td>Winning the Inspector duel</td><td>2 of 3</td></tr>
+        <tr><td class="rb-name">On the Record</td><td>The Stenographer</td><td>Defeating the Registrar</td><td class="rb-num">3 of 3</td></tr>
       </tbody>
     </table>
-    <p>Each tier replays afterward for no stakes. Winning any tier for the first time grants XP; the Exit Interview additionally colors the true ending's closing line if every keepsake has been recovered.</p>
+    <p>Each tier replays afterward for no stakes. Winning any tier for the first time grants XP; the Exit Interview additionally colors the true ending's closing line if every keepsake has been recovered. The Stenographer, offered through the Clerk once Cold Storage's bonus boss is down, is the hardest of the five ... they've heard every line in the pool before, and it shows.</p>
   `},
   { title:'The Vault &amp; The Archive', dek:'two optional trial rooms, reachable from the Hub', body:`
     <h4>The Vault (physics)</h4>
@@ -3083,19 +2966,21 @@ const RULEBOOK_CHAPTERS = [
     <h4>The Sub-basement</h4>
     <p>A one-off bonus scene, unlocked by presenting the completed Stamp of Approval to the Intake Warden. No new map generates; it resolves entirely through dialogue and grants the <b>Notary's Seal</b> trinket, found nowhere else.</p>
   `},
-  { title:'Bosses', dek:'three fights, three floors, three weaknesses', body:`
+  { title:'Bosses', dek:'four fights, four floors, four weaknesses', body:`
     <table>
       <thead><tr><th>Boss</th><th>Floor</th><th>HP</th><th>Dmg</th><th>Weak to</th></tr></thead>
       <tbody>
         <tr><td class="rb-name">The Assessor</td><td>3 · Records Hall</td><td class="rb-num">40</td><td class="rb-num">6</td><td>Overtime Clause</td></tr>
         <tr><td class="rb-name">The Collector</td><td>5 · Repossession Wing</td><td class="rb-num">55</td><td class="rb-num">7</td><td>Dash (Hollow Step)</td></tr>
         <tr><td class="rb-name">The Director</td><td>8 · The Deep Archive</td><td class="rb-num">90</td><td class="rb-num">8 (+40% enraged)</td><td>Audit Sweep</td></tr>
+        <tr><td class="rb-name">The Registrar</td><td>10 · Cold Storage</td><td class="rb-num">130</td><td class="rb-num">10 (+40% enraged)</td><td>Summon: Sparkwing</td></tr>
       </tbody>
     </table>
     <p><b>The Assessor</b> never raises its voice and doesn't need to ... it decides a case once and moves on. Defeat drops the Faded Photograph shard.</p>
     <p><b>The Collector</b> only ever takes what it's owed, technically. Answers for it eventually. Defeat drops the Red Tape shard.</p>
     <p><b>The Director</b> enrages below 50% HP, hitting noticeably harder from that point on. Nobody on staff has ever actually met the Director in person ... only ever a signature. Defeating it unlocks Nightmare difficulty for future case files.</p>
-    <div class="rb-note blood">All three stairwells seal until that floor's boss is answered for. There's no way to skip past one.</div>
+    <p><b>The Registrar</b> only appears once the Director's already been answered for ... Cold Storage's own bonus encounter, not a requirement. Enrages the same way the Director does. Defeat grants the Frostbound Ledger trinket.</p>
+    <div class="rb-note blood">All four stairwells seal until that floor's boss is answered for. There's no way to skip past one, though the Registrar's is entirely optional to go looking for in the first place.</div>
   `},
   { title:'Bestiary', dek:"what's actually down there, floor by floor", body:`
     <table>
@@ -3106,6 +2991,8 @@ const RULEBOOK_CHAPTERS = [
         <tr><td class="rb-name">Ghost Assessor</td><td class="rb-num">Floor 4+</td><td>Ranged along a straight hallway. Weak: Dash.</td></tr>
         <tr><td class="rb-name">Notary Wraith</td><td class="rb-num">Floor 6+</td><td>Touch weakens your next strikes. Weak: Audit Sweep.</td></tr>
         <tr><td class="rb-name">Bound Archivist</td><td class="rb-num">Floor 7+</td><td>Drains, heals off every hit landed. Weak: Overtime.</td></tr>
+        <tr><td class="rb-name">Cold Case</td><td class="rb-num">Floor 9+</td><td>Cold Storage only. Unremarkable alone, persistent in numbers. Weak: Audit Sweep.</td></tr>
+        <tr><td class="rb-name">The Backlog</td><td class="rb-num">Floor 9+</td><td>Cold Storage only. Keeps its distance, throws paperwork. Weak: Dash.</td></tr>
         <tr><td class="rb-name">The Intern (Unpaid)</td><td class="rb-num">~2.5% spawn</td><td>Extremely rare, extremely fragile, purely a joke.</td></tr>
       </tbody>
     </table>
@@ -3130,19 +3017,19 @@ const RULEBOOK_CHAPTERS = [
       <li><b>Stats</b> (kills, deaths, deepest floor, runs started, best time, achievements) persist across every case file, separate from any single save.</li>
     </ul>
   `},
-  { title:'Achievements', dek:'twenty-five, tracked for the life of the install', body:`
+  { title:'Achievements', dek:'twenty-eight, tracked for the life of the install', body:`
     <ul>
       <li><b>First Blood</b> ... your first dismissal</li>
       <li><b>First Shard Recovered</b> ... any shard, first time</li>
       <li><b>The Vault Balanced</b> / <b>The Archive Illuminated</b> ... solve each puzzle</li>
-      <li><b>The Assessor Silenced</b> / <b>The Collector Answered For</b> / <b>The Director Answered For</b> ... defeat each boss</li>
-      <li><b>Reached the Fifth Floor</b> / <b>Reached the Deep Archive</b> ... depth milestones</li>
+      <li><b>The Assessor Silenced</b> / <b>The Collector Answered For</b> / <b>The Director Answered For</b> / <b>The Registrar Answered For</b> ... defeat each boss</li>
+      <li><b>Reached the Fifth Floor</b> / <b>Reached the Deep Archive</b> / <b>Reached Cold Storage</b> ... depth milestones</li>
       <li><b>Fired the Intern</b> ... defeat the rare joke enemy</li>
       <li><b>Testing, Testing</b> ... the Konami code</li>
       <li><b>Case Closed</b> ... reach any ending</li>
       <li><b>Properly Authorized</b> ... unlock the Sub-basement</li>
       <li><b>Invoked the Overtime Clause</b> ... use any Overtime technique once</li>
-      <li><b>Won the War of Complaints</b> / <b>Outargued the Inspector</b> / <b>The Last Word</b> / <b>Went Easy On The Intern</b> ... each duel tier</li>
+      <li><b>Won the War of Complaints</b> / <b>Outargued the Inspector</b> / <b>The Last Word</b> / <b>Went Easy On The Intern</b> / <b>Struck From The Record</b> ... each duel tier</li>
       <li><b>Full Ledger</b> ... hold all six shards at once</li>
       <li><b>Every Personal Effect Recovered</b> ... all 22 keepsakes</li>
       <li><b>Summoned Sparkwing</b> ... use the third Overtime technique</li>
@@ -3238,6 +3125,10 @@ const EXHIBIT_LIST = [
   { id:'a', label:'Exhibit A', dek:'a note' },
   { id:'b', label:'Exhibit B', dek:'three items, logged together' },
   { id:'c', label:'Exhibit C', dek:'the swan boat incident' },
+  { id:'d', label:'Exhibit D', dek:'three more items, filed loose' },
+  { id:'e', label:'Exhibit E', dek:'a note, left on the bullet train' },
+  { id:'f', label:'Exhibit F', dek:'two more, filed loose' },
+  { id:'g', label:'Exhibit G', dek:'three more, filed loose' },
 ];
 function showExhibits(){
   openPanel();
@@ -3259,9 +3150,8 @@ function renderExhibitsList(){
     item.appendChild(label); item.appendChild(dek);
     item.onclick = ()=>{
       playSfx('blip');
-      if(ex.id==='a') showExhibitA();
-      else if(ex.id==='b') showExhibitB();
-      else showExhibitC();
+      const showFns = { a:showExhibitA, b:showExhibitB, c:showExhibitC, d:showExhibitD, e:showExhibitE, f:showExhibitF, g:showExhibitG };
+      (showFns[ex.id] || showExhibitA)();
     };
     list.appendChild(item);
   });
@@ -3411,6 +3301,266 @@ function showExhibitB(){
   closing.textContent = "Time, days, and whatever else was worth counting, all the way to always and forever.";
   el.panel.appendChild(closing);
 
+  el.panel.appendChild(exhibitBackNav());
+}
+
+// --- Exhibit D: three more items, filed loose -------------------------
+function drawMugIcon(canvas){
+  const c2 = canvas.getContext('2d'), w=canvas.width, h=canvas.height;
+  c2.clearRect(0,0,w,h);
+  const bx=w*0.28, by=h*0.32, bw=w*0.42, bh=h*0.44;
+  // steam, a couple of unhurried curls
+  c2.strokeStyle='rgba(232,225,208,0.3)'; c2.lineWidth=1.5; c2.lineCap='round';
+  c2.beginPath(); c2.moveTo(bx+bw*0.3, by-h*0.02);
+  c2.bezierCurveTo(bx+bw*0.1, by-h*0.14, bx+bw*0.5, by-h*0.16, bx+bw*0.3, by-h*0.3);
+  c2.stroke();
+  // body
+  c2.fillStyle='#171b26'; c2.strokeStyle='#c9a15a'; c2.lineWidth=2.5;
+  c2.beginPath(); c2.roundRect ? c2.roundRect(bx,by,bw,bh,3) : c2.rect(bx,by,bw,bh);
+  c2.fill(); c2.stroke();
+  // handle
+  c2.beginPath();
+  c2.arc(bx+bw+bw*0.16, by+bh*0.5, bw*0.24, -Math.PI*0.55, Math.PI*0.55);
+  c2.stroke();
+  // the chip ... a small triangular notch out of the rim, the whole point of the piece
+  c2.fillStyle='#0b0e14';
+  c2.beginPath();
+  c2.moveTo(bx+bw*0.62, by);
+  c2.lineTo(bx+bw*0.78, by);
+  c2.lineTo(bx+bw*0.68, by+h*0.06);
+  c2.closePath(); c2.fill();
+  c2.strokeStyle='#8a713c'; c2.lineWidth=1;
+  c2.beginPath(); c2.moveTo(bx+bw*0.62, by); c2.lineTo(bx+bw*0.68, by+h*0.06); c2.lineTo(bx+bw*0.78, by); c2.stroke();
+}
+function drawPosterIcon(canvas){
+  const c2 = canvas.getContext('2d'), w=canvas.width, h=canvas.height;
+  c2.clearRect(0,0,w,h);
+  const bx=w*0.2, by=h*0.12, bw=w*0.6, bh=h*0.76;
+  // black-and-white, deliberately ... the one exhibit with no brass in it at all
+  c2.fillStyle='#e8e1d0'; c2.strokeStyle='#8a8f9c'; c2.lineWidth=2;
+  c2.fillRect(bx,by,bw,bh); c2.strokeRect(bx,by,bw,bh);
+  c2.fillStyle='#17181c';
+  c2.fillRect(bx+bw*0.14, by+bh*0.14, bw*0.72, bh*0.38);
+  c2.fillStyle='#e8e1d0';
+  for(let i=0;i<3;i++){
+    c2.fillRect(bx+bw*0.22, by+bh*0.2+i*bh*0.1, bw*(0.5-i*0.08), bh*0.05);
+  }
+  c2.strokeStyle='#4a4f5a'; c2.lineWidth=1.5;
+  for(let i=0;i<3;i++){
+    const ly = by+bh*0.62+i*bh*0.1;
+    c2.beginPath(); c2.moveTo(bx+bw*0.16, ly); c2.lineTo(bx+bw*0.84, ly); c2.stroke();
+  }
+  // curled corner, taped up like it's been moved a few times
+  c2.fillStyle='rgba(23,24,28,0.15)';
+  c2.beginPath(); c2.moveTo(bx+bw,by); c2.lineTo(bx+bw-bw*0.14,by); c2.lineTo(bx+bw,by+bh*0.1); c2.closePath(); c2.fill();
+  c2.fillStyle='rgba(201,161,90,0.55)';
+  c2.fillRect(bx+bw*0.42, by-h*0.02, bw*0.16, h*0.045);
+}
+function drawRecipeCardIcon(canvas){
+  const c2 = canvas.getContext('2d'), w=canvas.width, h=canvas.height;
+  c2.clearRect(0,0,w,h);
+  const bx=w*0.16, by=h*0.2, bw=w*0.68, bh=h*0.6;
+  c2.fillStyle='#f5efd8'; c2.strokeStyle='#8a713c'; c2.lineWidth=2;
+  c2.fillRect(bx,by,bw,bh); c2.strokeRect(bx,by,bw,bh);
+  c2.strokeStyle='rgba(180,69,58,0.4)'; c2.lineWidth=1;
+  c2.beginPath(); c2.moveTo(bx+bw*0.22, by); c2.lineTo(bx+bw*0.22, by+bh); c2.stroke();
+  c2.strokeStyle='rgba(23,19,13,0.28)';
+  for(let i=0;i<4;i++){
+    const ly = by+bh*0.24+i*bh*0.17;
+    c2.beginPath(); c2.moveTo(bx+bw*0.3, ly); c2.lineTo(bx+bw*0.86, ly-1+((i%2)*2)); c2.stroke();
+  }
+  // a little steam-curl doodle in the margin, like it was jotted there once
+  c2.strokeStyle='rgba(201,161,90,0.5)'; c2.lineWidth=1;
+  c2.beginPath(); c2.moveTo(bx+bw*0.11,by+bh*0.7); c2.quadraticCurveTo(bx+bw*0.05,by+bh*0.6, bx+bw*0.11,by+bh*0.5); c2.stroke();
+}
+const EXHIBIT_D_ITEMS = [
+  { id:'mug', name:'Chipped Coffee Mug', draw:drawMugIcon, text:"Still the one that gets used. The chip was never a reason to replace it." },
+  { id:'poster', name:'Black and White Poster', draw:drawPosterIcon, text:"Moved apartments a few times. Never once got left behind." },
+  { id:'recipe', name:'Recipe Card', draw:drawRecipeCardIcon, text:"Handwriting worn soft at the fold. Somebody around here answers to \"chef,\" and earns it." },
+];
+function showExhibitD(){
+  el.panel.className = '';
+  el.panel.classList.add('exhibit-items-mode');
+  el.panel.innerHTML = '';
+  const h1 = document.createElement('h1'); h1.style.fontSize='20px'; h1.textContent='EXHIBIT D';
+  const sub = document.createElement('div'); sub.className='sub'; sub.textContent='THREE MORE ITEMS, FILED LOOSE';
+  const lede = document.createElement('p'); lede.className='flavor'; lede.style.cssText='font-size:12.5px;max-width:min(480px,88vw);';
+  lede.textContent = "The ordinary stuff. Never logged as evidence of anything, and somehow still the most convincing kind.";
+  el.panel.appendChild(h1); el.panel.appendChild(sub); el.panel.appendChild(lede);
+
+  const grid = document.createElement('div'); grid.className='exhibit-item-grid';
+  EXHIBIT_D_ITEMS.forEach(it=>{
+    const card = document.createElement('div'); card.className='exhibit-item-card';
+    const canvas = document.createElement('canvas'); canvas.width=120; canvas.height=120;
+    const name = document.createElement('div'); name.className='exhibit-item-name'; name.textContent = it.name;
+    const text = document.createElement('div'); text.className='exhibit-item-text'; text.textContent = it.text;
+    card.appendChild(canvas); card.appendChild(name); card.appendChild(text);
+    grid.appendChild(card);
+    it.draw(canvas);
+  });
+  el.panel.appendChild(grid);
+  el.panel.appendChild(exhibitBackNav());
+}
+
+// --- Exhibit E: a note, found on the bullet train ----------------------
+function showExhibitE(){
+  el.panel.className = '';
+  el.panel.classList.add('exhibit-note-mode');
+  el.panel.innerHTML = '';
+  const h1 = document.createElement('h1'); h1.style.fontSize='20px'; h1.textContent='EXHIBIT E';
+  const sub = document.createElement('div'); sub.className='sub'; sub.textContent='A NOTE, LEFT ON THE BULLET TRAIN';
+  el.panel.appendChild(h1); el.panel.appendChild(sub);
+
+  const card = document.createElement('div'); card.className='exhibit-note-card';
+  card.innerHTML =
+    '<div class="note-pre">Somewhere past the window, too fast to keep hold of ... a whole country going by</div>'+
+    '<div class="note-main" style="font-size:26px;">and none of it as worth watching</div>'+
+    '<div class="note-post">as whoever was sitting next to you.</div>';
+  el.panel.appendChild(card);
+
+  el.panel.appendChild(exhibitBackNav());
+}
+
+// --- Exhibit F: two more, filed loose -----------------------------------
+function drawVinylIcon(canvas){
+  const c2 = canvas.getContext('2d'), w=canvas.width, h=canvas.height;
+  c2.clearRect(0,0,w,h);
+  const cx=w*0.5, cy=h*0.5, r=w*0.36;
+  c2.fillStyle='#0f1116'; c2.beginPath(); c2.arc(cx,cy,r,0,Math.PI*2); c2.fill();
+  c2.strokeStyle='rgba(232,225,208,0.12)'; c2.lineWidth=1;
+  for(let i=1;i<=5;i++){
+    c2.beginPath(); c2.arc(cx,cy,r*(i/6),0,Math.PI*2); c2.stroke();
+  }
+  c2.fillStyle='#e0793a'; c2.beginPath(); c2.arc(cx,cy,r*0.32,0,Math.PI*2); c2.fill();
+  c2.strokeStyle='#171b26'; c2.lineWidth=1.5; c2.beginPath(); c2.arc(cx,cy,r*0.32,0,Math.PI*2); c2.stroke();
+  c2.fillStyle='#171b26'; c2.beginPath(); c2.arc(cx,cy,r*0.05,0,Math.PI*2); c2.fill();
+  c2.fillStyle='rgba(255,255,255,0.18)';
+  c2.beginPath(); c2.ellipse(cx-r*0.35,cy-r*0.35,r*0.18,r*0.08,-0.6,0,Math.PI*2); c2.fill();
+}
+function drawPetalIcon(canvas){
+  const c2 = canvas.getContext('2d'), w=canvas.width, h=canvas.height;
+  c2.clearRect(0,0,w,h);
+  const cx=w*0.5, cy=h*0.54;
+  c2.save(); c2.translate(cx,cy); c2.rotate(-0.15);
+  c2.fillStyle='#e0793a'; c2.strokeStyle='#8a4a1e'; c2.lineWidth=1.5;
+  c2.beginPath();
+  c2.moveTo(0,-h*0.32);
+  c2.bezierCurveTo(w*0.26,-h*0.2, w*0.22,h*0.22, 0,h*0.34);
+  c2.bezierCurveTo(-w*0.22,h*0.22, -w*0.26,-h*0.2, 0,-h*0.32);
+  c2.closePath(); c2.fill(); c2.stroke();
+  c2.strokeStyle='rgba(138,74,30,0.5)'; c2.lineWidth=1;
+  c2.beginPath(); c2.moveTo(0,-h*0.28); c2.lineTo(0,h*0.3); c2.stroke();
+  for(const s of [-1,1]){
+    c2.beginPath(); c2.moveTo(0,-h*0.1); c2.lineTo(s*w*0.14,h*0.05); c2.stroke();
+    c2.beginPath(); c2.moveTo(0,h*0.1); c2.lineTo(s*w*0.12,h*0.22); c2.stroke();
+  }
+  c2.restore();
+}
+const EXHIBIT_F_ITEMS = [
+  { id:'vinyl', name:'A Record, Well-Worn', draw:drawVinylIcon, text:"Whoever's spinning it always marks the platter the same way: one small dragon, scratched in." },
+  { id:'petal', name:'A Pressed Petal', draw:drawPetalIcon, text:"Marigold. Filed flat between two pages so it wouldn't be lost. It wasn't." },
+];
+function showExhibitF(){
+  el.panel.className = '';
+  el.panel.classList.add('exhibit-items-mode');
+  el.panel.innerHTML = '';
+  const h1 = document.createElement('h1'); h1.style.fontSize='20px'; h1.textContent='EXHIBIT F';
+  const sub = document.createElement('div'); sub.className='sub'; sub.textContent='TWO MORE, FILED LOOSE';
+  el.panel.appendChild(h1); el.panel.appendChild(sub);
+
+  const grid = document.createElement('div'); grid.className='exhibit-item-grid';
+  EXHIBIT_F_ITEMS.forEach(it=>{
+    const card = document.createElement('div'); card.className='exhibit-item-card';
+    const canvas = document.createElement('canvas'); canvas.width=120; canvas.height=120;
+    const name = document.createElement('div'); name.className='exhibit-item-name'; name.textContent = it.name;
+    const text = document.createElement('div'); text.className='exhibit-item-text'; text.textContent = it.text;
+    card.appendChild(canvas); card.appendChild(name); card.appendChild(text);
+    grid.appendChild(card);
+    it.draw(canvas);
+  });
+  el.panel.appendChild(grid);
+  el.panel.appendChild(exhibitBackNav());
+}
+
+// --- Exhibit G: three more, filed loose ---------------------------------
+function drawLuggageTagIcon(canvas){
+  const c2 = canvas.getContext('2d'), w=canvas.width, h=canvas.height;
+  c2.clearRect(0,0,w,h);
+  const bx=w*0.24, by=h*0.32, bw=w*0.52, bh=h*0.4;
+  c2.strokeStyle='#8a713c'; c2.lineWidth=1.5;
+  c2.beginPath(); c2.moveTo(bx+bw*0.3, by); c2.quadraticCurveTo(bx+bw*0.3, by-h*0.16, bx+bw*0.5, by-h*0.16); c2.stroke();
+  c2.fillStyle='#171b26'; c2.strokeStyle='#c9a15a'; c2.lineWidth=2.5;
+  c2.beginPath();
+  c2.moveTo(bx, by); c2.lineTo(bx+bw*0.75, by); c2.lineTo(bx+bw, by+bh*0.5);
+  c2.lineTo(bx+bw*0.75, by+bh); c2.lineTo(bx, by+bh); c2.closePath();
+  c2.fill(); c2.stroke();
+  c2.fillStyle='#0b0e14'; c2.beginPath(); c2.arc(bx+bw*0.16, by+bh*0.5, 3, 0, Math.PI*2); c2.fill();
+  c2.strokeStyle='rgba(232,225,208,0.4)'; c2.lineWidth=1;
+  c2.beginPath(); c2.moveTo(bx+bw*0.32, by+bh*0.35); c2.lineTo(bx+bw*0.68, by+bh*0.35); c2.stroke();
+  c2.beginPath(); c2.moveTo(bx+bw*0.32, by+bh*0.6); c2.lineTo(bx+bw*0.58, by+bh*0.6); c2.stroke();
+}
+function drawTicketStubIcon(canvas){
+  const c2 = canvas.getContext('2d'), w=canvas.width, h=canvas.height;
+  c2.clearRect(0,0,w,h);
+  const bx=w*0.2, by=h*0.32, bw=w*0.6, bh=h*0.36;
+  c2.fillStyle='#e0793a'; c2.strokeStyle='#8a4a1e'; c2.lineWidth=2;
+  c2.beginPath();
+  c2.rect(bx,by,bw,bh);
+  c2.fill(); c2.stroke();
+  // torn perforation edge on the left
+  c2.fillStyle='#0b0e14';
+  for(let i=0;i<5;i++){
+    c2.beginPath(); c2.arc(bx, by+bh*(i+0.5)/5, 2, 0, Math.PI*2); c2.fill();
+  }
+  c2.strokeStyle='rgba(11,14,20,0.5)'; c2.lineWidth=1;
+  c2.beginPath(); c2.moveTo(bx+bw*0.28,by+3); c2.lineTo(bx+bw*0.28,by+bh-3); c2.stroke();
+  c2.fillStyle='rgba(11,14,20,0.6)'; c2.font='9px monospace'; c2.textAlign='center';
+  c2.save(); c2.translate(bx+bw*0.14, by+bh*0.5); c2.rotate(-Math.PI/2); c2.fillText('ADMIT', 0, 3); c2.restore();
+  c2.strokeStyle='rgba(11,14,20,0.35)'; c2.lineWidth=1;
+  for(let i=0;i<2;i++){
+    const ly = by+bh*0.35+i*bh*0.3;
+    c2.beginPath(); c2.moveTo(bx+bw*0.4, ly); c2.lineTo(bx+bw*0.88, ly); c2.stroke();
+  }
+}
+function drawGuitarPickIcon(canvas){
+  const c2 = canvas.getContext('2d'), w=canvas.width, h=canvas.height;
+  c2.clearRect(0,0,w,h);
+  const cx=w*0.5, cy=h*0.54;
+  c2.fillStyle='#c9a15a'; c2.strokeStyle='#8a713c'; c2.lineWidth=2;
+  c2.beginPath();
+  c2.moveTo(cx, cy-h*0.3);
+  c2.bezierCurveTo(cx+w*0.26,cy-h*0.14, cx+w*0.2,cy+h*0.2, cx,cy+h*0.32);
+  c2.bezierCurveTo(cx-w*0.2,cy+h*0.2, cx-w*0.26,cy-h*0.14, cx,cy-h*0.3);
+  c2.closePath(); c2.fill(); c2.stroke();
+  c2.fillStyle='rgba(23,27,38,0.85)'; c2.font='bold '+(w*0.12)+'px monospace'; c2.textAlign='center';
+  c2.fillText('DU', cx, cy+h*0.06);
+  c2.strokeStyle='rgba(255,255,255,0.25)'; c2.lineWidth=1;
+  c2.beginPath(); c2.ellipse(cx-w*0.08,cy-h*0.14,w*0.05,h*0.02,-0.5,0,Math.PI*2); c2.stroke();
+}
+const EXHIBIT_G_ITEMS = [
+  { id:'tag', name:'Luggage Tag', draw:drawLuggageTagIcon, text:"One trip's worth of wear on it. Still clipped on, like there's a next one coming." },
+  { id:'ticket', name:'Ticket Stub', draw:drawTicketStubIcon, text:"Never made it to a scrapbook. Made it to a coat pocket instead, and stayed there." },
+  { id:'pick', name:"Guitar Pick, Initialed", draw:drawGuitarPickIcon, text:"DU. Same two letters as the turntable. Consistency, apparently, isn't just a filing thing." },
+];
+function showExhibitG(){
+  el.panel.className = '';
+  el.panel.classList.add('exhibit-items-mode');
+  el.panel.innerHTML = '';
+  const h1 = document.createElement('h1'); h1.style.fontSize='20px'; h1.textContent='EXHIBIT G';
+  const sub = document.createElement('div'); sub.className='sub'; sub.textContent='THREE MORE, FILED LOOSE';
+  el.panel.appendChild(h1); el.panel.appendChild(sub);
+
+  const grid = document.createElement('div'); grid.className='exhibit-item-grid';
+  EXHIBIT_G_ITEMS.forEach(it=>{
+    const card = document.createElement('div'); card.className='exhibit-item-card';
+    const canvas = document.createElement('canvas'); canvas.width=120; canvas.height=120;
+    const name = document.createElement('div'); name.className='exhibit-item-name'; name.textContent = it.name;
+    const text = document.createElement('div'); text.className='exhibit-item-text'; text.textContent = it.text;
+    card.appendChild(canvas); card.appendChild(name); card.appendChild(text);
+    grid.appendChild(card);
+    it.draw(canvas);
+  });
+  el.panel.appendChild(grid);
   el.panel.appendChild(exhibitBackNav());
 }
 
@@ -3600,12 +3750,15 @@ let _konamiProgress = 0;
 window.addEventListener('keydown', (e)=>{
   const k = e.key.toLowerCase();
   if(k.length===1 && /[a-z]/i.test(k)){
-    _typedBuffer = (_typedBuffer + k).slice(-8);
+    _typedBuffer = (_typedBuffer + k).slice(-10);
     if(_typedBuffer.endsWith('andy') && !state.andyUnlocked){
       unlockAndy();
     }
     if(_typedBuffer.endsWith('sempre') && !state.sempreFound){
       unlockSempre();
+    }
+    if(_typedBuffer.endsWith('candygram') && !state.candygramFound){
+      unlockCandygram();
     }
   }
   // Konami code ... tracked independently of the letter buffer above
@@ -3632,6 +3785,17 @@ function unlockSempre(){
   screenFlash('#ffd98a', 0.35);
   playSfx('shard');
   flashBanner('sempre e per sempre ... always and forever');
+}
+function unlockCandygram(){
+  state.candygramFound = true;
+  writeSave();
+  screenFlash('#e0793a', 0.35);
+  playSfx('achieve');
+  flashBanner('A CANDYGRAM ARRIVES, UNSCHEDULED AND UNEXPLAINED');
+  openDialogue('SPECIAL DELIVERY (UNLOGGED)', [
+    "A candygram, somehow, in a building with no working mail chute. Whoever's still sneaking these through the system has never once been caught doing it.",
+    "No case number. No sender listed on the form. Just five words, taped to the wrapper: \"Sweeter than the paperwork suggests.\"",
+  ], null, ()=>{});
 }
 function triggerKonami(){
   achieve('konami','Testing, Testing');
@@ -3937,6 +4101,46 @@ const SPR_FINALBOSS = [
   'cbdaaadb',
   'cbaaaaab',
   'cccaaccb',
+  '.bbaabb.',
+  'bb.aa.bb',
+];
+// Cold Storage's own enemy and boss ... deliberately icy/pale against the
+// warmer palettes everywhere else in Filing, so the deeper floors read as
+// a genuinely different place rather than just "the same halls, harder."
+const PAL_COLDCASE = { a:'#4a7a8a', b:'#0f2028', c:'#c8ecf5', d:'#1a3540' };
+const SPR_COLDCASE = [
+  'bbbbbbbb',
+  'baaaaaab',
+  'bacccaab',
+  'baaaaaab',
+  'bddddddb',
+  'bdaaaadb',
+  'bb....bb',
+  '.b....b.',
+];
+// A second Cold Storage regular ... floating, ranged, a stack of paperwork
+// that never got closed out. Distinct silhouette from Cold Case (boxy,
+// grounded) so the two read as different threats at a glance, not a
+// recolor of the same enemy.
+const PAL_BACKLOG = { a:'#2a4a58', b:'#0a1a20', c:'#a8d8e8', d:'#5a8a9a' };
+const SPR_BACKLOG = [
+  '..dddd..',
+  '.dccccd.',
+  'daccccad',
+  'daaaaaad',
+  '.dbaabd.',
+  '..dbbd..',
+  '.d....d.',
+  'd......d',
+];
+const PAL_REGISTRAR = { a:'#1a3540', b:'#0a1418', c:'#8ad0e0', d:'#e8f5fa' };
+const SPR_REGISTRAR = [
+  'dddddddd',
+  'dbbbbbbd',
+  'dbccccbd',
+  'dbdaaadb',
+  'dbaaaaab',
+  'dddaaddd',
   '.bbaabb.',
   'bb.aa.bb',
 ];
@@ -4372,7 +4576,8 @@ function genDungeon(floorNum){
   const isBossFloor = floorNum === 3;
   const isMinibossFloor = floorNum === 5;
   const isFinalBossFloor = floorNum === 8;
-  const enemyCount = (isBossFloor||isMinibossFloor||isFinalBossFloor) ? 3 : 3 + floorNum;
+  const isRegistrarFloor = floorNum === 10;
+  const enemyCount = (isBossFloor||isMinibossFloor||isFinalBossFloor||isRegistrarFloor) ? 3 : 3 + floorNum;
   for(let i=0;i<enemyCount;i++){
     const r = rooms[1+Math.floor(rng()*(rooms.length-1))];
     const ex = r.x+Math.floor(rng()*r.w);
@@ -4401,6 +4606,17 @@ function genDungeon(floorNum){
       finalboss:true, enraged:false, weakTo:'sweep',
     });
   }
+  if(isRegistrarFloor && state.finalBossDefeated && !state.registrarDefeated){
+    // Cold Storage's own bonus boss ... only ever appears once the Director
+    // has already been answered for, so it can never be stumbled into
+    // ahead of the story it's an epilogue to.
+    dungeon.enemies.push({
+      x: dungeon.stairs.x, y: Math.max(1,dungeon.stairs.y-1),
+      hp: 130, maxHp:130, dmg:10, name:'The Registrar', spr:SPR_REGISTRAR, pal:PAL_REGISTRAR, alive:true,
+      registrar:true, enraged:false, weakTo:'summon',
+    });
+  }
+
 
   // items: potions + a guaranteed exploration shard on the first two floors
   for(let i=0;i<3;i++){
@@ -4500,6 +4716,14 @@ function makeEnemy(floorNum, ex, ey){
       name:'The Intern (Unpaid)', spr:SPR_CLERK, pal:PAL_CLERK, alive:true, joke:true };
   }
   const roll = rng();
+  if(floorNum>=9 && roll<0.07){
+    return { x:ex,y:ey, hp:16+floorNum*2, maxHp:16+floorNum*2, dmg:3+Math.floor(floorNum/3),
+      name:'The Backlog', spr:SPR_BACKLOG, pal:PAL_BACKLOG, alive:true, ranged:true, weakTo:'dash' };
+  }
+  if(floorNum>=9 && roll<0.14){
+    return { x:ex,y:ey, hp:26+floorNum*2, maxHp:26+floorNum*2, dmg:4+Math.floor(floorNum/3),
+      name:'Cold Case', spr:SPR_COLDCASE, pal:PAL_COLDCASE, alive:true, weakTo:'sweep' };
+  }
   if(floorNum>=7 && roll<0.10){
     return { x:ex,y:ey, hp:22+floorNum*2, maxHp:22+floorNum*2, dmg:3+Math.floor(floorNum/3),
       name:'Bound Archivist', spr:SPR_BOUNDARCH, pal:PAL_BOUNDARCH, alive:true, drains:true, weakTo:'overtime' };
@@ -4585,11 +4809,28 @@ function drawDungeon(){
       }
       // sparse floor clutter ... a dropped form or a hairline crack, never on
       // stairs, deterministic per-tile (seeded off its own coordinates) so it
-      // doesn't shift or flicker between frames
+      // doesn't shift or flicker between frames. Cold Storage swaps the
+      // dropped-paper variant for a frost patch, since loose paperwork
+      // doesn't really fit down there ... small nod to floor-to-floor
+      // texture actually changing, not just the wall/floor color swap.
       if(c!=='#' && c!=='>'){
         const dimA = visibleNow ? 1 : 0.4;
         const cn = tileNoise(x,y,13.7);
-        if(cn < 0.045){
+        if(cn < 0.045 && state.floor>=9){
+          const fr = t*0.24;
+          const fx0 = tileX+t*0.5, fy0 = tileY+t*0.56;
+          const frg = ctx.createRadialGradient(fx0,fy0,0, fx0,fy0,fr);
+          frg.addColorStop(0, 'rgba(200,236,245,'+(0.28*dimA)+')');
+          frg.addColorStop(1, 'rgba(200,236,245,0)');
+          ctx.fillStyle = frg;
+          ctx.fillRect(fx0-fr, fy0-fr, fr*2, fr*2);
+          ctx.strokeStyle = 'rgba(200,236,245,'+(0.35*dimA)+')';
+          ctx.lineWidth = 1;
+          for(let li=0; li<3; li++){
+            const a = tileNoise(x,y,30+li)*Math.PI*2;
+            ctx.beginPath(); ctx.moveTo(fx0,fy0); ctx.lineTo(fx0+Math.cos(a)*fr*0.8, fy0+Math.sin(a)*fr*0.8); ctx.stroke();
+          }
+        } else if(cn < 0.045){
           const rot = (tileNoise(x,y,21.3)-0.5)*0.6;
           ctx.save();
           ctx.translate(tileX+t*0.5, tileY+t*0.56);
@@ -4633,8 +4874,11 @@ function drawDungeon(){
         ctx.fillRect(tileX+t-1.5, tileY, 1.5, t);
 
         // an occasional cobweb tucked in the corner ... it just needs to
-        // read as neglected, no structural logic required
-        if(tileNoise(x,y,26.1) < 0.035){
+        // read as neglected, no structural logic required. Denser in the
+        // Deep Archive (nobody's dusted since the Director moved in),
+        // sparser up in Filing where the place still gets used daily.
+        const cobwebThresh = state.floor<=2 ? 0.015 : (state.floor>=6 && state.floor<=8) ? 0.07 : 0.035;
+        if(tileNoise(x,y,26.1) < cobwebThresh){
           const wx = tileX+2, wy = tileY+2;
           ctx.strokeStyle = 'rgba(180,180,190,0.22)';
           ctx.lineWidth = 1;
@@ -4999,6 +5243,10 @@ function checkDungeonTile(x,y){
       flashBanner('The stairwell is sealed until the Director is answered for.');
       return;
     }
+    if(state.floor===10 && state.finalBossDefeated && !state.registrarDefeated){
+      flashBanner('The stairwell is sealed until the Registrar is answered for.');
+      return;
+    }
     state.floor++;
     playSfx('door');
     screenFlash('#000', 0.7);
@@ -5021,6 +5269,7 @@ function checkDungeonTile(x,y){
     if(state.floor > stats.deepestFloor){ stats.deepestFloor = state.floor; writeStats(); }
     if(state.floor >= 5) achieve('floor5','Reached the Fifth Floor');
     if(state.floor >= 8) achieve('floor8','Reached the Deep Archive');
+    if(state.floor >= 10) achieve('floor10','Reached Cold Storage');
     chroniclerFloorBark();
   }
 }
@@ -5140,6 +5389,18 @@ function applyDamageToEnemy(enemy, dmg, opts){
       screenShake(10,26); screenFlash('#e0c05a',0.4); playSfx('win');
       achieve('finalboss','The Director Answered For');
       if(state.memoryDone){ setTimeout(()=>showWin(), 1400); }
+    } else if(enemy.registrar){
+      state.registrarDefeated = true;
+      if(!ownsTrinket('frostbound_ledger')){
+        state.trinketBox.push('frostbound_ledger');
+        flashBanner('THE REGISTRAR YIELDS: FROSTBOUND LEDGER, FILED IN YOUR MEMORY BOX.');
+      } else {
+        flashBanner('THE REGISTRAR IS ANSWERED FOR.');
+      }
+      writeSave();
+      grantXp(80);
+      screenShake(10,26); screenFlash('#8ad0e0',0.4); playSfx('win');
+      achieve('registrar','The Registrar Answered For');
     } else if(enemy.joke){
       const lines = [
         'The Intern quits on the spot. Somehow that felt worse than winning.',
@@ -5287,6 +5548,14 @@ function enemyTurn(){
       screenShake(7,18); screenFlash('#e0c05a',0.3);
       const {t,offX,offY} = dungeonMetrics();
       spawnParticles(offX+e.x*t+t/2, offY+e.y*t+t/2, '#e0c05a', 16);
+    }
+    if(e.registrar && !e.enraged && e.hp <= e.maxHp*0.5){
+      e.enraged = true;
+      e.dmg = Math.round(e.dmg*1.4);
+      flashBanner('THE REGISTRAR REOPENS EVERY CLOSED CASE AT ONCE.');
+      screenShake(7,18); screenFlash('#8ad0e0',0.3);
+      const {t,offX,offY} = dungeonMetrics();
+      spawnParticles(offX+e.x*t+t/2, offY+e.y*t+t/2, '#8ad0e0', 16);
     }
 
     const ddx = state.player.tileX - e.x, ddy = state.player.tileY - e.y;
@@ -5560,6 +5829,16 @@ function talkToNpc(key){
   if(key==='clerk'){
     const base = typeof NPC_LINES.clerk.lines === 'function' ? NPC_LINES.clerk.lines() : NPC_LINES.clerk.lines;
     openDialogue(NPC_LINES.clerk.speaker, base, null, ()=>{
+      if(state.registrarDefeated && !state.stenographerDuelWon){
+        openDialogueChoices('CLERK OF BERTH 14',
+          "Word travels fast from Cold Storage. There's a Stenographer down there who's transcribed every argument this Department has ever had ... yours included, apparently. They'd like a word. On the record.",
+          [
+            {label:'Go on the record.', next: ()=>startDuel('stenographer')},
+            {label:"Let the record wait.", next: ()=>{}},
+          ]
+        );
+        return;
+      }
       if(state.duelWon && !state.rivalDuelWon){
         openDialogueChoices('CLERK OF BERTH 14',
           "Word of your little victory reached the Inspector upstairs. They don't lose arguments ... but they've asked for you by name, if you're brave enough.",
@@ -6241,9 +6520,11 @@ function resetProgress(){
   state.fusions = emptyFusions();
   state.vaultSolved=false; state.archiveSolved=false;
   state.bossDefeated=false; state.minibossDefeated=false; state.finalBossDefeated=false;
+  state.registrarDefeated=false;
   state.memoryDone=false; state.usedSecondWind=false; state.maxHpBonus=0;
   state.andyUnlocked=false;
   state.sempreFound=false;
+  state.candygramFound=false;
   state.equippedTrinket=null;
   state.trinketBox=[];
   state.inventory=[];
@@ -6253,6 +6534,7 @@ function resetProgress(){
   state.rivalDuelWon=false;
   state.exitDuelWon=false;
   state.internDuelWon=false;
+  state.stenographerDuelWon=false;
   state.learnedInsults={};
   state.chroniclerFloorsHeard={};
   state.shardUses={ ember:0, hollow:0, tape:0 };
@@ -6286,9 +6568,11 @@ function continueGame(save){
   state.bossDefeated = !!save.bossDefeated;
   state.minibossDefeated = !!save.minibossDefeated;
   state.finalBossDefeated = !!save.finalBossDefeated;
+  state.registrarDefeated = !!save.registrarDefeated;
   state.memoryDone = !!save.memoryDone;
   state.andyUnlocked = !!save.andyUnlocked;
   state.sempreFound = !!save.sempreFound;
+  state.candygramFound = !!save.candygramFound;
   state.difficulty = save.difficulty || 'standard';
   state.equippedTrinket = save.equippedTrinket || null;
   state.trinketBox = Array.isArray(save.trinketBox) ? save.trinketBox.slice() : [];
@@ -6306,6 +6590,7 @@ function continueGame(save){
   state.rivalDuelWon = !!save.rivalDuelWon;
   state.exitDuelWon = !!save.exitDuelWon;
   state.internDuelWon = !!save.internDuelWon;
+  state.stenographerDuelWon = !!save.stenographerDuelWon;
   state.learnedInsults = Object.fromEntries((Array.isArray(save.learnedInsults)?save.learnedInsults:[]).map(s=>[s,true]));
   state.chroniclerFloorsHeard = Object.fromEntries((Array.isArray(save.chroniclerFloorsHeard)?save.chroniclerFloorsHeard:[]).map(s=>[s,true]));
   state.shardUses = { ember:0, hollow:0, tape:0, ...(save.shardUses||{}) };
