@@ -2,8 +2,30 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <title>LEDGER OF THE LOST</title>
+<meta name="description" content="A noir afterlife roguelite: Department of Postmortem Affairs, Filing Department dungeon crawl, and the Overtime Clause.">
+
+<!-- Installable as a home-screen app: manifest.json + icons/ must sit
+     alongside this file (same folder) wherever it's hosted, e.g. GitHub
+     Pages. On Android/Chrome, "Add to Home Screen" picks this up
+     automatically; the meta tags below cover the same for iOS Safari,
+     which doesn't read the manifest for its icon/title. -->
+<link rel="manifest" href="manifest.json">
+<link rel="icon" href="favicon.ico" sizes="any">
+<link rel="icon" href="icons/icon-32.png" sizes="32x32" type="image/png">
+<link rel="apple-touch-icon" href="icons/icon-180.png">
+<meta name="theme-color" content="#0b0e14">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Ledger">
+<meta property="og:title" content="Ledger of the Lost">
+<meta property="og:description" content="A noir afterlife roguelite: Department of Postmortem Affairs, Filing Department dungeon crawl, and the Overtime Clause.">
+<meta property="og:type" content="website">
+<meta property="og:image" content="icons/icon-512.png">
+<meta name="twitter:card" content="summary">
+
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@500;700;900&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
@@ -16,6 +38,8 @@
     --terminal:#7fbf8f;
     --blood:#b4453a;
     --paper:#e8e1d0;
+    --marigold:#e8823a;
+    --mako:#6fe0a0;
   }
   *{box-sizing:border-box;}
   html,body{
@@ -35,14 +59,15 @@
   #frame{
     position:relative;
     border:3px solid var(--brass-dim);
-    box-shadow:0 0 0 1px #000, 0 0 40px rgba(201,161,90,0.08), inset 0 0 60px rgba(0,0,0,0.6);
+    outline:1px solid rgba(0,0,0,0.8);outline-offset:4px;
+    box-shadow:0 0 0 1px #000, 0 0 40px rgba(201,161,90,0.08), 0 24px 60px rgba(0,0,0,0.7), inset 0 0 60px rgba(0,0,0,0.6), inset 0 1px 0 rgba(255,255,255,0.06);
     background:#000;
     width:800px;max-width:96vw;
     animation:frameBreathe 6s ease-in-out infinite;
   }
   @keyframes frameBreathe{
-    0%,100%{box-shadow:0 0 0 1px #000, 0 0 40px rgba(201,161,90,0.08), inset 0 0 60px rgba(0,0,0,0.6);}
-    50%{box-shadow:0 0 0 1px #000, 0 0 56px rgba(201,161,90,0.16), inset 0 0 60px rgba(0,0,0,0.6);}
+    0%,100%{box-shadow:0 0 0 1px #000, 0 0 40px rgba(201,161,90,0.08), 0 24px 60px rgba(0,0,0,0.7), inset 0 0 60px rgba(0,0,0,0.6), inset 0 1px 0 rgba(255,255,255,0.06);}
+    50%{box-shadow:0 0 0 1px #000, 0 0 56px rgba(201,161,90,0.16), 0 24px 60px rgba(0,0,0,0.7), inset 0 0 60px rgba(0,0,0,0.6), inset 0 1px 0 rgba(255,255,255,0.06);}
   }
   #title-bar{
     display:flex;justify-content:space-between;align-items:center;
@@ -56,6 +81,7 @@
   #title-bar .file{font-family:'IBM Plex Mono',monospace;font-size:11px;color:#8a8f9c;}
   #buildStamp{cursor:pointer;opacity:0.7;font-size:10px;}
   #buildStamp:hover{opacity:1;color:var(--brass);}
+  #file-tag::before{content:'💀 ';opacity:0.75;}
   #menuDropdown{position:relative;}
   #menuBtn{
     cursor:pointer;font-size:11px;letter-spacing:1px;opacity:0.9;
@@ -81,32 +107,302 @@
   }
   #menuList .menu-item:last-child{border-bottom:none;}
   #menuList .menu-item:hover{background:var(--brass-dim);color:#000;}
-  #panel .itemgrid{display:flex;flex-wrap:wrap;gap:10px;width:340px;margin-bottom:16px;justify-content:center;}
+  #panel .itemgrid{display:flex;flex-wrap:wrap;gap:10px;width:min(340px,90vw);margin-bottom:16px;justify-content:center;}
   #panel .itemcard{
-    width:96px;border:1px solid var(--brass-dim);padding:8px 6px;cursor:pointer;
-    background:rgba(255,255,255,0.02);text-align:center;font-size:10px;color:#c9c3b0;
+    width:96px;border:1px solid var(--brass-dim);padding:10px 6px 8px;cursor:pointer;
+    background:radial-gradient(ellipse at top, rgba(111,224,160,0.05), rgba(255,255,255,0.02) 60%);
+    text-align:center;font-size:10px;color:#c9c3b0;
     clip-path:polygon(8px 0, 100% 0, 100% 100%, 0 100%, 0 8px);
+    transition:border-color .15s, box-shadow .15s, transform .1s;
   }
-  #panel .itemcard .glyph{font-size:20px;color:var(--brass);margin-bottom:4px;}
-  #panel .itemcard.selected{border-color:var(--terminal);background:rgba(127,191,143,0.08);}
-  #panel .itemcard:hover{border-color:var(--brass);}
-  #panel .itemdesc{width:320px;font-size:11px;color:#9a9fac;min-height:32px;margin-bottom:10px;}
+  #panel .itemcard .glyph{
+    font-size:18px;color:var(--brass);margin-bottom:6px;
+    display:inline-flex;align-items:center;justify-content:center;
+    width:32px;height:32px;border-radius:50%;
+    background:radial-gradient(circle at 35% 30%, #3a4258, #12141c 75%);
+    box-shadow:inset 0 0 4px rgba(0,0,0,0.8), 0 0 0 1px rgba(201,161,90,0.25);
+  }
+  #panel .itemcard.selected{
+    border-color:var(--terminal);background:rgba(127,191,143,0.08);
+    box-shadow:0 0 12px rgba(127,191,143,0.35);
+  }
+  #panel .itemcard.selected .glyph{
+    background:radial-gradient(circle at 35% 30%, #c8f5d6, var(--mako) 55%, #2f7a4f 100%);
+    box-shadow:0 0 10px rgba(111,224,160,0.85), inset 0 0 4px rgba(255,255,255,0.4);
+    color:#0b1f12;
+  }
+  #panel .itemcard:hover{border-color:var(--brass);transform:translateY(-2px);}
+  #panel .itemdesc{width:min(320px,88vw);font-size:11px;color:#9a9fac;min-height:32px;margin-bottom:10px;}
+
+  /* --- Insult Duel: Monkey-Island-style "insult sword fighting" --- */
+  #panel.duel-mode{
+    background:
+      radial-gradient(ellipse at center, rgba(20,14,10,0.97), rgba(4,3,2,0.99)),
+      #08070a;
+  }
+  .duel-h1{position:relative;}
+  .duel-h1::before{
+    content:'⚔';display:block;font-size:22px;color:var(--marigold);
+    text-shadow:0 0 12px rgba(232,130,58,0.6);margin-bottom:6px;opacity:0.9;
+  }
+  .duel-insult{
+    position:relative;max-width:min(340px,88vw);
+    color:#f0c9a8;font-style:italic;font-size:14px;line-height:1.6;
+    background:rgba(30,18,10,0.55);
+    border:1px solid rgba(232,130,58,0.35);border-radius:16px;
+    padding:14px 18px 18px;margin:6px auto 22px;
+  }
+  .duel-insult::after{
+    content:'';position:absolute;left:38px;bottom:-10px;
+    border-width:10px 8px 0 0;border-style:solid;
+    border-color:rgba(232,130,58,0.35) transparent transparent transparent;
+  }
+  .duel-opt{border-color:var(--brass-dim);position:relative;padding-left:26px !important;}
+  .duel-opt::before{
+    content:'⚔';position:absolute;left:8px;top:50%;transform:translateY(-50%) rotate(-90deg);
+    font-size:11px;color:var(--marigold);opacity:0;transition:opacity .15s;
+  }
+  .duel-opt:hover::before{opacity:1;}
+  .btn.duel-opt:hover{border-color:var(--marigold);color:#000;background:var(--marigold);}
+  .duel-known-tag{
+    display:inline-block;font-size:10px;letter-spacing:0.5px;color:var(--terminal);
+    border:1px solid rgba(127,191,143,0.4);border-radius:10px;padding:2px 9px;margin:-2px auto 10px;
+    opacity:0.85;
+  }
+  .duel-opt.known-correct{border-color:var(--terminal);}
+  .duel-opt.known-correct::after{
+    content:'✓ heard this one before';position:absolute;right:10px;top:50%;transform:translateY(-50%);
+    font-size:9px;color:var(--terminal);opacity:0.75;letter-spacing:0.3px;
+  }
+
+  /* --- The Flotsam Exchange: FFVII glass-case grid + Grim Fandango marigold glow
+         + Monkey Island hand-painted shop sign --- */
+  #panel.shop-mode{
+    background:
+      radial-gradient(ellipse at top, rgba(111,224,160,0.06), rgba(0,0,0,0) 55%),
+      radial-gradient(ellipse at center, rgba(18,13,10,0.97), rgba(3,2,4,0.99)),
+      #08070a;
+  }
+  .shop-sign{
+    display:inline-block;margin:0 auto 4px;padding:14px 32px 16px;
+    background:linear-gradient(160deg, #6b4a2c, #4a3119 70%);
+    border:3px solid #2a1c0d;
+    box-shadow:0 6px 0 rgba(0,0,0,0.4), inset 0 0 0 2px rgba(232,130,58,0.25), 0 10px 20px rgba(0,0,0,0.5);
+    transform:rotate(-1.2deg);
+    position:relative;
+  }
+  .shop-sign::before, .shop-sign::after{
+    content:'';position:absolute;top:-9px;width:8px;height:8px;border-radius:50%;
+    background:#1a1108;box-shadow:inset 0 1px 2px rgba(0,0,0,0.8), 0 0 0 2px #4a3119;
+  }
+  .shop-sign::before{left:14px;}
+  .shop-sign::after{right:14px;}
+  .shop-sign span{
+    font-family:'Playfair Display',serif;font-weight:900;
+    font-size:clamp(22px,5.5vw,30px);letter-spacing:2px;color:#f5e3c0;
+    text-shadow:0 2px 0 rgba(0,0,0,0.5);
+  }
+  .shop-banter{
+    max-width:min(92vw,540px);color:#c9c3b0;font-style:italic;font-size:12.5px;
+    line-height:1.7;margin:0 auto 20px;
+  }
+  .shop-grid{width:min(560px,92vw) !important;gap:12px !important;}
+  .shop-case{
+    position:relative;width:110px;
+    border:1px solid var(--brass-dim);
+    background:linear-gradient(160deg, rgba(255,255,255,0.05), rgba(0,0,0,0.15));
+    box-shadow:inset 0 0 0 1px rgba(255,255,255,0.05), inset 0 12px 18px -14px rgba(255,255,255,0.15);
+    overflow:hidden;
+  }
+  .shop-case .glyph{
+    background:radial-gradient(circle at 35% 30%, #c8f5d6, var(--mako) 55%, #2f7a4f 100%) !important;
+    box-shadow:0 0 10px rgba(111,224,160,0.85), inset 0 0 4px rgba(255,255,255,0.4) !important;
+    color:#0b1f12 !important;
+  }
+  .shop-case .shop-tag{
+    margin-top:6px;font-size:8.5px;letter-spacing:0.3px;color:var(--marigold);
+    opacity:0.85;line-height:1.3;
+  }
+  .shop-case.shop-locked{cursor:default;opacity:0.55;}
+  .shop-case.shop-locked .glyph{
+    background:radial-gradient(circle at 35% 30%, #3a4258, #12141c 75%) !important;
+    box-shadow:inset 0 0 4px rgba(0,0,0,0.8) !important;color:#4a5568 !important;
+  }
+  .shop-case.shop-locked .shop-tag{color:#7a7f8c;}
+  .shop-case.shop-locked:hover{transform:none;border-color:var(--brass-dim);}
+  /* Verb-coding ghost label, SCUMM-interface-style: hovering a case shows
+     the "verb" that would apply, same idea as the old LOOK AT / PICK UP
+     bar along the bottom of a LucasArts screen. */
+  .shop-case::before{
+    content:'\203A LOOK AT';
+    position:absolute;inset:0;display:flex;align-items:center;justify-content:center;
+    font-size:10px;letter-spacing:1.5px;color:var(--terminal);
+    background:rgba(8,7,10,0.82);
+    opacity:0;transition:opacity .15s;pointer-events:none;
+    text-shadow:0 0 8px rgba(111,224,160,0.5);
+  }
+  .shop-case:not(.shop-locked)::before{content:'\203A PICK UP';}
+  .shop-case:hover::before{opacity:1;}
+  .shop-count{color:var(--terminal);font-size:11px;letter-spacing:2px;margin:2px 0 18px;}
+
+  /* --- Procedures Manual (in-game Rulebook) ... same panel, a denser
+         reading mode: a table of contents, then paginated chapters with
+         their own lightweight tables/lists, styled off the same brass/
+         paper/terminal palette as everything else instead of a fresh
+         framework. --- */
+  #panel.rulebook-mode .rb-wrap{
+    text-align:left;width:min(600px,90vw);max-height:60vh;overflow-y:auto;
+    padding-right:6px;margin-bottom:16px;
+  }
+  #panel.rulebook-mode .rb-toc{display:flex;flex-direction:column;gap:6px;}
+  #panel.rulebook-mode .rb-toc-item{
+    display:flex;align-items:flex-start;gap:12px;
+    border:1px solid rgba(201,161,90,0.22);padding:9px 12px;cursor:pointer;
+    background:rgba(255,255,255,0.015);transition:border-color .15s,background .15s;
+  }
+  #panel.rulebook-mode .rb-toc-item:hover{border-color:var(--brass);background:rgba(201,161,90,0.06);}
+  #panel.rulebook-mode .rb-toc-item .rb-num{color:var(--brass-dim);font-size:10.5px;min-width:18px;padding-top:1px;}
+  #panel.rulebook-mode .rb-toc-item .rb-titlewrap{flex:1;min-width:0;display:flex;flex-direction:column;gap:2px;}
+  #panel.rulebook-mode .rb-toc-item .rb-title{color:var(--paper);font-size:12.5px;white-space:nowrap;}
+  #panel.rulebook-mode .rb-toc-item .rb-dek{color:#7a7f8c;font-size:10px;}
+  #panel.rulebook-mode .rb-chapter-num{font-size:10px;letter-spacing:3px;color:var(--brass-dim);margin-bottom:4px;}
+  #panel.rulebook-mode .rb-dek-line{color:var(--terminal);font-size:10.5px;letter-spacing:1px;margin-bottom:14px;text-transform:uppercase;}
+  #panel.rulebook-mode .rb-wrap h4{
+    font-family:'Playfair Display',serif;font-weight:700;color:var(--paper);
+    font-size:13.5px;margin:18px 0 6px;padding-bottom:4px;border-bottom:1px solid rgba(201,161,90,0.18);
+  }
+  #panel.rulebook-mode .rb-wrap p{color:#c9c3b0;font-size:12px;line-height:1.7;margin:0 0 12px;}
+  #panel.rulebook-mode .rb-wrap ul{color:#c9c3b0;font-size:11.5px;padding-left:18px;margin:0 0 12px;}
+  #panel.rulebook-mode .rb-wrap li{margin-bottom:5px;}
+  #panel.rulebook-mode .rb-wrap table{border-collapse:collapse;width:100%;font-size:11px;margin:4px 0 16px;}
+  #panel.rulebook-mode .rb-wrap thead th{
+    text-align:left;color:var(--brass);font-weight:600;letter-spacing:0.5px;
+    padding:6px 8px;border-bottom:2px solid var(--brass-dim);font-size:9.5px;text-transform:uppercase;
+  }
+  #panel.rulebook-mode .rb-wrap tbody td{padding:7px 8px;border-bottom:1px solid rgba(255,255,255,0.07);color:#c9c3b0;vertical-align:top;}
+  #panel.rulebook-mode .rb-wrap tbody tr:last-child td{border-bottom:none;}
+  #panel.rulebook-mode .rb-wrap td.rb-name{color:var(--paper);font-weight:600;white-space:nowrap;}
+  #panel.rulebook-mode .rb-wrap td.rb-num{color:var(--mako);font-variant-numeric:tabular-nums;white-space:nowrap;}
+  #panel.rulebook-mode .rb-note{
+    border-left:2px solid var(--brass-dim);padding:8px 12px;margin:10px 0 16px;
+    background:rgba(201,161,90,0.05);color:#b8b2a0;font-size:10.5px;font-style:italic;
+  }
+  #panel.rulebook-mode .rb-note.blood{border-left-color:var(--blood);background:rgba(180,69,58,0.07);}
+  #panel.rulebook-mode .rb-nav{display:flex;gap:8px;justify-content:center;flex-wrap:wrap;}
+  #panel.rulebook-mode .rb-nav .btn{font-size:10.5px;padding:9px 14px;}
+
+  /* --- Exhibit C: The Swan Boat Incident (comic strip) ... cream newsprint
+         frames with halftone shading, built from styled DOM + small canvas
+         illustrations rather than image or SVG assets. --- */
+  #panel.comic-mode{
+    background:
+      radial-gradient(ellipse at center, rgba(20,16,12,0.97), rgba(4,3,2,0.99)),
+      #08070a;
+  }
+  .comic-strip{
+    display:flex;flex-direction:column;align-items:center;gap:22px;
+    width:min(300px,86vw);margin:0 auto 18px;max-height:56vh;overflow-y:auto;padding:4px;
+  }
+  .comic-frame{
+    position:relative;width:100%;
+    background:#e8e0c8;color:#17130d;
+    border:3px solid #17130d;
+    box-shadow:0 8px 18px rgba(0,0,0,0.5), inset 0 0 0 1px rgba(255,255,255,0.15);
+    padding:14px 14px 12px;
+    transform:rotate(var(--tilt,0deg));
+    box-sizing:border-box;
+  }
+  .comic-frame::before{
+    content:'';position:absolute;inset:0;pointer-events:none;
+    background-image:radial-gradient(rgba(20,16,10,0.16) 1px, transparent 1.4px);
+    background-size:5px 5px;
+    mix-blend-mode:multiply;
+  }
+  .comic-frame canvas{display:block;margin:0 auto 8px;position:relative;max-width:100%;height:auto;}
+  .comic-caption{
+    position:relative;font-family:'IBM Plex Mono',monospace;font-weight:600;
+    font-size:11px;letter-spacing:0.3px;color:#1a1510;line-height:1.55;text-align:left;
+  }
+  .comic-bubble{
+    position:relative;display:inline-block;margin-top:8px;padding:6px 10px;
+    background:#fff;border:2px solid #17130d;border-radius:10px;
+    font-family:'IBM Plex Mono',monospace;font-weight:600;font-size:10.5px;color:#17130d;
+  }
+  .comic-bubble::after{
+    content:'';position:absolute;left:16px;bottom:-8px;
+    border-width:8px 6px 0 0;border-style:solid;border-color:#17130d transparent transparent transparent;
+  }
+  .comic-sfx{
+    position:relative;text-align:center;font-family:'Playfair Display',serif;font-weight:900;
+    font-size:22px;color:#b4453a;letter-spacing:1px;transform:rotate(-4deg);
+    text-shadow:2px 2px 0 #17130d;margin:4px 0 8px;
+  }
+  .comic-ticket{
+    position:relative;background:#f5efd8;border:1.5px dashed #17130d;padding:8px 10px;
+    font-family:'IBM Plex Mono',monospace;font-size:9.5px;color:#3a2f1a;line-height:1.6;margin-top:6px;
+  }
+
+  /* --- The Exhibits: landing list (A/B/C), shared nav row --- */
+  .exhibit-toc{display:flex;flex-direction:column;gap:8px;width:min(340px,88vw);margin:6px 0 18px;}
+  .exhibit-toc-item{
+    display:flex;justify-content:space-between;align-items:baseline;gap:10px;
+    border:1px solid rgba(201,161,90,0.25);padding:12px 16px;cursor:pointer;
+    background:rgba(255,255,255,0.02);transition:border-color .15s,background .15s;
+  }
+  .exhibit-toc-item:hover{border-color:var(--brass);background:rgba(201,161,90,0.06);}
+  .exhibit-toc-label{color:var(--brass);font-family:'Playfair Display',serif;font-weight:700;font-size:14px;}
+  .exhibit-toc-dek{color:#9a9fac;font-size:11px;}
+  .exhibit-nav{display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin-top:4px;}
+  .exhibit-nav .btn{font-size:10.5px;padding:9px 14px;}
+
+  /* --- Exhibit A: a single note card --- */
+  .exhibit-note-card{
+    width:min(320px,86vw);margin:18px auto 22px;padding:32px 24px 30px;
+    background:linear-gradient(160deg, rgba(232,225,208,0.05), rgba(232,225,208,0.02));
+    border:1px solid rgba(201,161,90,0.3);
+    box-shadow:0 10px 30px rgba(0,0,0,0.4), inset 0 0 40px rgba(201,161,90,0.03);
+    transform:rotate(-0.6deg);
+  }
+  .exhibit-note-card .note-pre{
+    font-family:'Playfair Display',serif;font-style:italic;font-size:13px;color:#b9c9bd;margin-bottom:10px;
+  }
+  .exhibit-note-card .note-main{
+    font-family:'Playfair Display',serif;font-weight:900;font-size:34px;color:var(--brass);
+    text-shadow:0 0 24px rgba(201,161,90,0.35);margin-bottom:10px;line-height:1.2;
+  }
+  .exhibit-note-card .note-post{
+    font-family:'Playfair Display',serif;font-style:italic;font-weight:700;font-size:16px;color:var(--paper);
+  }
+
+  /* --- Exhibit B: three-item grid --- */
+  .exhibit-item-grid{display:flex;flex-wrap:wrap;gap:16px;justify-content:center;width:min(460px,90vw);margin:8px 0 16px;}
+  .exhibit-item-card{
+    width:130px;border:1px solid rgba(201,161,90,0.25);padding:12px 10px 14px;
+    background:rgba(255,255,255,0.02);text-align:center;
+  }
+  .exhibit-item-card canvas{display:block;position:relative;width:120px;height:120px;max-width:100%;margin:0 auto 8px;}
+  .exhibit-item-name{color:var(--brass);font-family:'Playfair Display',serif;font-weight:700;font-size:12.5px;margin-bottom:6px;}
+  .exhibit-item-text{color:#b8b2a0;font-size:10px;line-height:1.5;}
+
   body.colorblind{
     --blood:#c76b1f;
     --terminal:#4fa8d8;
   }
   #panel{
-    position:absolute;top:0;left:0;width:100%;height:100%;
-    background:radial-gradient(ellipse at center, rgba(10,8,14,0.92), rgba(0,0,0,0.98));
+    position:fixed;inset:0;width:100%;height:100vh;height:100dvh;
+    background:
+      radial-gradient(ellipse at center, rgba(14,11,18,0.97), rgba(3,2,4,0.99)),
+      #08070a;
+    backdrop-filter:blur(2px);
     display:none;flex-direction:column;align-items:center;
     justify-content:center;justify-content:safe center;
-    text-align:center;padding:20px;pointer-events:auto;z-index:5;
+    text-align:center;padding:28px 20px;pointer-events:auto;z-index:50;
     overflow-y:auto;-webkit-overflow-scrolling:touch;box-sizing:border-box;
   }
-  #panel .questlist{text-align:left;width:320px;font-size:12px;color:#c9c3b0;margin-bottom:18px;}
+  #panel .questlist{text-align:left;width:min(320px,88vw);font-size:12px;color:#c9c3b0;margin-bottom:18px;}
   #panel .questitem{display:flex;gap:8px;padding:5px 0;border-bottom:1px solid rgba(201,161,90,0.12);}
   #panel .questitem.done{color:#7fbf8f;}
-  #panel .settingsrow{display:flex;align-items:center;justify-content:space-between;width:280px;margin-bottom:14px;font-size:12px;}
+  #panel .settingsrow{display:flex;align-items:center;justify-content:space-between;width:min(280px,88vw);margin-bottom:14px;font-size:12px;}
   #panel input[type=range]{width:140px;accent-color:var(--brass);}
   #panel .toggle{border:1px solid var(--brass-dim);padding:5px 12px;cursor:pointer;font-size:11px;color:var(--terminal);}
   #panel .toggle.on{background:var(--brass-dim);color:#000;}
@@ -143,6 +439,38 @@
     display:none;
   }
   #game3d{image-rendering:auto;}
+  #postfx{position:absolute;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:2;}
+  #postfx::before{
+    content:'';position:absolute;inset:0;
+    mix-blend-mode:soft-light;opacity:0.5;
+    background:
+      linear-gradient(135deg, rgba(255,150,70,0.16) 0%, rgba(255,150,70,0) 30%),
+      linear-gradient(-45deg, rgba(60,140,190,0.18) 0%, rgba(60,140,190,0) 35%),
+      repeating-linear-gradient(100deg, rgba(0,0,0,0.32) 0px, rgba(0,0,0,0.32) 22px, rgba(0,0,0,0) 22px, rgba(0,0,0,0) 58px);
+  }
+  #postfx::after{
+    content:'';position:absolute;top:-50%;left:-60%;width:60%;height:220%;
+    background:linear-gradient(100deg, rgba(255,255,255,0) 0%, rgba(255,244,214,0.06) 45%, rgba(255,244,214,0.1) 50%, rgba(255,244,214,0.06) 55%, rgba(255,255,255,0) 100%);
+    transform:rotate(12deg);
+    animation:lightsweep 14s ease-in-out infinite;
+    mix-blend-mode:screen;
+  }
+  @keyframes lightsweep{0%{left:-60%;}45%{left:120%;}100%{left:120%;}}
+  #stage::before{
+    content:'';position:absolute;inset:-20px;pointer-events:none;z-index:3;
+    background-image:
+      radial-gradient(circle, rgba(232,130,58,0.55) 1px, transparent 1.6px),
+      radial-gradient(circle, rgba(232,130,58,0.35) 1.2px, transparent 1.8px),
+      radial-gradient(circle, rgba(111,224,160,0.3) 1px, transparent 1.6px);
+    background-size:180px 220px, 260px 300px, 340px 260px;
+    background-position:10px 0, 90px 60px, 200px 20px;
+    opacity:0.4;
+    animation:embersrise 22s linear infinite;
+  }
+  @keyframes embersrise{
+    0%{background-position:10px 0, 90px 60px, 200px 20px;}
+    100%{background-position:10px -220px, 90px -300px, 200px -260px;}
+  }
   #hud{
     position:absolute;top:0;left:0;width:100%;height:100%;
     pointer-events:none;
@@ -154,29 +482,78 @@
     font-size:12px;color:var(--paper);
     text-shadow:0 1px 2px #000;
   }
-  .hpbar{width:160px;height:12px;border:1px solid var(--brass);background:#1a1006;position:relative;}
-  .hpfill{position:absolute;left:0;top:0;bottom:0;background:var(--blood);}
-  .limitbar{width:160px;height:6px;border:1px solid var(--brass-dim);background:#141018;position:relative;margin-top:3px;}
-  .limitfill{position:absolute;left:0;top:0;bottom:0;background:#e0c05a;transition:width .15s;}
-  .limitfill.ready{background:#ffe07a;box-shadow:0 0 6px rgba(255,224,122,0.8);}
-  .shardrow{display:flex;gap:6px;margin-top:4px;}
-  .shardicon{
-    width:16px;height:16px;border:1px solid var(--brass-dim);
-    background:var(--panel);display:flex;align-items:center;justify-content:center;
-    font-size:9px;color:var(--terminal);
+  .hud-top > div:first-child{position:relative;padding:6px 10px 6px 8px;}
+  .hud-top > div:first-child::before{
+    content:'';position:absolute;top:-6px;left:-10px;width:200px;height:calc(100% + 12px);
+    background:radial-gradient(ellipse at left center, rgba(111,224,160,0.16), rgba(111,224,160,0) 70%);
+    pointer-events:none;z-index:-1;
+    animation:makopulse 3.2s ease-in-out infinite;
   }
-  .shardicon.have{background:var(--brass-dim);color:#000;}
+  @keyframes makopulse{0%,100%{opacity:0.6;}50%{opacity:1;}}
+  .hpbar{
+    width:160px;height:12px;border:1px solid var(--brass);background:#1a1006;position:relative;
+    box-shadow:inset 0 2px 3px rgba(0,0,0,0.7), inset 0 -1px 0 rgba(255,255,255,0.06);
+  }
+  .hpfill{
+    position:absolute;left:0;top:0;bottom:0;
+    background:linear-gradient(180deg, #e2685a, var(--blood) 60%, #7a251d);
+    box-shadow:0 0 5px rgba(180,69,58,0.6);transition:width .2s;
+  }
+  .limitbar{
+    width:160px;height:6px;border:1px solid var(--brass-dim);background:#141018;position:relative;margin-top:4px;
+    box-shadow:inset 0 1px 2px rgba(0,0,0,0.7);
+  }
+  .limitfill{position:absolute;left:0;top:0;bottom:0;background:linear-gradient(180deg,#f0d27a,#e0c05a);transition:width .15s;}
+  .limitfill.ready{
+    background:linear-gradient(180deg,#fff3c4,#ffe07a);
+    box-shadow:0 0 8px rgba(255,224,122,0.9), 0 0 2px rgba(255,255,255,0.8);
+    animation:limitpulse 1.1s ease-in-out infinite;
+  }
+  .limitbar:has(.limitfill.ready){
+    box-shadow:0 0 10px rgba(255,224,122,0.7), 0 0 2px rgba(255,255,255,0.6);
+  }
+  @keyframes limitpulse{0%,100%{filter:brightness(1);}50%{filter:brightness(1.35);}}
+  .atb-ready{color:var(--mako);text-shadow:0 0 6px rgba(111,224,160,0.8);animation:limitpulse 1.1s ease-in-out infinite;}
+  .shardrow{display:flex;gap:7px;margin-top:5px;}
+  .shardicon{
+    width:17px;height:17px;border-radius:50%;
+    border:1px solid var(--brass-dim);
+    background:radial-gradient(circle at 35% 30%, #2a3040, #10121a 75%);
+    display:flex;align-items:center;justify-content:center;
+    font-size:9px;color:#4a5568;
+    box-shadow:inset 0 0 3px rgba(0,0,0,0.8);
+    transition:box-shadow .2s, background .2s;
+  }
+  .shardicon.have{
+    background:radial-gradient(circle at 35% 30%, #b6e6c4, var(--terminal) 55%, #3f7a52 100%);
+    color:#0b1f12;border-color:var(--terminal);
+    box-shadow:0 0 6px rgba(127,191,143,0.85), 0 0 2px rgba(255,255,255,0.6), inset 0 0 3px rgba(255,255,255,0.4);
+  }
   #dialogue{
-    position:absolute;left:20px;right:20px;bottom:16px;
-    background:rgba(10,10,10,0.94);
-    border:1px solid var(--brass);
-    box-shadow:0 0 0 1px rgba(0,0,0,0.6), inset 0 0 0 1px rgba(201,161,90,0.15), 0 6px 18px rgba(0,0,0,0.5);
-    padding:12px 16px;
+    position:absolute;left:14px;right:14px;bottom:12px;
+    background:linear-gradient(180deg, rgba(14,12,17,0.98), rgba(6,5,8,0.99));
+    border:2px solid var(--brass);
+    box-shadow:0 0 0 1px rgba(0,0,0,0.6), inset 0 0 0 1px rgba(201,161,90,0.15), 0 8px 22px rgba(0,0,0,0.6);
+    padding:14px 18px;
     display:none;
     pointer-events:auto;
-    font-size:13px;
-    line-height:1.5;
+    font-size:clamp(13px,2.9vw,15px);
+    line-height:1.55;
+    max-height:70%;
+    overflow-y:auto;
     clip-path:polygon(10px 0, 100% 0, 100% 100%, 0 100%, 0 10px);
+  }
+  #dialogue::after{
+    content:'';position:absolute;inset:0;pointer-events:none;
+    background-image:
+      radial-gradient(circle at 35% 35%, #e6c98a, var(--brass-dim) 70%),
+      radial-gradient(circle at 35% 35%, #e6c98a, var(--brass-dim) 70%),
+      radial-gradient(circle at 35% 35%, #e6c98a, var(--brass-dim) 70%),
+      radial-gradient(circle at 35% 35%, #e6c98a, var(--brass-dim) 70%);
+    background-repeat:no-repeat;
+    background-size:5px 5px;
+    background-position:top 6px left 12px, top 6px right 6px, bottom 6px left 12px, bottom 6px right 6px;
+    opacity:0.75;
   }
   #dialogue::before{
     content:'';
@@ -201,30 +578,39 @@
   }
   #dialogue .choice:hover{background:var(--brass-dim);color:#000;}
   #overlay{
-    position:absolute;top:0;left:0;width:100%;height:100%;
-    background:radial-gradient(ellipse at center, rgba(10,8,14,0.85), rgba(0,0,0,0.97));
-    display:flex;flex-direction:column;align-items:center;
+    position:fixed;inset:0;width:100%;height:100vh;height:100dvh;
+    background:
+      radial-gradient(ellipse at center, rgba(15,12,19,0.95), rgba(2,2,4,0.99)),
+      #08070a;
+    backdrop-filter:blur(2px);
+    display:none;flex-direction:column;align-items:center;
     justify-content:center;justify-content:safe center;
-    text-align:center;padding:24px 20px;
-    pointer-events:auto;
+    text-align:center;padding:32px 20px;
+    pointer-events:auto;z-index:50;
     overflow-y:auto;-webkit-overflow-scrolling:touch;box-sizing:border-box;
   }
   #overlay h1, #panel h1{
-    font-family:'Playfair Display',serif;font-weight:900;font-size:38px;color:var(--brass);
-    letter-spacing:4px;margin:0 0 6px 0;
+    font-family:'Playfair Display',serif;font-weight:900;font-size:clamp(28px,6.5vw,40px);color:var(--brass);
+    letter-spacing:clamp(2px,0.6vw,4px);margin:0 0 6px 0;line-height:1.15;
     text-shadow:0 1px 0 rgba(255,255,255,0.18), 0 -1px 0 rgba(0,0,0,0.65), 0 0 24px rgba(201,161,90,0.35);
   }
-  #overlay .sub, #panel .sub{color:var(--terminal);font-size:12px;letter-spacing:3px;margin-bottom:26px;}
-  #overlay p.flavor, #panel p.flavor{max-width:480px;color:#b9b3a0;font-size:12.5px;line-height:1.7;margin-bottom:22px;}
+  #overlay h1::after, #panel h1::after{
+    content:'\25C6 \25C6 \25C6';
+    display:block;color:var(--brass-dim);font-size:8px;letter-spacing:7px;
+    margin-top:8px;opacity:0.7;
+  }
+  #overlay .sub, #panel .sub{color:var(--terminal);font-size:clamp(11px,2.8vw,12.5px);letter-spacing:3px;margin-bottom:26px;}
+  #overlay p.flavor, #panel p.flavor{max-width:min(92vw,520px);color:#c2bca9;font-size:clamp(13px,3.2vw,14.5px);line-height:1.75;margin-bottom:22px;text-shadow:0 1px 2px rgba(0,0,0,0.5);}
   .btn{
     font-family:'IBM Plex Mono',monospace;
     border:1px solid var(--brass);
-    background:transparent;color:var(--paper);
-    padding:10px 22px;margin:5px;cursor:pointer;font-size:13px;letter-spacing:1px;
-    transition:background .15s,color .15s;
+    background:rgba(201,161,90,0.04);color:var(--paper);
+    padding:11px 22px;margin:5px;cursor:pointer;font-size:13.5px;letter-spacing:1px;
+    transition:background .15s,color .15s,box-shadow .15s;
     clip-path:polygon(8px 0, 100% 0, 100% calc(100% - 8px), calc(100% - 8px) 100%, 0 100%, 0 8px);
+    box-shadow:inset 0 1px 0 rgba(255,255,255,0.08), inset 0 -6px 10px -8px rgba(0,0,0,0.6);
   }
-  .btn:hover{background:var(--brass);color:#000;}
+  .btn:hover{background:var(--brass);color:#000;box-shadow:0 0 10px rgba(201,161,90,0.5), inset 0 1px 0 rgba(255,255,255,0.15);}
   .btn.primary{background:var(--brass-dim);color:#0b0e14;font-weight:600;}
   .btn.primary:hover{background:var(--brass);}
   #stamp{
@@ -233,10 +619,21 @@
     font-family:'Playfair Display',serif;font-weight:900;font-size:44px;
     padding:6px 18px;opacity:0;letter-spacing:4px;pointer-events:none;
   }
+  #limitCard{
+    position:absolute;top:38%;left:50%;transform:translate(-50%,-50%) scale(0.7);
+    font-family:'Playfair Display',serif;font-weight:900;text-transform:uppercase;
+    font-size:clamp(20px,6vw,32px);letter-spacing:3px;text-align:center;
+    color:var(--brass);white-space:nowrap;
+    text-shadow:0 0 4px rgba(0,0,0,0.9), 0 0 30px rgba(201,161,90,0.7), 0 0 60px rgba(201,161,90,0.4);
+    opacity:0;pointer-events:none;
+  }
   #banner{
-    position:absolute;top:12px;left:50%;transform:translateX(-50%);
-    font-family:'Playfair Display',serif;color:var(--brass);font-size:13px;letter-spacing:2px;
-    background:rgba(0,0,0,0.55);padding:4px 14px;border:1px solid var(--brass-dim);
+    position:absolute;top:92px;left:50%;transform:translateX(-50%);
+    max-width:min(560px,92%);text-align:center;
+    font-family:'Playfair Display',serif;color:var(--marigold);font-size:14px;letter-spacing:2px;
+    background:rgba(10,6,2,0.8);padding:6px 16px;border:1px solid var(--marigold);
+    box-shadow:0 0 16px rgba(232,130,58,0.35), inset 0 0 12px rgba(232,130,58,0.08);
+    text-shadow:0 0 8px rgba(232,130,58,0.6);
     opacity:0;transition:opacity .4s;pointer-events:none;
   }
   #memoryCaption{
@@ -298,10 +695,11 @@
   }
   #leaveBtn:hover{background:var(--blood);color:#fff;}
   #splash{
-    position:absolute;inset:0;z-index:50;
+    position:fixed;inset:0;width:100%;height:100vh;height:100dvh;z-index:55;
     background:#000;
     display:none;flex-direction:column;align-items:center;justify-content:center;
     text-align:center;padding:24px;box-sizing:border-box;
+    overflow-y:auto;-webkit-overflow-scrolling:touch;
     cursor:pointer;pointer-events:auto;
   }
   #splash .splash-eyebrow{
@@ -329,13 +727,26 @@
     #splash .splash-title{font-size:32px;letter-spacing:3px;}
     #splash .splash-metaphor{font-size:11px;max-width:88%;}
   }
+  /* Tighter chrome on phone-width screens ... this build is meant to be
+     installed and played on a phone, not just tolerated on one, so the
+     title bar and HUD get a dedicated pass rather than just wrapping. */
+  @media (max-width:430px){
+    #title-bar{padding:6px 10px;letter-spacing:1px;}
+    #title-bar .name{font-size:12px;}
+    #buildStamp{display:none;}
+    #file-tag{font-size:9px;}
+    .hud-top{font-size:10.5px;}
+    #panel.rulebook-mode .rb-wrap table{font-size:9.5px;}
+    #panel.rulebook-mode .rb-wrap thead th{padding:5px 5px;font-size:8.5px;}
+    #panel.rulebook-mode .rb-wrap tbody td{padding:5px 5px;}
+  }
 </style>
 </head>
 <body>
 <div id="wrap">
   <div id="frame">
     <div id="title-bar">
-      <span class="name">LEDGER OF THE LOST</span>
+      <span class="name">🧭 LEDGER OF THE LOST</span>
       <span class="file" style="display:flex;align-items:center;gap:10px;">
         <span id="buildStamp" title="build info">v0.14-b · rev.a1c9f</span>
         <div id="menuDropdown">
@@ -343,8 +754,12 @@
           <div id="menuList">
             <div class="menu-item" id="questBtn">📋 Case Objectives</div>
             <div class="menu-item" id="invBtn">🎒 Inventory</div>
+            <div class="menu-item" id="opShopBtn">🏪 The Flotsam Exchange</div>
             <div class="menu-item" id="bestiaryBtn">🗂 Bestiary</div>
+            <div class="menu-item" id="galleryBtn">🖼 Gallery</div>
+            <div class="menu-item" id="exhibitsBtn">📎 The Exhibits</div>
             <div class="menu-item" id="storyBtn">📖 The Full Story</div>
+            <div class="menu-item" id="rulebookBtn">📕 Procedures Manual</div>
             <div class="menu-item" id="settingsBtn">⚙ Settings</div>
             <div class="menu-item" id="muteBtn">🔊 Mute Sound</div>
             <div class="menu-item" id="homeBtn">🏠 Return to Main Menu</div>
@@ -356,6 +771,7 @@
     <div id="stage">
       <canvas id="game2d" width="800" height="600" style="display:block;"></canvas>
       <canvas id="game3d" width="800" height="600"></canvas>
+      <div id="postfx"></div>
       <div id="hud">
         <div class="hud-top" id="hud-top" style="display:none;">
           <div>
@@ -369,6 +785,7 @@
         <div id="banner"></div>
         <div id="memoryCaption"><div class="it">sempre e per sempre</div><div class="en">always and forever</div></div>
         <div id="stamp">DENIED</div>
+        <div id="limitCard"></div>
         <div id="dialogue">
           <div class="speaker" id="dlgSpeaker">???</div>
           <div class="body" id="dlgBody">...</div>
@@ -377,14 +794,6 @@
         </div>
         <div id="controls-note"></div>
         <div id="leaveBtn" title="leave without solving">✕ LEAVE</div>
-        <div id="overlay"></div>
-        <div id="panel"></div>
-        <div id="splash">
-          <div class="splash-eyebrow">DEPARTMENT OF POSTMORTEM AFFAIRS</div>
-          <h1 class="splash-title">LEDGER OF THE LOST</h1>
-          <p class="splash-metaphor">Before the Records Office. Before any of it had a name or a floor number. There is only the infinite black ... and you, somewhere inside it, waiting on a file that hasn't been opened yet.</p>
-          <div class="splash-enter">CLICK TO ENTER</div>
-        </div>
       </div>
     </div>
     <div id="footer">
@@ -401,6 +810,14 @@
       <div id="actbtn">ACT</div>
     </div>
   </div>
+</div>
+<div id="overlay"></div>
+<div id="panel"></div>
+<div id="splash">
+  <div class="splash-eyebrow">DEPARTMENT OF POSTMORTEM AFFAIRS</div>
+  <h1 class="splash-title">LEDGER OF THE LOST</h1>
+  <p class="splash-metaphor">Before the Records Office. Before any of it had a name or a floor number. There is only the infinite black ... and you, somewhere inside it, waiting on a file that hasn't been opened yet.</p>
+  <div class="splash-enter">CLICK TO ENTER</div>
 </div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
@@ -441,18 +858,23 @@ const el = {
   banner: document.getElementById('banner'),
   memoryCaption: document.getElementById('memoryCaption'),
   stamp: document.getElementById('stamp'),
+  limitCard: document.getElementById('limitCard'),
   controlsNote: document.getElementById('controls-note'),
   leaveBtn: document.getElementById('leaveBtn'),
   buildStamp: document.getElementById('buildStamp'),
   muteBtn: document.getElementById('muteBtn'),
   questBtn: document.getElementById('questBtn'),
   invBtn: document.getElementById('invBtn'),
+  opShopBtn: document.getElementById('opShopBtn'),
   bestiaryBtn: document.getElementById('bestiaryBtn'),
+  galleryBtn: document.getElementById('galleryBtn'),
+  exhibitsBtn: document.getElementById('exhibitsBtn'),
   settingsBtn: document.getElementById('settingsBtn'),
   panel: document.getElementById('panel'),
   seedTag: document.getElementById('seedTag'),
   splash: document.getElementById('splash'),
   storyBtn: document.getElementById('storyBtn'),
+  rulebookBtn: document.getElementById('rulebookBtn'),
   homeBtn: document.getElementById('homeBtn'),
   menuBtn: document.getElementById('menuBtn'),
   menuList: document.getElementById('menuList'),
@@ -496,11 +918,41 @@ function weightReduction(){
   return state.fusions.weight_photo ? 2 : 1;
 }
 
+// ---------------------------------------------------------------------
+// 0a1b. SHARD MASTERY ... an FFVII-materia-flavored AP track layered on
+// top of the three shards you actually swing with in combat. Landing
+// hits, dashing, and binding enemies slowly wears a groove into each
+// shard; past a threshold it locks in a small permanent bonus, once,
+// with its own banner and achievement. Purely additive ... nothing here
+// takes anything away if you never notice it.
+// ---------------------------------------------------------------------
+const SHARD_MASTERY_THRESHOLDS = { ember:25, hollow:15, tape:12 };
+const SHARD_MASTERY_LABELS = {
+  ember: 'Ember Regret settles in. Every blow lands with a little more weight from here on.',
+  hollow: 'Hollow Step wears smooth. The dash recovers faster from here on.',
+  tape: 'Red Tape knows your hand now. It binds a little more often from here on.',
+};
+function registerShardUse(key){
+  if(state.shardMastered[key]) return;
+  state.shardUses[key] = (state.shardUses[key]||0) + 1;
+  if(state.shardUses[key] >= SHARD_MASTERY_THRESHOLDS[key]){
+    state.shardMastered[key] = true;
+    writeSave();
+    flashBanner('SHARD MASTERED ... '+SHARD_MASTERY_LABELS[key]);
+    playSfx('shard');
+    achieve(key+'mastery', SHARD_DEFS[key].name+' Mastered');
+  }
+}
+function emberMasteryBonus(){ return state.shardMastered.ember ? 1 : 0; }
+function dashCooldown(){ return state.shardMastered.hollow ? 5 : 8; }
+function tapeMasteryBonus(){ return state.shardMastered.tape ? 0.1 : 0; }
+
 const TRINKET_DEFS = {
   cufflink: { key:'cufflink', name:'Brass Cufflink', desc:'+1 to every blow you land.', dmg:1 },
   ledger:   { key:'ledger',   name:'Worn Ledger',     desc:'+8 Max HP, carried like a shield.', hp:8 },
   stamp:    { key:'stamp',    name:'Lucky Stamp',     desc:'A little more of your hits land as critical notices.', crit:0.12 },
   compass:  { key:'compass',  name:'Case Compass',    desc:'You see a little further into the dark.', vision:1.5 },
+  hourglass:{ key:'hourglass',name:'Chipped Hourglass', desc:'Time moves strangely in your pocket. +4 Max HP, and a touch more of your hits land as critical notices.', hp:4, crit:0.05 },
   seal:     { key:'seal',     name:"Notary's Seal",   desc:'+15 Max HP and +1 to every blow. Bureaucracy, properly weaponized.', hp:15, dmg:1 },
   notarys_flourish: { key:'notarys_flourish', name:"Notary's Flourish", desc:'Cufflink and Stamp, fused: +2 to every blow, and more of them land as critical notices.', dmg:2, crit:0.15 },
   bound_compass:    { key:'bound_compass',    name:'Bound Compass',    desc:'Ledger and Compass, fused: +10 Max HP, and the dark gives up a little more ground.', hp:10, vision:2.0 },
@@ -553,6 +1005,8 @@ const ITEM_DEFS = {
   stamp_c:  { key:'stamp_c',  name:'Cracked Rubber Stamp', glyph:'☐', desc:"The department seal, snapped clean through. Useless like this ... but the crack looks clean, almost fixable." },
   ribbon:   { key:'ribbon',   name:'Dried Ink Ribbon',      glyph:'...', desc:"An old stamp-pad ribbon, brittle with age. Still holds a little color, if you press hard enough." },
   workingstamp: { key:'workingstamp', name:'Reassembled Stamp of Approval', glyph:'✓', desc:"Cracked stamp, re-inked and bound tight with wire. It works again. Someone downstairs might recognize proper authorization when they see it." },
+  stress_stapler: { key:'stress_stapler', name:'Novelty Stress Stapler', glyph:'⌗', desc:"Squeeze the little rubber bulb and the staple arm punches at nothing, very seriously, forever. It has never once had staples in it. This is, apparently, the point." },
+  office_grog:    { key:'office_grog',    name:"Notary's Grog",          glyph:'§', desc:"Break-room coffee, brewed on a schedule nobody remembers setting. Logged as having dissolved three styrofoam cups to date. HR opened a file on it. The file is still pending." },
 };
 const ITEM_COMBOS = [
   { pair:['stamp_c','ribbon'], result:'workingstamp',
@@ -560,6 +1014,63 @@ const ITEM_COMBOS = [
 ];
 function findCombo(a,b){
   return ITEM_COMBOS.find(c=> (c.pair[0]===a&&c.pair[1]===b) || (c.pair[0]===b&&c.pair[1]===a) );
+}
+// Monkey-Island-flavored non-combos ... trying two items that were never
+// going to combine still gets a specific, written joke instead of the
+// generic brush-off, same spirit as "I can't pick that up" jokes of old.
+const JOKE_COMBOS = [
+  { pair:['feather','soju'], text:"You dip the feather in the soju. It writes nothing on nothing. It was never that kind of quill." },
+  { pair:['stone','tv'], text:"You lean the skipping stone against the television, hoping for reception. Just static, same as always." },
+  { pair:['calculator','notebook'], text:"You try the equation again in the notebook's margin. Still doesn't balance. Some things you leave broken on purpose." },
+  { pair:['moon_halo','fairy_sparkle'], text:"Held together, the two lights briefly outshine the dark ... then, politely, insist on being separate things again." },
+  { pair:['computer','tv'], text:"You plug the beige tower into the boxy television. Static on every channel, same as before, just louder about it." },
+  { pair:['key','ring'], text:"Wrong kind of ring for that kind of key. The register might know better." },
+  { pair:['puffer_jacket','soju'], text:"Tempting, but the jacket already smells like pine. Best not add soju to that particular memory." },
+  { pair:['mcdonalds_bag','pasta'], text:"Different meals, different evenings. Some things don't combine just because they're both food." },
+  { pair:['feather','stone'], text:"You balance the feather on the stone, waiting for one to teach the other something about falling. Neither budges ... some lessons only take in a river." },
+  { pair:['ring','soju'], text:"You drop the ring in the bottle for safekeeping. It clinks around in there, safe from thieves and also, now, from you." },
+  { pair:['key','computer'], text:"You try the nine-notch key on the tower's back panel. Wrong lock, wrong century, wrong everything except the hopeful feeling." },
+  { pair:['tv','dj_table'], text:"You set the toy turntable on top of the television, hoping for a duet. The static keeps its own beat, thanks." },
+  { pair:['coffee_cup','metamucil'], text:"You consider mixing them. You immediately un-consider it. Some combinations aren't puzzles, they're warnings." },
+  { pair:['titanium_ring','moon_halo'], text:"Ring against halo, both catch the light the same way. Close enough to feel like a sign, not close enough to actually fuse." },
+  { pair:['sofa','notebook'], text:"You set the notebook on the cushion, like it might absorb something by proximity. It just gets a little warmer, that's all." },
+  { pair:['vitamins','mcdonalds_bag'], text:"The jar rattles over the folded bag, unimpressed. The Chronicler would call this a wasted crossover episode." },
+  { pair:['willow_leaf','fairy_sparkle'], text:"Held near the jar, the leaf catches a little glow off the motes inside, then lets it go again. Pretty. Doesn't do anything." },
+  { pair:['pasta','calculator'], text:"You type the shape of the pasta shell into the calculator. It still doesn't equal twelve. Nothing ever does, apparently." },
+  { pair:['puffer_jacket','tv'], text:"You drape the jacket over the television for warmth. The static doesn't seem to mind either way." },
+  { pair:['dj_table','soju'], text:"You set the empty bottle spinning on the tiny turntable. It's not a real drink, and this was never a real party, but it's close enough." },
+];
+function findJoke(a,b){
+  return JOKE_COMBOS.find(c=> (c.pair[0]===a&&c.pair[1]===b) || (c.pair[0]===b&&c.pair[1]===a) );
+}
+
+// ---------------------------------------------------------------------
+// 0a2c. RED HERRING ... a Monkey-Island-flavored item that never combines
+// with anything, on purpose. Doesn't chain into a recipe, doesn't unlock
+// anything, isn't a keepsake either (no memory plays on pickup, and it
+// doesn't count toward "every personal effect recovered"). It's just a
+// joke you get to carry around.
+// ---------------------------------------------------------------------
+const RED_HERRING_KEYS = ['stress_stapler','office_grog'];
+const RED_HERRING_LINES = {
+  stress_stapler: [
+    "You try it anyway. The little arm punches at nothing, same as always, same as it will forever.",
+    "Nothing happens. Something about that feels like the most honest interaction you've had all day.",
+    "You squeeze the bulb. It squeezes back, metaphorically. Neither of you learns anything.",
+    "Still no staples. There have never been staples. This was never about staples.",
+  ],
+  office_grog: [
+    "You take a sip. Somewhere, a styrofoam cup you weren't even holding lets out a small structural sigh.",
+    "It burns going down, in the specific way only reheated-since-1987 coffee can.",
+    "Nothing combines with this. Frankly, nothing should have to.",
+    "The Chronicler, from somewhere in the vents, strongly advises against a second cup.",
+  ],
+};
+function redHerringJoke(a,b){
+  const key = RED_HERRING_KEYS.includes(a) ? a : (RED_HERRING_KEYS.includes(b) ? b : null);
+  if(!key) return null;
+  const lines = RED_HERRING_LINES[key];
+  return lines[Math.floor(Math.random()*lines.length)];
 }
 
 // ---------------------------------------------------------------------
@@ -576,21 +1087,21 @@ function findCombo(a,b){
 // shelf.)
 // ---------------------------------------------------------------------
 const KEEPSAKE_DEFS = {
-  feather:        { key:'feather',        name:'Grey Feather',            glyph:'✦', desc:"Light enough to lose in a breeze, kept anyway. Belonged to a little boy who threw it in a river once, just to watch it decide which way to go." },
-  stone:          { key:'stone',          name:'Skipping Stone',          glyph:'●', desc:"Flat, smooth, thrown so many times it's forgotten how to sink. The little boy swore this exact one keeps coming back around." },
+  feather:        { key:'feather',        name:'Grey Feather',            glyph:'✦', desc:"Light enough to lose in a breeze, kept anyway. Belonged to the Cabin Boy who threw it in a river once, just to watch it decide which way to go." },
+  stone:          { key:'stone',          name:'Skipping Stone',          glyph:'●', desc:"Flat, smooth, thrown so many times it's forgotten how to sink. The Cabin Boy swore this exact one keeps coming back around." },
   calculator:     { key:'calculator',     name:'Cracked Calculator',      glyph:'⊞', desc:"Buttons half worn to blank. Somebody small once used it to prove, very seriously, that 7×8 does not in fact equal 12." },
   mcdonalds_bag:  { key:'mcdonalds_bag',  name:'Folded Paper Bag',        glyph:'▽', desc:"Grease-spotted, folded into a neat little square instead of thrown away. Some meals get kept for what came with them, not what was in them." },
   pasta:          { key:'pasta',          name:'Dry Pasta Shell',         glyph:'꩜', desc:"One stray shell from a kitchen counter, never cooked, never swept up. It survived the meal better than the memory of who made it did." },
-  ring:           { key:'ring',           name:'Op-Shop Ring',            glyph:'○', desc:"Two dollars, maybe three ... the woman behind the counter threw in the story for free. Somebody's, once. Now it's whoever's willing to carry the story too." },
-  puffer_jacket:  { key:'puffer_jacket',  name:'Faded Puffer Jacket',     glyph:'▤', desc:"Too big, patched at one elbow, warm regardless. The op-shop woman insisted it wanted to go into a forest, not a closet." },
+  ring:           { key:'ring',           name:'Flotsam Ring',            glyph:'○', desc:"Two dollars, maybe three ... the woman behind the counter threw in the story for free. Somebody's, once. Now it's whoever's willing to carry the story too." },
+  puffer_jacket:  { key:'puffer_jacket',  name:'Faded Puffer Jacket',     glyph:'▤', desc:"Too big, patched at one elbow, warm regardless. The Flotsam Warden insisted it wanted to go into a forest, not a closet." },
   coffee_cup:     { key:'coffee_cup',     name:'Chipped Coffee Cup',      glyph:'⊔', desc:"One thumbprint-sized chip on the rim, otherwise fine. She said someone used to spin records with a cup exactly like it balanced on the deck, somehow never once spilling." },
-  metamucil:      { key:'metamucil',      name:'Half-Full Metamucil Tub', glyph:'◍', desc:"Deeply, defiantly unglamorous. The tall woman produced it with a completely straight face, then couldn't hold the bit for more than a few seconds ... something small and glowing nearby laughed even harder than she did." },
+  metamucil:      { key:'metamucil',      name:'Half-Full Metamucil Tub', glyph:'◍', desc:"Deeply, defiantly unglamorous. The Chronicler produced it with a completely straight face, then couldn't hold the bit for more than a few seconds ... something small and glowing nearby laughed even harder than she did." },
   titanium_ring:  { key:'titanium_ring',  name:'Titanium Ring',           glyph:'◎', desc:"Plain band, engraved so small you need to tilt it to the light ... a coiled shape, wings folded in, easy to mistake for a scratch until you know to look for Sparkwing." },
   soju:           { key:'soju',           name:'Green Soju Bottle',       glyph:'▮', desc:"Empty, rinsed, kept anyway. Best opened after hours, when the only honest conversations are the ones nobody's rehearsed." },
   sofa:           { key:'sofa',           name:'Sofa Cushion',            glyph:'▭', desc:"One cushion off a sofa that doesn't exist here anymore. Sat on by exactly the right number of people, most evenings, for exactly long enough." },
-  notebook:       { key:'notebook',       name:'Dog-Eared Notebook',      glyph:'▥', desc:"Pages soft from handling. The tall woman wrote under a willow more than once ... you can tell which pages, they're the ones that don't try as hard." },
-  vitamins:       { key:'vitamins',       name:'Rattling Vitamin Jar',    glyph:'✚', desc:"Mostly full, faintly ridiculous, somehow exactly what's needed at 6am. The tall woman swears these are load-bearing." },
-  tv:             { key:'tv',             name:'Boxy Television',        glyph:'▦', desc:"Static on every channel but one. What plays on that one channel isn't quite live and isn't quite a recording ... the tall woman calls it 'just a rerun of a good day.'" },
+  notebook:       { key:'notebook',       name:'Dog-Eared Notebook',      glyph:'▥', desc:"Pages soft from handling. The Chronicler wrote under a willow more than once ... you can tell which pages, they're the ones that don't try as hard." },
+  vitamins:       { key:'vitamins',       name:'Rattling Vitamin Jar',    glyph:'✚', desc:"Mostly full, faintly ridiculous, somehow exactly what's needed at 6am. The Chronicler swears these are load-bearing." },
+  tv:             { key:'tv',             name:'Boxy Television',        glyph:'▦', desc:"Static on every channel but one. What plays on that one channel isn't quite live and isn't quite a recording ... the Chronicler calls it 'just a rerun of a good day.'" },
   key:            { key:'key',            name:'Nine-Notch Key',          glyph:'⚿', desc:"Cut with one notch missing, same as the woman who gave it to you is missing a finger. She said the lock doesn't mind the gap. Neither should you." },
   dj_table:       { key:'dj_table',       name:'Miniature Spin Table',    glyph:'◐', desc:"A toy turntable, dead serious about its one job. Somebody scratched a tiny dragon into the platter with a pin, ages ago, mid-set." },
   computer:       { key:'computer',       name:'Beige Desktop Tower',     glyph:'▧', desc:"Heavier than it looks, humming even unplugged, which shouldn't be possible and is exactly on brand for the person who left it running." },
@@ -622,32 +1133,32 @@ const KEEPSAKE_FLOOR_MAP = {
 // the willow/fairy/moon material already works elsewhere in the build.
 // ---------------------------------------------------------------------
 const MEMORY_DEFS = {
-  feather: { speaker:'THE LITTLE BOY', lines:[
+  feather: { speaker:'THE CABIN BOY', lines:[
     "A riverbank, or something Filing remembers as one.",
     "He throws the feather in without looking to see whose river it is. \"It'll figure it out,\" he says, like that settles it.",
     "It does, eventually. Everything down here eventually does.",
   ]},
-  stone: { speaker:'THE LITTLE BOY', lines:[
+  stone: { speaker:'THE CABIN BOY', lines:[
     "Same riverbank. Same stone, somehow, thrown for what feels like the fortieth time.",
     "\"Watch,\" he says. \"It comes back.\" It doesn't, not really ... but the afternoon does, on a loop, and that's close enough for him.",
   ]},
-  calculator: { speaker:'THE LITTLE BOY', lines:[
+  calculator: { speaker:'THE CABIN BOY', lines:[
     "Chalk on a wall that shouldn't hold chalk. He's found the one equation that never balances and is thrilled about it.",
     "\"See? It's broken on purpose.\" You're fairly sure that's not how math works. You don't say so.",
   ]},
-  mcdonalds_bag: { speaker:'THE LITTLE BOY', lines:[
+  mcdonalds_bag: { speaker:'THE CABIN BOY', lines:[
     "A booth, a tray, fries going cold on purpose because the conversation matters more than the food ever did.",
     "He folds the bag into a smaller and smaller square, like if it's tidy enough the whole afternoon gets to stay.",
   ]},
-  pasta: { speaker:'THE LITTLE BOY', lines:[
+  pasta: { speaker:'THE CABIN BOY', lines:[
     "A kitchen with the radio on low. He's not tall enough to reach the counter and does it anyway, one dry shell at a time, missing the pot more than he hits it.",
     "Nobody minds. That's the whole memory, really ... nobody minding.",
   ]},
-  ring: { speaker:'THE OP-SHOP WOMAN', lines:[
+  ring: { speaker:'THE FLOTSAM WARDEN', lines:[
     "Fluorescent light, a glass counter, a ring that cost less than the coffee you had on the way in.",
     "\"Everything in here belonged to somebody,\" she says, ringing it up anyway. \"Doesn't mean you can't have it now.\"",
   ]},
-  puffer_jacket: { speaker:'THE OP-SHOP WOMAN', lines:[
+  puffer_jacket: { speaker:'THE FLOTSAM WARDEN', lines:[
     "\"That one wants a forest,\" she says, of a jacket two sizes too big. \"Trust me. I've been wrong about a coat maybe twice.\"",
     "Deeper into Filing, the air changes ... pine instead of dust. She was right the second time too.",
   ]},
@@ -655,35 +1166,35 @@ const MEMORY_DEFS = {
     "A cup balanced right on the edge of a spinning deck, somehow never once sliding off through an entire set.",
     "\"Physics is a suggestion round here,\" he says, not looking up from the crossfader. \"Same as most rules.\"",
   ]},
-  metamucil: { speaker:'THE TALL WOMAN', lines:[
+  metamucil: { speaker:'THE CHRONICLER', lines:[
     "\"Fairies leave notes in the strangest bottles,\" she says, deadpan, holding out a half-used tub of fiber supplement like it's a relic.",
     "Something small and glowing nearby laughs so hard it drops half its sparkle on the floor.",
   ]},
-  titanium_ring: { speaker:'THE NINE-FINGER WISE WOMAN', lines:[
+  titanium_ring: { speaker:'THE NINE-FINGERED ORACLE', lines:[
     "She turns the plain band once between what fingers she has left, finds the light, and holds it there until the engraving shows: a small coiled shape, wings folded.",
     "\"Sparkwing,\" she says, like it's obvious. \"Blessing's in the metal. You just have to remember to tilt it toward something.\"",
   ]},
-  soju: { speaker:'THE OP-SHOP WOMAN', lines:[
+  soju: { speaker:'THE FLOTSAM WARDEN', lines:[
     "Past closing, past the point where either of you is being careful about what gets said.",
     "\"Everyone down here's dead already,\" she says, pouring two glasses that shouldn't exist. \"Might as well say the true thing.\"",
   ]},
-  sofa: { speaker:'THE OP-SHOP WOMAN', lines:[
+  sofa: { speaker:'THE FLOTSAM WARDEN', lines:[
     "One cushion, one lamp, the rest of the room politely declining to fully exist.",
     "Nobody says much. Nobody needs to. It's the kind of quiet that only happens when the right people are in a room together.",
   ]},
-  notebook: { speaker:'THE TALL WOMAN', lines:[
+  notebook: { speaker:'THE CHRONICLER', lines:[
     "Under the willow, off the path you weren't supposed to find. She's writing something she folds shut the second she notices you.",
     "\"Not for you yet,\" she says, not unkindly. \"Maybe not ever. Some pages are just for getting through the night.\"",
   ]},
-  vitamins: { speaker:'THE TALL WOMAN', lines:[
+  vitamins: { speaker:'THE CHRONICLER', lines:[
     "\"Time loop's easier with breakfast,\" she says, shaking the jar like a maraca. \"Say what you want about the afterlife ... it respects a vitamin schedule.\"",
     "You feel, absurdly, a little steadier for it.",
   ]},
-  tv: { speaker:'THE TALL WOMAN', lines:[
+  tv: { speaker:'THE CHRONICLER', lines:[
     "Static, then ... for one loop only ... a single good day, playing back at half-speed like it knows you'll want to watch it twice.",
     "\"Don't try to change the channel,\" she warns. \"It only plays the ones that were already good.\"",
   ]},
-  key: { speaker:'THE NINE-FINGER WISE WOMAN', lines:[
+  key: { speaker:'THE NINE-FINGERED ORACLE', lines:[
     "She presses the notched key into your palm without ceremony ... the kind of gift that isn't really about the object.",
     "\"Last door's not locked because it's hiding something,\" she says. \"It's locked so you'd have to choose to open it. Choose it.\"",
   ]},
@@ -695,12 +1206,12 @@ const MEMORY_DEFS = {
     "Unplugged, and humming anyway. On the dead screen, if you catch the angle right, one line of text that shouldn't still be rendering.",
     "He doesn't explain it. He just says, \"Some messages don't need power. They just need somebody to still be looking.\"",
   ]},
-  willow_leaf: { speaker:'THE WILLOW TREE', lines:[
+  willow_leaf: { speaker:'THE DROWNED WILLOW', lines:[
     "No wind, and the leaf comes loose anyway, landing in your hand like it meant to.",
     "This is the willow. The one that's a place and not just a tree. Whatever ending this Department has waiting, it runs through here first.",
     "Roots all the way down, past the last floor, into the infinite black itself. Even that has to hold something up.",
   ]},
-  moon_halo: { speaker:'THE MOON', lines:[
+  moon_halo: { speaker:'THE PALE LANTERN', lines:[
     "A thin ring of light works itself loose from the sky and drifts down slow enough to catch.",
     "Held up right, it throws one shadow across the floor ... small, winged, gone the second you look straight at it. Sparkwing again, or something enough like it.",
   ]},
@@ -751,7 +1262,7 @@ function keepsakeFollowUp(key, resolveTurn){
   if(key==='fairy_sparkle'){ openSparkleTrailPuzzle(resolveTurn); return; }
   if(key==='moon_halo'){ openSkyText(resolveTurn); return; }
   if(key==='ring'){
-    openDialogue('THE TALL WOMAN', ["Somewhere past the register, a corridor that wasn't there a minute ago holds its door open a crack.", "It doesn't lead anywhere new, exactly. Just further into rooms that were already yours to find."], null, resolveTurn);
+    openDialogue('THE CHRONICLER', ["Somewhere past the register, a corridor that wasn't there a minute ago holds its door open a crack.", "It doesn't lead anywhere new, exactly. Just further into rooms that were already yours to find."], null, resolveTurn);
     return;
   }
   if(key==='puffer_jacket'){ openChapter(CHAPTER_DEFS.forest, resolveTurn); return; }
@@ -787,13 +1298,13 @@ function openChapter(def, onClose){
   render();
 }
 const CHAPTER_DEFS = {
-  forest: { title:'THE DEEP FOREST', sub:"THE OP-SHOP WOMAN'S JACKET", pages:[
+  forest: { title:'THE DEEP FOREST', sub:"THE FLOTSAM WARDEN'S JACKET", pages:[
     [ "The jacket knows the way before you do ... too big, warm regardless, patched at one elbow like it's already been somewhere and come back.",
-      "The Filing Department doesn't have forests. It has this instead: pine smell where there shouldn't be pine, and a path that wasn't on any floor plan the Concierge ever filed." ],
+      "The Filing Department doesn't have forests. It has this instead: pine smell where there shouldn't be pine, and a path that wasn't on any floor plan the Intake Warden ever filed." ],
     [ "Nobody comes with you. That's the point of a forest like this one ... it's for the walk, not the company.",
       "Somewhere in it, low to the ground, something small and winged watches from a branch without ever quite resolving into a shape. Sparkwing again, keeping its distance the way it always does out here." ],
     [ "You don't find anything else in the trees. You're not meant to. Some chapters are just about being let outside for a while, jacket zipped, before the door back to the paperwork finds you again.",
-      "The op-shop woman was right, back at the register. It did want a forest." ],
+      "The Flotsam Warden was right, back at the register. It did want a forest." ],
   ]},
   undertow: { title:'DJ DADDY COOL', sub:"A BACK ROOM NOBODY FILED PROPERLY", pages:[
     [ "Before the department, before any of it had a floor plan or a filing system, there was a back room with better acoustics than it had any right to.",
@@ -803,7 +1314,7 @@ const CHAPTER_DEFS = {
     [ "On the wall behind the decks: a small dragon, drawn in marker, mid-flight, exactly like the one scratched into the toy platter you're carrying.",
       "\"Mark what matters,\" he says again, like it's the only rule he's ever needed. \"Even down here. Especially down here.\"" ],
   ]},
-  finalChapter: { title:'THE LAST DOOR', sub:"THE NINE-FINGER WISE WOMAN", pages:[
+  finalChapter: { title:'THE LAST DOOR', sub:"THE NINE-FINGERED ORACLE", pages:[
     [ "She doesn't lead you to the door so much as stop pretending it wasn't always visible from here.",
       "\"Everyone who reaches this floor already has everything they need,\" she says. \"The key was never the hard part. Deciding to use it was.\"" ],
     [ "\"You'll want the willow before the end,\" she adds, almost offhand. \"Not because the door needs it. Because you will.\"",
@@ -940,7 +1451,7 @@ function openSkyText(onClose){
 
 // ---------------------------------------------------------------------
 // 0a3. INSULT DUEL ... a Monkey-Island-flavored war of complaints against
-// the Clerk at Desk 14. Three rounds, one correct rebuttal each; win the
+// the Clerk at Berth 14. Three rounds, one correct rebuttal each; win the
 // majority for a one-time reward. Purely a dialogue minigame ... no
 // bearing on the dungeon combat stats.
 // ---------------------------------------------------------------------
@@ -1012,11 +1523,11 @@ const DUEL_LINES = [
       {text:"At least my number's odd. Suits the department.", correct:false},
     ]},
 ];
-// A tougher second opponent, unlocked once Desk 14 has been beaten once.
+// A tougher second opponent, unlocked once Berth 14 has been beaten once.
 // The "obviously funny" answer is usually the trap here ... the correct
 // line plays it straighter, which is the point: this one's had practice.
 const RIVAL_DUEL_LINES = [
-  { insult:"Desk 14 goes easy on people. I don't. State your case, or don't waste my afternoon.",
+  { insult:"Berth 14 goes easy on people. I don't. State your case, or don't waste my afternoon.",
     options:[
       {text:"Then I won't waste it. My case is that yours is already closed.", correct:true},
       {text:"Easy? That soft-hearted paper-pusher? Could've fooled me.", correct:false},
@@ -1043,7 +1554,7 @@ const RIVAL_DUEL_LINES = [
 ];
 // The final tier ... no jokes left in it. An exit interview, not a duel,
 // framed the same way for consistency. Unlocked only after the Chief
-// Auditor's file is closed; the "correct" lines here are the honest ones,
+// Assessor's file is closed; the "correct" lines here are the honest ones,
 // not the clever ones, which is the whole point of the escalation.
 const EXIT_DUEL_LINES = [
   { insult:"So. You made it through the whole department. Most don't. What was it worth, in the end?",
@@ -1065,6 +1576,68 @@ const EXIT_DUEL_LINES = [
       {text:"Strange is relative, considering where we're standing.", correct:false},
     ]},
 ];
+// A bonus, strictly-for-laughs fourth tier ... unlocked once the Inspector's
+// been outargued. Nothing rides on this one. The Intern (Unpaid) is trying
+// so hard, and it shows, and that's rather the point of the joke.
+const INTERN_DUEL_LINES = [
+  { insult:"I've been studying your case for, uh, eleven minutes now, and frankly? Concerning.",
+    options:[
+      {text:"Eleven minutes. I'm touched you had the time between coffee runs.", correct:true},
+      {text:"Concerning is the stipend they're paying you. Oh wait.", correct:false},
+      {text:"Study harder. I'll wait. I have nothing but time.", correct:false},
+    ]},
+  { insult:"According to my notes, which I am still learning to read, you owe this department everything.",
+    options:[
+      {text:"Everything except a paycheck. Seems we've got that in common.", correct:true},
+      {text:"Your notes are upside down. I can see from here.", correct:false},
+      {text:"I owe nothing to an intern who still uses training wheels.", correct:false},
+    ]},
+  { insult:"My supervisor says I'm not ready for real cases yet. This is a real case. I'm confused too.",
+    options:[
+      {text:"Then we agree on something. Good work, for your first day.", correct:true},
+      {text:"Confusion suits the department. You'll fit right in.", correct:false},
+      {text:"Go ask your supervisor, then. I'll hold.", correct:false},
+    ]},
+];
+
+// ---------------------------------------------------------------------
+// 0a4. THE CHRONICLER, IN THE VENTS ... a Glottis-flavored recurring bit.
+// She's referenced throughout the keepsake descriptions as the one who
+// can't keep a straight face; this is the one place she actually talks.
+// Never seen, only heard, once per floor on first arrival ... escalating
+// banter with zero mechanical weight, purely there to keep you company
+// on the way down. Second line on each floor is a running tally mark ...
+// a Manny's-desk-calendar bit, marking the descent the same small way
+// each time instead of just narrating it.
+// ---------------------------------------------------------------------
+const CHRONICLER_FLOOR_LINES = {
+  2: ["Congratulations on Floor Two. The commemorative plaque is still in a drawer somewhere, allegedly.",
+      "Mark two, scratched in next to the first. Some things you keep count of on purpose."],
+  3: ["Floor Three. This is the one with teeth, apparently. Bring a stapler.",
+      "Mark three. The wall's getting a real collection going.",
+      "The Assessor's never once raised its voice, far as anyone on staff remembers. Doesn't have to. It decides a thing one time, and the drawer just ... closes."],
+  4: ["Floor Four! Nobody warned you about Four because nobody remembers Four. That's the joke, and also the problem.",
+      "Mark four. Even the tally's starting to look tired."],
+  5: ["Floor Five. If it rattles, it's probably fine. If it whispers back, walk faster.",
+      "Mark five. Halfway to the Deep Archive, if the wall's counting right.",
+      "The Collector only ever takes what it's owed, technically speaking. Ask it nicely on your way past and it might even tell you what for."],
+  6: ["Six floors down and the Metamucil's still holding up better than most of the staff. Make of that what you will.",
+      "Mark six. Whoever started this tally didn't plan on getting this far either."],
+  7: ["Seven. I'm almost sincere about wishing you luck on this one.",
+      "Mark seven. One more, and it's not really a wall anymore, it's a ledger."],
+  8: ["Floor Eight. The Deep Archive. Even the jokes get repossessed down here, so I'll make this quick: good luck.",
+      "Mark eight. Last one, probably. I'll leave the chalk right here, just in case.",
+      "Nobody on staff has ever actually met the Director. Not once, not ever. Everybody's filed something they signed, though. Good luck arguing with a signature."],
+};
+function chroniclerFloorBark(){
+  const lines = CHRONICLER_FLOOR_LINES[state.floor];
+  if(!lines) return;
+  if(state.chroniclerFloorsHeard[state.floor]) return;
+  state.chroniclerFloorsHeard[state.floor] = true;
+  writeSave();
+  openDialogue('??? (SOMEWHERE IN THE VENTS)', lines, null, ()=>{});
+}
+
 function shuffleCopy(arr){
   const a = arr.slice();
   for(let i=a.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [a[i],a[j]]=[a[j],a[i]]; }
@@ -1108,6 +1681,12 @@ function getSaveData(){
     duelWon: state.duelWon,
     rivalDuelWon: state.rivalDuelWon,
     exitDuelWon: state.exitDuelWon,
+    internDuelWon: state.internDuelWon,
+    learnedInsults: Object.keys(state.learnedInsults),
+    chroniclerFloorsHeard: Object.keys(state.chroniclerFloorsHeard),
+    shardUses: state.shardUses,
+    shardMastered: Object.keys(state.shardMastered).filter(k=>state.shardMastered[k]),
+    seenDungeonDoorFlavor: state.seenDungeonDoorFlavor,
   };
 }
 function writeSave(){
@@ -1142,6 +1721,13 @@ const state = {
   duelWon: false,
   rivalDuelWon: false,
   exitDuelWon: false,
+  internDuelWon: false,
+  sparkwingUnlockedSeen: false,
+  learnedInsults: {}, // insult text -> true, once you've been on the receiving end of it
+  chroniclerFloorsHeard: {}, // floor number -> true, so the vent voice doesn't repeat itself
+  shardUses: { ember:0, hollow:0, tape:0 }, // AP-style counters toward mastery
+  shardMastered: { ember:false, hollow:false, tape:false },
+  seenDungeonDoorFlavor: false,
   player: {
     hp: 30, maxHp: 30,
     tileX: 3, tileY: 3,
@@ -1178,7 +1764,20 @@ function checkFullLedger(){
     screenFlash('#c9a15a', 0.3);
   }
 }
-function maxHp(){ return 30 + state.maxHpBonus + (state.player.level-1)*5 + trinketBonus('hp') + (fullLedger()?10:0) + (state.inventory.includes('titanium_ring')?5:0); }
+// The Three Trials of Intake ... a Monkey-Island-flavored nod to earning
+// your standing the old way: prove yourself three separate times (the
+// Vault's weight, the Archive's switches, and Berth 14's tongue) before
+// anything downstairs calls you properly filed. No new content, just a
+// recognition layer over three things that already existed separately.
+function threeTrialsComplete(){ return state.vaultSolved && state.archiveSolved && state.duelWon; }
+function checkThreeTrials(){
+  if(threeTrialsComplete() && !stats.achievementsSeen.threetrials){
+    achieve('threetrials','The Three Trials of Intake');
+    flashBanner('THE THREE TRIALS OF INTAKE, COMPLETE ... Vault balanced, Archive lit, Berth 14 out-argued. Recognized, however provisionally. (+1 damage, +10 max HP)');
+    screenFlash('#e8823a', 0.3);
+  }
+}
+function maxHp(){ return 30 + state.maxHpBonus + (state.player.level-1)*5 + trinketBonus('hp') + (fullLedger()?10:0) + (threeTrialsComplete()?10:0) + (state.inventory.includes('titanium_ring')?5:0); }
 function grantXp(amount){
   state.player.xp += amount;
   let leveled = false;
@@ -1338,6 +1937,7 @@ el.buildStamp.addEventListener('click', ()=>{
 function openPanel(){
   state.prevMode = state.mode;
   state.mode = 'PANEL';
+  el.panel.className = '';
   el.panel.style.display = 'flex';
 }
 function closePanel(){
@@ -1406,10 +2006,11 @@ function showQuestLog(){
     ['Recover Hollow Step', state.shards.hollow],
     ['Balance the Vault (physics puzzle)', state.vaultSolved],
     ['Illuminate the Archive (switch puzzle)', state.archiveSolved],
-    ['Silence the Auditor ... Floor 3 boss', state.bossDefeated],
-    ['Answer for the Repossessor ... Floor 5 miniboss', state.minibossDefeated],
+    ['The Three Trials of Intake (Vault, Archive, Berth 14)', threeTrialsComplete()],
+    ['Silence the Assessor ... Floor 3 boss', state.bossDefeated],
+    ['Answer for the Collector ... Floor 5 miniboss', state.minibossDefeated],
     ['Visit the Memory Booth', state.memoryDone],
-    ['Answer for the Chief Auditor ... Floor 8', state.finalBossDefeated],
+    ['Answer for the Director ... Floor 8', state.finalBossDefeated],
     ['Reassemble the Stamp of Approval (combine in 🎒)', state.inventory.includes('workingstamp') || state.subbasementUnlocked],
     ['Unseal the Sub-Basement', state.subbasementUnlocked],
     ['Personal Effects Recovered ('+keepsakeCount()+' / '+KEEPSAKE_KEYS.length+')', allKeepsakesCollected()],
@@ -1477,7 +2078,9 @@ function renderInventoryPanel(){
             note.textContent = combo.text;
             el.panel.insertBefore(note, el.panel.lastChild);
           } else {
-            flashBanner("Those don't go together.");
+            const joke = findJoke(key, otherKey);
+            const herring = redHerringJoke(key, otherKey);
+            flashBanner(joke ? joke.text : (herring || "Those don't go together."));
             _invSelected = idx;
             renderInventoryPanel();
           }
@@ -1494,9 +2097,18 @@ function renderInventoryPanel(){
       replay.textContent = 'REVISIT THIS MEMORY';
       replay.onclick = ()=>{
         playSfx('blip');
-        const mem = MEMORY_DEFS[state.inventory[_invSelected]];
+        const selKey = state.inventory[_invSelected];
+        const mem = MEMORY_DEFS[selKey];
+        let lines = mem.lines.slice();
+        // The willow leaf is the one keepsake with a second beat waiting
+        // past its pickup scene ... it only plays once the run's actually
+        // over, the same way a late-game flashback recontextualizes an
+        // early one instead of just repeating it.
+        if(selKey==='willow_leaf' && state.finalBossDefeated){
+          lines = lines.concat(["Roots all the way down, past the last floor ... and past whatever came after that too, apparently. You're still here to notice. That's the whole trick, some days."]);
+        }
         closePanel();
-        openDialogue(mem.speaker, mem.lines, null, ()=>{ showInventory(); });
+        openDialogue(mem.speaker, lines, null, ()=>{ showInventory(); });
       };
       el.panel.appendChild(replay);
     }
@@ -1604,12 +2216,12 @@ function renderInventoryPanel(){
 
 // ---------------------------------------------------------------------
 // 0d0b. SUB-BASEMENT ... a small one-off reward scene unlocked by presenting
-// a completed Stamp of Approval to the Concierge. No new map is generated;
+// a completed Stamp of Approval to the Intake Warden. No new map is generated;
 // it plays out entirely through the existing dialogue/panel system.
 // ---------------------------------------------------------------------
 function enterSubbasement(){
   if(!state.subbasementUnlocked){
-    openDialogue('SEALED HATCH', ["Bolted shut, and stamped with a notice: \"AUTHORIZED PERSONNEL ... PROPER FORM REQUIRED.\"", "Whatever's down there, the Concierge is the one who'd know about the paperwork."], null, ()=>{});
+    openDialogue('SEALED HATCH', ["Bolted shut, and stamped with a notice: \"AUTHORIZED PERSONNEL ... PROPER FORM REQUIRED.\"", "Whatever's down there, the Intake Warden is the one who'd know about the paperwork."], null, ()=>{});
     return;
   }
   if(state.subbasementClaimed){
@@ -1635,18 +2247,22 @@ function enterSubbasement(){
 
 let _duel = null;
 const DUEL_TIERS = {
-  normal: { pool:DUEL_LINES, title:'TRADING COMPLAINTS', sub:'DESK 14, INFORMAL PROCEEDING', sweepNeeded:false,
-    win:"Desk 14 has no comeback for that. A rare, satisfying silence.", lose:"Desk 14 wins this round. There's always tomorrow ... or whatever this place has instead.",
+  normal: { pool:DUEL_LINES, title:'TRADING COMPLAINTS', sub:'BERTH 14, INFORMAL PROCEEDING', sweepNeeded:false,
+    win:"Berth 14 has no comeback for that. A rare, satisfying silence.", lose:"Berth 14 wins this round. There's always tomorrow ... or whatever this place has instead.",
     flag:'duelWon', achId:'duel', achLabel:'Won the War of Complaints', xp:10 },
   rival: { pool:RIVAL_DUEL_LINES, title:'A REAL ARGUMENT', sub:'THE INSPECTOR, FORMAL HEARING', sweepNeeded:true,
     win:"The Inspector goes quiet, then nods once ... the closest thing to respect this office issues.", lose:"The Inspector isn't impressed. Nothing short of a clean sweep will do here ... try again when you're sharper.",
     flag:'rivalDuelWon', achId:'rivalduel', achLabel:'Outargued the Inspector', xp:20 },
-  exit: { pool:EXIT_DUEL_LINES, title:'EXIT INTERVIEW', sub:'THE CHIEF AUDITOR, LAST FILE ON THE DESK', sweepNeeded:false,
+  exit: { pool:EXIT_DUEL_LINES, title:'EXIT INTERVIEW', sub:'THE CHIEF ASSESSOR, LAST FILE ON THE DESK', sweepNeeded:false,
     win:"No stamp for this one. Just a long pause, and the file finally sliding shut on its own.", lose:"Not today, it seems. The file stays open a little longer.",
     flag:'exitDuelWon', achId:'exitduel', achLabel:'The Last Word', xp:40 },
+  intern: { pool:INTERN_DUEL_LINES, title:'BREAK ROOM SHOWDOWN', sub:'THE INTERN (UNPAID), STRICTLY OFF THE RECORD', sweepNeeded:false,
+    win:"The Intern beams like they've won an actual case. Technically, you let them believe that. It's kinder this way.", lose:"Somehow, against all odds and experience, the Intern wins this one. They will never let you forget it.",
+    flag:'internDuelWon', achId:'internduel', achLabel:'Went Easy On The Intern', xp:5 },
 };
 function startDuel(tier){
   openPanel();
+  el.panel.classList.add('duel-mode');
   const cfg = DUEL_TIERS[tier||'normal'];
   _duel = { tier: tier||'normal', rounds: shuffleCopy(cfg.pool).slice(0,3), idx:0, score:0 };
   renderDuelRound();
@@ -1654,16 +2270,25 @@ function startDuel(tier){
 function renderDuelRound(){
   el.panel.innerHTML='';
   const cfg = DUEL_TIERS[_duel.tier];
-  const h1=document.createElement('h1'); h1.style.fontSize='22px'; h1.textContent = cfg.title;
+  const h1=document.createElement('h1'); h1.className='duel-h1'; h1.style.fontSize='22px'; h1.textContent = cfg.title;
   const sub=document.createElement('div'); sub.className='sub'; sub.textContent = cfg.sub+' ... ROUND '+(_duel.idx+1)+' OF '+_duel.rounds.length;
   el.panel.appendChild(h1); el.panel.appendChild(sub);
   const round = _duel.rounds[_duel.idx];
-  const insult = document.createElement('p'); insult.className='flavor'; insult.style.cssText='color:#d47a5a;max-width:340px;';
+  const alreadyKnown = !!state.learnedInsults[round.insult];
+  const insult = document.createElement('p'); insult.className='flavor duel-insult';
   insult.textContent = '"'+round.insult+'"';
   el.panel.appendChild(insult);
-  const optsWrap = document.createElement('div'); optsWrap.style.cssText='display:flex;flex-direction:column;gap:8px;width:340px;margin-bottom:14px;';
+  if(alreadyKnown){
+    const tag = document.createElement('div'); tag.className='duel-known-tag'; tag.style.display='block'; tag.style.textAlign='center'; tag.style.width='fit-content';
+    tag.textContent = "you've traded this line before";
+    el.panel.appendChild(tag);
+  }
+  // Hearing a line once is enough to remember it, win or lose the round ...
+  // that's the whole trick of insult sword fighting.
+  if(!state.learnedInsults[round.insult]){ state.learnedInsults[round.insult] = true; writeSave(); }
+  const optsWrap = document.createElement('div'); optsWrap.style.cssText='display:flex;flex-direction:column;gap:8px;width:min(340px,90vw);margin-bottom:14px;';
   shuffleCopy(round.options).forEach(opt=>{
-    const b = document.createElement('div'); b.className='btn'; b.style.cssText='font-size:11px;text-align:left;';
+    const b = document.createElement('div'); b.className='btn duel-opt'+(alreadyKnown && opt.correct ? ' known-correct' : ''); b.style.cssText='font-size:11.5px;text-align:left;';
     b.textContent = opt.text;
     b.onclick = ()=>{
       playSfx('blip');
@@ -1695,6 +2320,7 @@ function finishDuel(){
       grantXp(cfg.xp);
       achieve(cfg.achId, cfg.achLabel);
       writeSave();
+      checkThreeTrials();
       p.textContent += ' (+'+cfg.xp+' XP)';
     }
   } else {
@@ -1709,7 +2335,7 @@ function finishDuel(){
 function showSettings(){
   const cameFromMenu = state.mode==='MENU';
   if(!cameFromMenu) openPanel();
-  else el.panel.style.display='flex';
+  else { el.panel.className=''; el.panel.style.display='flex'; }
   el.panel.innerHTML='';
   const h1 = document.createElement('h1'); h1.style.fontSize='24px'; h1.textContent='SETTINGS';
   const sub = document.createElement('div'); sub.className='sub'; sub.textContent='DEPARTMENT PREFERENCES';
@@ -1911,7 +2537,7 @@ function writeStats(){
 // Canonical list of every achievement id used anywhere in the game ...
 // showStats() reads its length instead of a hardcoded number, so the
 // total can't silently drift out of sync when new ones are added.
-const ACHIEVEMENT_IDS = ['firstblood','firstshard','vault','archive','boss','miniboss','finalboss','floor5','floor8','intern','konami','win','stamp','overtime','duel','rivalduel','exitduel','fullledger','keepsakes'];
+const ACHIEVEMENT_IDS = ['firstblood','firstshard','vault','archive','boss','miniboss','finalboss','floor5','floor8','intern','konami','win','stamp','overtime','duel','rivalduel','exitduel','internduel','fullledger','keepsakes','summon','embermastery','hollowmastery','tapemastery','threetrials'];
 function achieve(id, label){
   if(stats.achievementsSeen[id]) return;
   stats.achievementsSeen[id] = true;
@@ -1927,12 +2553,12 @@ function achieve(id, label){
 const BESTIARY_DEFS = [
   { name:'Filing Rat', desc:'The most common thing down here. Bites, mostly out of habit.' },
   { name:'Repo Man', desc:'Slow, heavy, and hits like an overdue invoice. Only moves every other turn. Too slow to brace for an Overtime Clause burst.' },
-  { name:'Ghost Auditor', desc:'Attacks from range along a straight hallway. Keep a wall between you. Closing the gap with a Hollow Step catches it flat-footed.' },
+  { name:'Ghost Assessor', desc:'Attacks from range along a straight hallway. Keep a wall between you. Closing the gap with a Hollow Step catches it flat-footed.' },
   { name:'Notary Wraith', desc:"Its touch notarizes your next few strikes as \"insufficient\" ... expect weaker hits for a short while after it lands one. An Audit Sweep unravels the paperwork before it can file it." },
   { name:'Bound Archivist', desc:"Deep Archive only. Heals off every hit it lands on you ... burst it down fast, or it outlasts your patience. An Overtime Clause burst outpaces the healing entirely." },
-  { name:'The Auditor', desc:'Floor 3. The first thing down here that can actually end you. Vulnerable to a well-timed Overtime Clause.' },
-  { name:'The Repossessor', desc:'Floor 5. Answers for what it takes, eventually. A Hollow Step Strike catches it off its guard.' },
-  { name:'The Chief Auditor', desc:'Floor 8. Gets meaner once you hurt it enough. An Audit Sweep exploits an opening a single strike never would.' },
+  { name:'The Assessor', desc:'Floor 3. The first thing down here that can actually end you. Vulnerable to a well-timed Overtime Clause.' },
+  { name:'The Collector', desc:'Floor 5. Answers for what it takes, eventually. A Hollow Step Strike catches it off its guard.' },
+  { name:'The Director', desc:'Floor 8. Gets meaner once you hurt it enough. An Audit Sweep exploits an opening a single strike never would.' },
   { name:'The Intern (Unpaid)', desc:'Extremely rare. Extremely fragile. Extremely tired.' },
 ];
 function noteEnemySeen(name){
@@ -1964,6 +2590,70 @@ el.bestiaryBtn.addEventListener('click', ()=>{
   playSfx('blip');
   showBestiary();
 });
+el.galleryBtn.addEventListener('click', ()=>{
+  closeMenuDropdown();
+  if(!['HUB','DUNGEON','ARCHIVE','WIN'].includes(state.mode)) return;
+  playSfx('blip');
+  showGallery();
+});
+
+// ---------------------------------------------------------------------
+// 0e2c. GALLERY ... every personal effect recovered so far, revisitable
+// on its own or as one uninterrupted reel. Nothing here is required;
+// it exists purely so the memories don't have to stay buried in the
+// inventory panel to be found again.
+// ---------------------------------------------------------------------
+function showGallery(){
+  openPanel();
+  renderGalleryPanel();
+}
+function renderGalleryPanel(){
+  el.panel.innerHTML = '';
+  const h1 = document.createElement('h1'); h1.style.fontSize='24px'; h1.textContent='GALLERY';
+  const sub = document.createElement('div'); sub.className='sub'; sub.textContent='EVERY EFFECT RECOVERED SO FAR';
+  el.panel.appendChild(h1); el.panel.appendChild(sub);
+  const owned = KEEPSAKE_KEYS.filter(k=>state.inventory.includes(k));
+  const list = document.createElement('div'); list.className='questlist';
+  KEEPSAKE_KEYS.forEach(k=>{
+    const has = state.inventory.includes(k);
+    const row = document.createElement('div'); row.className='questitem'+(has?' done':'');
+    if(has){
+      row.textContent = '☑ '+KEEPSAKE_DEFS[k].name;
+      row.style.cursor='pointer';
+      row.onclick = ()=>{
+        playSfx('blip');
+        const mem = MEMORY_DEFS[k];
+        closePanel();
+        openDialogue(mem.speaker, mem.lines, null, ()=>{ showGallery(); });
+      };
+    } else {
+      row.textContent = '☐ ??? ... not yet recovered';
+    }
+    list.appendChild(row);
+  });
+  el.panel.appendChild(list);
+  if(owned.length){
+    const replay = document.createElement('div'); replay.className='btn'; replay.style.cssText='margin-bottom:10px;font-size:11px;';
+    replay.textContent = 'REPLAY ALL ('+owned.length+')';
+    replay.onclick = ()=>{
+      playSfx('blip');
+      closePanel();
+      playMemoryReel(owned.slice(), ()=>showGallery());
+    };
+    el.panel.appendChild(replay);
+  }
+  const btn = document.createElement('div'); btn.className='btn primary'; btn.textContent='CLOSE';
+  btn.onclick = ()=>{ playSfx('blip'); closePanel(); };
+  el.panel.appendChild(btn);
+}
+// Chains every memory in a list into one uninterrupted dialogue reel,
+// each scene picking up right where the last one left off.
+function playMemoryReel(keys, onDone){
+  if(!keys.length){ onDone(); return; }
+  const k = keys.shift();
+  const mem = MEMORY_DEFS[k];
+  openDialogue(mem.speaker, mem.lines, null, ()=>playMemoryReel(keys, onDone));
+}
 
 // ---------------------------------------------------------------------
 // 0e2. THE FULL STORY ... a plain-language case summary for anyone who
@@ -1994,11 +2684,27 @@ function showStory(){
 
   section('THE SETUP', "When you die, apparently, the paperwork doesn't stop. You surface out of the infinite black into the waiting room of the Department of Postmortem Affairs ... bureaucracy as the shape the afterlife takes, brass fixtures, stamped forms, everybody dead and mostly fine about it. Below the Records Office sits the Filing Department: a dungeon that keeps score in levels, turns, and hit chances, dressed as audits and repossession notices instead of anything with teeth. The shards you're hunting (Ember Regret, Hollow Step, and the rest) are pieces of one evening you already lived, once, before any of this ... the same evening the people down here keep handing back to you, the only way this Department knows how to return anything: as something you have to fight to keep. Spend a shard to hit harder, move faster, survive one more room further into a night you're only getting back in pieces. And the puzzle-solving down here, weight against weight, switches before locks, insulting a hatch rather than picking it, only ever runs on one rule: the right answer is almost never the obvious one.");
 
-  section('THE PEOPLE IN IT', "Every keepsake you recover plays a short scene instead of just adding a stat, because the point was never really the stats ... it's the evening they're all pulled from, handed back one piece at a time. <b>THE LITTLE BOY</b> keeps handing you afternoons that already happened. <b>THE OP-SHOP WOMAN</b> sells things that already belonged to somebody and never apologizes for it. <b>THE TALL WOMAN</b> keeps a notebook that isn't for you yet and a TV that only replays the good days. <b>THE NINE-FINGER WISE WOMAN</b> hands over a ring engraved with a small coiled shape, wings folded, and calls it Sparkwing. <b>THE WILLOW TREE</b> is the place under everything, roots going all the way down into the infinite black itself. <b>THE MOON</b> and <b>THE FAIRY</b> are the two that keep turning up as light: a halo you can hold, and a jar of caught motes that fold into wings when you shake it. And <b>DJ UNDERTOW</b>, running a back room nobody filed properly, cup balanced on a spinning deck, marking everything that matters with a small dragon scratched into the platter ... is AC. Not a separate character standing next to him: wherever DJ Undertow shows up in this story, on that back-room turntable, that IS AC, one more name he goes by down here. Every one of them already gave him all of this once, on an ordinary evening, before any of it needed filing. Down here just makes him earn it a second time.");
+  section('THE DESCENT', "Filing runs eight floors and re-skins itself as it goes, the way a building's character changes between departments. <b>FILING DEPARTMENT</b> (floors 1-2) is where everyone starts: brass fixtures, dust, the ordinary business of being recently dead. <b>RECORDS HALL</b> (floors 3-4), warmer-lit and worse-tempered, is where the Assessor keeps its desk. <b>REPOSSESSION WING</b> is a single floor, the fifth, and feels like it ... everything there already halfway packed into a box, the Collector included. <b>THE DEEP ARCHIVE</b> (floors 6-8) is where the jokes get thin and the halls go purple-dark, ending at the Director's floor, the one nobody's ever climbed back out of without a fight. Past that, for whoever's still filing on a second case: <b>COLD STORAGE</b>, colder and stranger than anything upstairs, its own kind of quiet.");
 
-  section('THE ONE RUNNING THE SHOW', "Behind the Auditor, the Repossessor, and finally the Chief Auditor is the same thing the whole way down: not a monster, just an entire Department run on procedure, deciding case by case what gets denied and what gets carried forward. Beat it enough times and the signature itself gets revoked. It's the one setting every rule everybody else down here has to survive by ... the whole reason any of this needs filing in the first place.");
+  section('THE PEOPLE IN IT', "Every keepsake you recover plays a short scene instead of just adding a stat, because the point was never really the stats ... it's the evening they're all pulled from, handed back one piece at a time. <b>THE CABIN BOY</b> keeps handing you afternoons that already happened. <b>THE FLOTSAM WARDEN</b> sells things that already belonged to somebody and never apologizes for it. <b>THE CHRONICLER</b> keeps a notebook that isn't for you yet and a TV that only replays the good days. <b>THE NINE-FINGERED ORACLE</b> hands over a ring engraved with a small coiled shape, wings folded, and calls it Sparkwing. <b>THE DROWNED WILLOW</b> is the place under everything, roots going all the way down into the infinite black itself. <b>THE PALE LANTERN</b> and <b>THE FAIRY</b> are the two that keep turning up as light: a halo you can hold, and a jar of caught motes that fold into wings when you shake it. And <b>DJ UNDERTOW</b>, running a back room nobody filed properly, cup balanced on a spinning deck, marking everything that matters with a small dragon scratched into the platter ... is AC. Not a separate character standing next to him: wherever DJ Undertow shows up in this story, on that back-room turntable, that IS AC, one more name he goes by down here. Every one of them already gave him all of this once, on an ordinary evening, before any of it needed filing. Down here just makes him earn it a second time.");
 
-  section('WHO LIVES', "AC is the one who makes it out. Every ending runs through the willow, and every willow ending is really about the photograph: whether it comes back whole. When it does, the Auditor's silenced, the Repossessor answered for, and on the true ending the Chief Auditor's own signature gets revoked for good, an entire cabinet slides shut above and locks. That's AC, case closed, walking out of Filing with Sparkwing still glowing at his shoulder the whole way, the guardian fairy that was never just a keepsake. The infinite black is still down there, underneath everything, patient the way it's always been. It just doesn't get to keep him.");
+  section('THE ONE RUNNING THE SHOW', "Behind the Assessor, the Collector, and finally the Director is the same thing the whole way down: not a monster, just an entire Department run on procedure, deciding case by case what gets denied and what gets carried forward. Beat it enough times and the signature itself gets revoked. It's the one setting every rule everybody else down here has to survive by ... the whole reason any of this needs filing in the first place.");
+
+  section('WHO LIVES', "AC is the one who makes it out. Every ending runs through the willow, and every willow ending is really about the photograph: whether it comes back whole. When it does, the Assessor's silenced, the Collector answered for, and on the true ending the Director's own signature gets revoked for good, an entire cabinet slides shut above and locks. That's AC, case closed, walking out of Filing with Sparkwing still glowing at his shoulder the whole way, the guardian fairy that was never just a keepsake. The infinite black is still down there, underneath everything, patient the way it's always been. It just doesn't get to keep him.");
+
+  section('DEPARTMENT ORG CHART', "<span style=\"font-family:'IBM Plex Mono',monospace;white-space:pre-wrap;display:block;font-size:10.5px;line-height:1.6;\">"
+    +"THE DIRECTOR\n"
+    +"   |  (signature pending, always)\n"
+    +"THE CHIEF ASSESSOR ---- THE COLLECTOR\n"
+    +"   |                        |\n"
+    +"THE ASSESSOR          THE INSPECTOR\n"
+    +"   |                        |\n"
+    +"THE INTAKE WARDEN --- CLERK OF BERTH 14\n"
+    +"   |                        |\n"
+    +"THE ARCHIVIST          THE INTERN (UNPAID)\n"
+    +"   |\n"
+    +"YOU, PRESUMABLY, EVENTUALLY, ON PAPER\n"
+    +"</span>Filed here purely on principle: nobody currently working the Department has ever met the Director in person, including, as far as anyone can determine, the Chief Assessor. The Intern has requested a formal org chart four times. This is not that. This is what the Archivist drew on a napkin once and everyone since has been too afraid to correct.");
 
   el.panel.appendChild(wrap);
 
@@ -2011,6 +2717,692 @@ el.storyBtn.addEventListener('click', ()=>{
   if(['WIN','GAMEOVER'].includes(state.mode)) return;
   playSfx('blip');
   showStory();
+});
+
+// ---------------------------------------------------------------------
+// 0e2a. THE PROCEDURES MANUAL ... the in-game Rulebook, same panel/menu
+// pattern as The Full Story above, just a denser reference read: every
+// system as actually built, chaptered and paginated rather than one long
+// scroll. Table of contents first, then chapter-by-chapter with PREV /
+// CONTENTS / NEXT navigation. Purely informational, no story content
+// here ... that stays in showStory(), which this links back to instead
+// of repeating.
+// ---------------------------------------------------------------------
+const RULEBOOK_CHAPTERS = [
+  { title:'Orientation', dek:"what this is, and what you're holding", body:`
+    <p>When you die, apparently, the paperwork doesn't stop. You surface out of the infinite black into the waiting room of the Department of Postmortem Affairs, and everything below the Records Office runs on the same two rules as everywhere else in this building: fill out the form, and mean it.</p>
+    <p>Mechanically, that means two games running side by side. Upstairs, in the Hub, it plays like an adventure game: walk up to people, talk, collect, combine, get the odd joke item that does nothing on purpose. Downstairs, in the Filing Department, it plays like a turn-based dungeon crawl: procedurally generated floors, HP and levels, an Overtime Clause standing in for the Limit Break, shards standing in for materia. Both halves share one inventory and one case file.</p>
+    <p>This manual is the reference for how all of that works ... exact numbers, exact triggers, every system in the build. It is not the story. For that, use <b>📖 The Full Story</b> in this same menu, which lays out the cast and the case in the Department's own words. This manual sticks to procedure.</p>
+    <div class="rb-note">An afterlife-bureaucracy RPG, built at the crossing of three influences: the deadpan, department-issue melancholy of <b>Grim Fandango</b>, the point-and-click logic and insult-trading of <b>Monkey Island</b>, and the shard-and-Limit-Break structure of <b>Final Fantasy VII</b>, its lead influence throughout.</div>
+  `},
+  { title:'Controls', dek:'keyboard, touch, and gamepad', body:`
+    <h4>Keyboard</h4>
+    <ul>
+      <li><b>WASD or arrows</b> ... move, or attack by walking into a target</li>
+      <li><b>SPACE</b> ... dash (once Hollow Step is found), advance dialogue, flip an Archive switch</li>
+      <li><b>ENTER</b> ... advance dialogue</li>
+      <li><b>ESC</b> ... leave a puzzle room, or close the menu dropdown</li>
+    </ul>
+    <h4>Touch</h4>
+    <p>An on-screen D-pad and a single ACT button appear automatically on touch devices. ACT does whatever SPACE would do in context: dash, advance a line, flip a switch, or push against a crate.</p>
+    <h4>Gamepad</h4>
+    <p>Standard mapping: left stick or d-pad to move, face button to act/dash/advance. Connect a controller and it's picked up automatically ... no separate menu toggle required.</p>
+    <div class="rb-note">There is no dedicated attack button. Movement and attack share one input: step into an empty tile to move, step into an enemy's tile to swing at it.</div>
+  `},
+  { title:'The Records Office', dek:'home base, between descents', body:`
+    <p>The Hub is the Department's waiting room: your save point, your shop window, and the only place any NPC stands still long enough to talk to. Nothing here is timed. Walk into a person or fixture to interact with it.</p>
+    <h4>Who's standing around</h4>
+    <table>
+      <thead><tr><th>NPC</th><th>What they're for</th></tr></thead>
+      <tbody>
+        <tr><td class="rb-name">The Intake Warden</td><td>Front desk. Tracks overall progress, unlocks the Sub-basement once the Stamp of Approval is reassembled, and hosts the Director's exit interview once the run is complete.</td></tr>
+        <tr><td class="rb-name">The Archivist</td><td>Explains the Vault and Archive puzzles on first meeting, then reports their status afterward.</td></tr>
+        <tr><td class="rb-name">Clerk of Berth 14</td><td>The Insult Duel host. Offers the base duel, then gates tougher tiers behind earlier wins.</td></tr>
+      </tbody>
+    </table>
+    <h4>Everything else lives in ☰ MENU</h4>
+    <ul>
+      <li><b>📋 Case Objectives</b> ... current quest checklist</li>
+      <li><b>🎒 Inventory</b> ... key items, personal effects, red herrings, trinket management</li>
+      <li><b>🏪 The Flotsam Exchange</b> ... a display case tracking recovered personal effects (see Chapter 9)</li>
+      <li><b>🗂 Bestiary</b> ... fills in as you encounter each enemy type</li>
+      <li><b>🖼 Gallery</b> ... replay any recovered keepsake's memory scene</li>
+      <li><b>📖 The Full Story</b> ... the narrative recap</li>
+      <li><b>📕 Procedures Manual</b> ... this document</li>
+      <li><b>⚙ Settings</b> ... volume, colorblind-safe palette, case file export/import</li>
+      <li><b>🏠 Return to Main Menu</b> ... autosaves, then backs out. Always available mid-run.</li>
+    </ul>
+  `},
+  { title:'The Descent', dek:'eight floors, five biomes, one dungeon', body:`
+    <p>The Filing Department regenerates a fresh procedural layout every descent: rooms, corridors, enemies, items, and hidden tripwire traps, all re-rolled (or seeded) on arrival. The visual <b>biome</b> changes on its own schedule, independent of layout, purely atmospheric.</p>
+    <table>
+      <thead><tr><th>Floor(s)</th><th>Biome</th><th>Notable</th></tr></thead>
+      <tbody>
+        <tr><td class="rb-num">1-2</td><td class="rb-name">Filing Department</td><td>Ember Regret (F1) and Hollow Step (F2) shards guaranteed to spawn.</td></tr>
+        <tr><td class="rb-num">3-4</td><td class="rb-name">Records Hall</td><td>Floor 3: The Assessor (boss). Stairwell seals until answered for.</td></tr>
+        <tr><td class="rb-num">5</td><td class="rb-name">Repossession Wing</td><td>The Collector (miniboss), drops the Red Tape shard.</td></tr>
+        <tr><td class="rb-num">6-8</td><td class="rb-name">The Deep Archive</td><td>Bound Archivists and Notary Wraiths begin appearing. Floor 8: The Director (final boss).</td></tr>
+        <tr><td class="rb-num">9+</td><td class="rb-name">Cold Storage</td><td>Reachable on a New Game+ case file, past the story's original scope.</td></tr>
+      </tbody>
+    </table>
+    <h4>Exploration</h4>
+    <ul>
+      <li><b>Fog of war</b>: only tiles within your current vision radius are revealed. The Case Compass trinket extends it.</li>
+      <li><b>Hidden tripwires</b>: sprung filing-cabinet traps, invisible until triggered, scaling damage. Never on the entry or exit tile.</li>
+      <li><b>Stairwells</b> seal on boss floors until that floor's boss is defeated.</li>
+      <li>Each floor guarantees a small item spread: a few HP potions, an occasional trinket, and any keepsakes or key-item pieces still owed to that floor.</li>
+    </ul>
+  `},
+  { title:'Combat', dek:'turn-based, tile-based, no separate attack button', body:`
+    <p>Walking into an occupied enemy tile swings at it instead of moving. Every player action resolves, then every surviving enemy takes its turn. There's no positioning grid beyond the dungeon tiles themselves ... range, line-of-sight, and adjacency all matter.</p>
+    <h4>The basic swing</h4>
+    <p>Base damage is <b>3 + random(0-2) + (Level - 1)</b>, before shard or trinket bonuses. Crits land at a <b>15% base chance</b> (raised by the Lucky Stamp trinket and its fusion) for <b>1.6x</b> damage. Every hit landed or taken feeds the Overtime Clause gauge (Chapter 6).</p>
+    <h4>Weakness hits</h4>
+    <p>Most bosses and several regular enemies carry a listed weakness to a specific damage source (a dash-strike, an Overtime technique, and so on). Landing that source deals <b>1.4x</b> damage and flags <b>WEAKNESS EXPOSED</b> on-screen.</p>
+    <h4>Status effects</h4>
+    <table>
+      <thead><tr><th>Effect</th><th>Source</th><th>What it does</th></tr></thead>
+      <tbody>
+        <tr><td class="rb-name">Red Tape</td><td>Red Tape shard (~30%/hit, higher mastered/fused), or guaranteed via Audit Sweep / Summon Sparkwing</td><td>Target skips its next turn.</td></tr>
+        <tr><td class="rb-name">Notarized Insufficient</td><td>A Notary Wraith's touch</td><td>Your own strikes deal reduced damage briefly.</td></tr>
+        <tr><td class="rb-name">Time Loop</td><td>Skipping Stone / Vitamin Jar keepsakes</td><td>Temporary flat damage bonus for a set number of turns.</td></tr>
+      </tbody>
+    </table>
+    <div class="rb-note">Enemies that <b>drain</b> heal off their own hits; enemies that are <b>slow</b> act every other turn; enemies that are <b>ranged</b> can strike from a straight-line distance without closing in. All called out in the Bestiary (Chapter 14).</div>
+  `},
+  { title:'The Overtime Clause', dek:'the Limit Break, filed under a different name', body:`
+    <p>A gauge fills as you deal and take damage. Once it caps, your next swing offers a choice instead of a normal hit, FFVII-style, and empties back to zero on use.</p>
+    <table>
+      <thead><tr><th>Technique</th><th>Effect</th><th>Damage (approx.)</th></tr></thead>
+      <tbody>
+        <tr><td class="rb-name">Severance</td><td>One heavy single-target strike, guaranteed crit, 55% splash to adjacent enemies, refunds 25% max HP.</td><td class="rb-num">10-14 + scaling</td></tr>
+        <tr><td class="rb-name">Audit Sweep</td><td>Hits every visible enemy and guarantees Red Tape on all of them, shard or no shard.</td><td class="rb-num">6-9 + scaling</td></tr>
+        <tr><td class="rb-name">Summon: Sparkwing</td><td>Unlocked only once every personal effect in Filing is recovered. Hits and stuns every enemy, guaranteed crits, refunds 40% max HP.</td><td class="rb-num">16-21 + scaling</td></tr>
+      </tbody>
+    </table>
+    <p>All three scale further with player level, trinket bonuses, and the Ember Regret shard (plus its mastery bonus) if carried. Severance and Summon Sparkwing heal on cast; Audit Sweep trades the heal for guaranteed crowd control.</p>
+    <div class="rb-note">Second Wind (from the Vault) and the Overtime Clause are independent: Second Wind saves you from one lethal hit per run on Standard difficulty; the Overtime gauge is a resource you spend deliberately.</div>
+  `},
+  { title:'Shards', dek:'the materia system: six pieces of one evening', body:`
+    <p>Shards are always-on once recovered ... no equip slot to manage. Each has a home in the run, and three of the six deepen further through use.</p>
+    <table>
+      <thead><tr><th>Shard</th><th>Source</th><th>Effect</th></tr></thead>
+      <tbody>
+        <tr><td class="rb-name">Ember Regret</td><td>Floor 1, guaranteed</td><td>+damage on every hit; scales further with mastery.</td></tr>
+        <tr><td class="rb-name">Hollow Step</td><td>Floor 2, guaranteed</td><td>Grants the dash. 8-turn cooldown, 5 once mastered.</td></tr>
+        <tr><td class="rb-name">Second Wind</td><td>Solving The Vault</td><td>Survives one otherwise-lethal hit per run (Standard only).</td></tr>
+        <tr><td class="rb-name">Ledger's Weight</td><td>Solving The Archive</td><td>Reduces incoming damage by 1 (2 once fused).</td></tr>
+        <tr><td class="rb-name">Red Tape</td><td>Defeating The Collector</td><td>Chance to stun on hit; scales with mastery, fuses with Ember Regret.</td></tr>
+        <tr><td class="rb-name">Faded Photograph</td><td>Defeating The Assessor</td><td>Passive bonus once all six are held.</td></tr>
+      </tbody>
+    </table>
+    <h4>Mastery</h4>
+    <ul>
+      <li><b>Ember Regret</b> ... mastered after 25 hits landed while carrying it. Further flat damage.</li>
+      <li><b>Hollow Step</b> ... mastered after 15 dashes. Cooldown drops from 8 turns to 5.</li>
+      <li><b>Red Tape</b> ... mastered after 12 successful binds. Raises stun chance further.</li>
+    </ul>
+    <h4>Fusion</h4>
+    <table>
+      <thead><tr><th>Fusion</th><th>Pair</th><th>Effect</th></tr></thead>
+      <tbody>
+        <tr><td class="rb-name">Burning Docket</td><td>Ember Regret + Red Tape</td><td>Higher bind chance; bound enemies also take burn damage.</td></tr>
+        <tr><td class="rb-name">Vanishing Act</td><td>Hollow Step + Second Wind</td><td>A dash leaves you briefly untouchable.</td></tr>
+        <tr><td class="rb-name">Anchored Likeness</td><td>Ledger's Weight + Faded Photograph</td><td>Doubles Ledger's Weight's damage reduction.</td></tr>
+      </tbody>
+    </table>
+    <h4>Full Ledger &amp; The Three Trials</h4>
+    <p><b>Full Ledger</b>: all six shards grants a further flat damage bonus plus +10 max HP. <b>Three Trials of Intake</b>: winning the base Insult Duel and solving both puzzle rooms together grants +1 further damage.</p>
+  `},
+  { title:'Trinkets', dek:'one equip slot, an unlimited memory box', body:`
+    <p>Trinkets are dungeon drops (roughly half of all floors offer one). Unlike shards, only <b>one trinket is active at a time</b>; the rest sit in the Memory Box, swappable or fusable later from the Inventory panel.</p>
+    <table>
+      <thead><tr><th>Trinket</th><th>Effect</th></tr></thead>
+      <tbody>
+        <tr><td class="rb-name">Brass Cufflink</td><td>+1 damage on every hit.</td></tr>
+        <tr><td class="rb-name">Worn Ledger</td><td>+8 max HP.</td></tr>
+        <tr><td class="rb-name">Lucky Stamp</td><td>+12% critical hit chance.</td></tr>
+        <tr><td class="rb-name">Case Compass</td><td>Extends vision radius.</td></tr>
+        <tr><td class="rb-name">Chipped Hourglass</td><td>+4 max HP and +5% crit chance ... a small taste of two stats at once.</td></tr>
+        <tr><td class="rb-name">Notary's Seal</td><td>+15 max HP and +1 damage. Sub-basement only.</td></tr>
+        <tr><td class="rb-name">Notary's Flourish</td><td>Fusion: Cufflink + Stamp. +2 damage, +15% crit.</td></tr>
+        <tr><td class="rb-name">Bound Compass</td><td>Fusion: Ledger + Compass. +10 max HP, further vision.</td></tr>
+      </tbody>
+    </table>
+    <p>Fusing two eligible trinkets (owned equipped or boxed, in any combination) consumes both and auto-equips the result.</p>
+  `},
+  { title:'Case Evidence', dek:'items, combinations, personal effects, and a couple of things that are jokes on purpose', body:`
+    <h4>Key items &amp; combination</h4>
+    <p>A small point-and-click layer runs alongside the crawl. A cracked rubber stamp and a dried ink ribbon (floors 1 and 2) combine in the Inventory panel into a <b>Reassembled Stamp of Approval</b>. Presenting it to the Intake Warden unlocks the Sub-basement (Chapter 12).</p>
+    <div class="rb-note">Trying to combine two items that were never meant to go together doesn't produce a generic error ... it produces a specific, written joke every time, Monkey-Island style. Twenty of these non-combinations are built in.</div>
+    <h4>Personal effects &amp; memories</h4>
+    <p>Twenty-two keepsakes are scattered across all eight floors (never respawning once collected), each tied to a specific person or presence in the story. Picking one up plays a short memory scene instead of just adding a stat. A handful open into something bigger afterward: a light puzzle, a temporary buff, or a paginated mini-chapter.</p>
+    <ul>
+      <li>Every recovered keepsake replays any time from <b>🖼 Gallery</b>, individually or as one uninterrupted reel.</li>
+      <li>Recovering <b>all 22</b> unlocks Summon: Sparkwing and colors a line of the true ending.</li>
+      <li>For who each keepsake belongs to, see <b>📖 The Full Story</b> instead of this manual ... that's narrative content, not a rule.</li>
+    </ul>
+    <h4>Red herrings</h4>
+    <p>Two items exist purely as jokes: a Novelty Stress Stapler (floor 4) and a bottle of Notary's Grog (floor 5). Neither combines with anything, neither counts toward any collection.</p>
+  `},
+  { title:'Insult Duels', dek:"Monkey Island's insult sword fighting, refiled as a war of complaints", body:`
+    <p>A pure dialogue minigame, no bearing on dungeon combat stats. Each duel deals three rounds; a line is thrown at you, and you pick the one rebuttal (of three) that actually lands. Hearing any line once is enough to remember it permanently, win or lose.</p>
+    <table>
+      <thead><tr><th>Tier</th><th>Opponent</th><th>Unlocked by</th><th>To win</th></tr></thead>
+      <tbody>
+        <tr><td class="rb-name">Trading Complaints</td><td>Clerk of Berth 14</td><td>Available from the start</td><td>2 of 3</td></tr>
+        <tr><td class="rb-name">A Real Argument</td><td>The Inspector</td><td>Winning the base duel</td><td class="rb-num">3 of 3</td></tr>
+        <tr><td class="rb-name">Exit Interview</td><td>The Chief Assessor</td><td>Defeating the Director</td><td>2 of 3</td></tr>
+        <tr><td class="rb-name">Break Room Showdown</td><td>The Intern (Unpaid)</td><td>Winning the Inspector duel</td><td>2 of 3</td></tr>
+      </tbody>
+    </table>
+    <p>Each tier replays afterward for no stakes. Winning any tier for the first time grants XP; the Exit Interview additionally colors the true ending's closing line if every keepsake has been recovered.</p>
+  `},
+  { title:'The Vault &amp; The Archive', dek:'two optional trial rooms, reachable from the Hub', body:`
+    <h4>The Vault (physics)</h4>
+    <p>A physics room. Push a crate onto the marked brass seal using WASD/arrows and hold it there until it settles. Solving it grants the <b>Second Wind</b> shard, +15 max HP, and heals 15 HP on the spot.</p>
+    <h4>The Archive (logic)</h4>
+    <p>A classic Lights Out puzzle on a 3x3 grid: flipping a switch also flips its orthogonal neighbors. Goal: every light lit at once. Always generated solvable, never pre-solved. Solving it grants the <b>Ledger's Weight</b> shard, +5 max HP, and heals 5 HP.</p>
+    <div class="rb-note">Both rooms are otherwise dead ends if you get stuck ... the ✕ LEAVE button (or ESC) exits without penalty and without solving, any time.</div>
+  `},
+  { title:'The Memory Booth &amp; Sub-basement', dek:'a first-person walk, and a locked hatch', body:`
+    <h4>The Memory Booth</h4>
+    <p>A short first-person sequence, unlocked once the Assessor is silenced. Walk forward (W) through a night field toward a willow under the moon; steering is limited to left/right. Reaching the willow ends the sequence, awards a willow leaf, and rolls into the win sequence if the Director's already been defeated too. If 3D rendering is unavailable, a text-only version of the same beat plays instead.</p>
+    <h4>The Sub-basement</h4>
+    <p>A one-off bonus scene, unlocked by presenting the completed Stamp of Approval to the Intake Warden. No new map generates; it resolves entirely through dialogue and grants the <b>Notary's Seal</b> trinket, found nowhere else.</p>
+  `},
+  { title:'Bosses', dek:'three fights, three floors, three weaknesses', body:`
+    <table>
+      <thead><tr><th>Boss</th><th>Floor</th><th>HP</th><th>Dmg</th><th>Weak to</th></tr></thead>
+      <tbody>
+        <tr><td class="rb-name">The Assessor</td><td>3 · Records Hall</td><td class="rb-num">40</td><td class="rb-num">6</td><td>Overtime Clause</td></tr>
+        <tr><td class="rb-name">The Collector</td><td>5 · Repossession Wing</td><td class="rb-num">55</td><td class="rb-num">7</td><td>Dash (Hollow Step)</td></tr>
+        <tr><td class="rb-name">The Director</td><td>8 · The Deep Archive</td><td class="rb-num">90</td><td class="rb-num">8 (+40% enraged)</td><td>Audit Sweep</td></tr>
+      </tbody>
+    </table>
+    <p><b>The Assessor</b> never raises its voice and doesn't need to ... it decides a case once and moves on. Defeat drops the Faded Photograph shard.</p>
+    <p><b>The Collector</b> only ever takes what it's owed, technically. Answers for it eventually. Defeat drops the Red Tape shard.</p>
+    <p><b>The Director</b> enrages below 50% HP, hitting noticeably harder from that point on. Nobody on staff has ever actually met the Director in person ... only ever a signature. Defeating it unlocks Nightmare difficulty for future case files.</p>
+    <div class="rb-note blood">All three stairwells seal until that floor's boss is answered for. There's no way to skip past one.</div>
+  `},
+  { title:'Bestiary', dek:"what's actually down there, floor by floor", body:`
+    <table>
+      <thead><tr><th>Enemy</th><th>First seen</th><th>Behavior</th></tr></thead>
+      <tbody>
+        <tr><td class="rb-name">Filing Rat</td><td class="rb-num">Floor 1</td><td>The baseline. No special behavior.</td></tr>
+        <tr><td class="rb-name">Repo Man</td><td class="rb-num">Floor 2+</td><td>Slow, acts every other turn. Weak: Overtime.</td></tr>
+        <tr><td class="rb-name">Ghost Assessor</td><td class="rb-num">Floor 4+</td><td>Ranged along a straight hallway. Weak: Dash.</td></tr>
+        <tr><td class="rb-name">Notary Wraith</td><td class="rb-num">Floor 6+</td><td>Touch weakens your next strikes. Weak: Audit Sweep.</td></tr>
+        <tr><td class="rb-name">Bound Archivist</td><td class="rb-num">Floor 7+</td><td>Drains, heals off every hit landed. Weak: Overtime.</td></tr>
+        <tr><td class="rb-name">The Intern (Unpaid)</td><td class="rb-num">~2.5% spawn</td><td>Extremely rare, extremely fragile, purely a joke.</td></tr>
+      </tbody>
+    </table>
+    <p>The in-game <b>🗂 Bestiary</b> panel fills each entry in only after an actual encounter, and persists across case files.</p>
+  `},
+  { title:'Difficulty', dek:'selected at the start of a case file', body:`
+    <table>
+      <thead><tr><th>Difficulty</th><th>Enemy dmg</th><th>Second Wind</th><th>Unlocked by</th></tr></thead>
+      <tbody>
+        <tr><td class="rb-name">Standard</td><td class="rb-num">1x</td><td>available</td><td>Always</td></tr>
+        <tr><td class="rb-name">Hardcore</td><td class="rb-num">1.5x</td><td>disabled</td><td>Always</td></tr>
+        <tr><td class="rb-name">Nightmare</td><td class="rb-num">2x</td><td>disabled</td><td>Finishing the true ending once</td></tr>
+      </tbody>
+    </table>
+    <p>An optional dungeon seed field on the main menu makes floor layouts reproducible ... useful for comparing runs or sharing a specific layout.</p>
+  `},
+  { title:'Saves, Case Codes &amp; New Game+', dek:'what persists, and how to carry it around', body:`
+    <ul>
+      <li><b>Autosave</b>: progress writes continuously ... after shard pickups, boss defeats, puzzle solves, and more. Return to Main Menu autosaves explicitly before backing out.</li>
+      <li><b>Case file code</b>: Settings can export the current save as a portable text code, and import one back in. Useful for backing up a run or handing a state to someone else.</li>
+      <li><b>New Game+</b>: offered on the true ending. Carries forward half your level (rounded up), resets shards/items/floor progress, and steps difficulty up to Nightmare if it's been unlocked.</li>
+      <li><b>Stats</b> (kills, deaths, deepest floor, runs started, best time, achievements) persist across every case file, separate from any single save.</li>
+    </ul>
+  `},
+  { title:'Achievements', dek:'twenty-five, tracked for the life of the install', body:`
+    <ul>
+      <li><b>First Blood</b> ... your first dismissal</li>
+      <li><b>First Shard Recovered</b> ... any shard, first time</li>
+      <li><b>The Vault Balanced</b> / <b>The Archive Illuminated</b> ... solve each puzzle</li>
+      <li><b>The Assessor Silenced</b> / <b>The Collector Answered For</b> / <b>The Director Answered For</b> ... defeat each boss</li>
+      <li><b>Reached the Fifth Floor</b> / <b>Reached the Deep Archive</b> ... depth milestones</li>
+      <li><b>Fired the Intern</b> ... defeat the rare joke enemy</li>
+      <li><b>Testing, Testing</b> ... the Konami code</li>
+      <li><b>Case Closed</b> ... reach any ending</li>
+      <li><b>Properly Authorized</b> ... unlock the Sub-basement</li>
+      <li><b>Invoked the Overtime Clause</b> ... use any Overtime technique once</li>
+      <li><b>Won the War of Complaints</b> / <b>Outargued the Inspector</b> / <b>The Last Word</b> / <b>Went Easy On The Intern</b> ... each duel tier</li>
+      <li><b>Full Ledger</b> ... hold all six shards at once</li>
+      <li><b>Every Personal Effect Recovered</b> ... all 22 keepsakes</li>
+      <li><b>Summoned Sparkwing</b> ... use the third Overtime technique</li>
+      <li><b>Ember Regret / Hollow Step / Red Tape Mastered</b> ... each mastery threshold</li>
+      <li><b>Three Trials Complete</b> ... win the base duel and solve both puzzle rooms</li>
+    </ul>
+    <div class="rb-note">A small number of additional secrets exist outside the achievement list entirely ... typed rather than triggered. This manual documents systems, not every hidden word. Some things are more fun found than filed.</div>
+  `},
+];
+let _rbChapterIdx = 0;
+function showRulebook(){
+  openPanel();
+  el.panel.classList.add('rulebook-mode');
+  renderRulebookContents();
+}
+function renderRulebookContents(){
+  el.panel.innerHTML = '';
+  const h1 = document.createElement('h1'); h1.style.fontSize='22px'; h1.textContent='FORM 14-B';
+  const sub = document.createElement('div'); sub.className='sub'; sub.textContent='FILING DEPARTMENT PROCEDURES MANUAL';
+  el.panel.appendChild(h1); el.panel.appendChild(sub);
+  const p = document.createElement('p'); p.className='flavor'; p.style.cssText='font-size:11.5px;max-width:min(560px,88vw);';
+  p.textContent = "Every system in Filing, documented as built. This is procedure, not story ... for the narrative recap, see The Full Story instead.";
+  el.panel.appendChild(p);
+
+  const wrap = document.createElement('div'); wrap.className='rb-wrap';
+  const toc = document.createElement('div'); toc.className='rb-toc';
+  RULEBOOK_CHAPTERS.forEach((ch,i)=>{
+    const item = document.createElement('div'); item.className='rb-toc-item';
+    const num = document.createElement('span'); num.className='rb-num'; num.textContent = String(i+1).padStart(2,'0');
+    const titlewrap = document.createElement('span'); titlewrap.className='rb-titlewrap';
+    const title = document.createElement('span'); title.className='rb-title'; title.textContent = ch.title.replace('&amp;','&');
+    const dek = document.createElement('span'); dek.className='rb-dek'; dek.textContent = ch.dek;
+    titlewrap.appendChild(title); titlewrap.appendChild(dek);
+    item.appendChild(num); item.appendChild(titlewrap);
+    item.onclick = ()=>{ playSfx('blip'); _rbChapterIdx=i; renderRulebookChapter(); };
+    toc.appendChild(item);
+  });
+  wrap.appendChild(toc);
+  el.panel.appendChild(wrap);
+
+  const btn = document.createElement('div'); btn.className='btn primary'; btn.textContent='CLOSE';
+  btn.onclick = ()=>{ playSfx('blip'); closePanel(); };
+  el.panel.appendChild(btn);
+}
+function renderRulebookChapter(){
+  el.panel.innerHTML = '';
+  const ch = RULEBOOK_CHAPTERS[_rbChapterIdx];
+  const chapNum = document.createElement('div'); chapNum.className='rb-chapter-num';
+  chapNum.textContent = 'CHAPTER '+(_rbChapterIdx+1)+' OF '+RULEBOOK_CHAPTERS.length;
+  el.panel.appendChild(chapNum);
+  const h1 = document.createElement('h1'); h1.style.fontSize='21px'; h1.innerHTML = ch.title;
+  el.panel.appendChild(h1);
+  const dek = document.createElement('div'); dek.className='rb-dek-line'; dek.textContent = ch.dek;
+  el.panel.appendChild(dek);
+
+  const wrap = document.createElement('div'); wrap.className='rb-wrap';
+  wrap.innerHTML = ch.body;
+  el.panel.appendChild(wrap);
+
+  const nav = document.createElement('div'); nav.className='rb-nav';
+  const prevBtn = document.createElement('div'); prevBtn.className='btn'; prevBtn.textContent='◀ PREV';
+  prevBtn.style.visibility = _rbChapterIdx===0 ? 'hidden' : 'visible';
+  prevBtn.onclick = ()=>{ if(_rbChapterIdx>0){ playSfx('blip'); _rbChapterIdx--; renderRulebookChapter(); } };
+  const tocBtn = document.createElement('div'); tocBtn.className='btn'; tocBtn.textContent='CONTENTS';
+  tocBtn.onclick = ()=>{ playSfx('blip'); renderRulebookContents(); };
+  const nextBtn = document.createElement('div'); nextBtn.className='btn'; nextBtn.textContent='NEXT ▶';
+  nextBtn.style.visibility = _rbChapterIdx===RULEBOOK_CHAPTERS.length-1 ? 'hidden' : 'visible';
+  nextBtn.onclick = ()=>{ if(_rbChapterIdx<RULEBOOK_CHAPTERS.length-1){ playSfx('blip'); _rbChapterIdx++; renderRulebookChapter(); } };
+  nav.appendChild(prevBtn); nav.appendChild(tocBtn); nav.appendChild(nextBtn);
+  el.panel.appendChild(nav);
+
+  const closeBtn = document.createElement('div'); closeBtn.className='btn primary'; closeBtn.style.marginTop='10px'; closeBtn.textContent='CLOSE';
+  closeBtn.onclick = ()=>{ playSfx('blip'); closePanel(); };
+  el.panel.appendChild(closeBtn);
+}
+el.rulebookBtn.addEventListener('click', ()=>{
+  closeMenuDropdown();
+  if(['WIN','GAMEOVER'].includes(state.mode)) return;
+  playSfx('blip');
+  showRulebook();
+});
+
+// ---------------------------------------------------------------------
+// ---------------------------------------------------------------------
+// 0e2a2. THE EXHIBITS ... a small case-file attachments room: three short
+// bonus pieces (A, B, C), reached from one menu entry so the dropdown
+// doesn't grow a new top-level item for each one. Purely a bonus in every
+// case ... zero mechanical weight, nothing here gates or unlocks anything
+// else. All illustration is styled DOM + small canvas drawings, no image
+// assets, no SVG, same house rule as the rest of the build.
+// ---------------------------------------------------------------------
+const EXHIBIT_LIST = [
+  { id:'a', label:'Exhibit A', dek:'a note' },
+  { id:'b', label:'Exhibit B', dek:'three items, logged together' },
+  { id:'c', label:'Exhibit C', dek:'the swan boat incident' },
+];
+function showExhibits(){
+  openPanel();
+  renderExhibitsList();
+}
+function renderExhibitsList(){
+  el.panel.className = '';
+  el.panel.classList.add('exhibit-toc-mode');
+  el.panel.innerHTML = '';
+  const h1 = document.createElement('h1'); h1.style.fontSize='22px'; h1.textContent='THE EXHIBITS';
+  const sub = document.createElement('div'); sub.className='sub'; sub.textContent='CASE FILE ATTACHMENTS, FILED SEPARATELY';
+  el.panel.appendChild(h1); el.panel.appendChild(sub);
+
+  const list = document.createElement('div'); list.className='exhibit-toc';
+  EXHIBIT_LIST.forEach(ex=>{
+    const item = document.createElement('div'); item.className='exhibit-toc-item';
+    const label = document.createElement('span'); label.className='exhibit-toc-label'; label.textContent = ex.label;
+    const dek = document.createElement('span'); dek.className='exhibit-toc-dek'; dek.textContent = ex.dek;
+    item.appendChild(label); item.appendChild(dek);
+    item.onclick = ()=>{
+      playSfx('blip');
+      if(ex.id==='a') showExhibitA();
+      else if(ex.id==='b') showExhibitB();
+      else showExhibitC();
+    };
+    list.appendChild(item);
+  });
+  el.panel.appendChild(list);
+
+  const btn = document.createElement('div'); btn.className='btn primary'; btn.textContent='CLOSE';
+  btn.onclick = ()=>{ playSfx('blip'); closePanel(); };
+  el.panel.appendChild(btn);
+}
+function exhibitBackNav(){
+  const nav = document.createElement('div'); nav.className='exhibit-nav';
+  const back = document.createElement('div'); back.className='btn'; back.textContent='◀ BACK TO EXHIBITS';
+  back.onclick = ()=>{ playSfx('blip'); renderExhibitsList(); };
+  const close = document.createElement('div'); close.className='btn primary'; close.textContent='CLOSE';
+  close.onclick = ()=>{ playSfx('blip'); closePanel(); };
+  nav.appendChild(back); nav.appendChild(close);
+  return nav;
+}
+
+// --- Exhibit A: a note ------------------------------------------------
+function showExhibitA(){
+  el.panel.className = '';
+  el.panel.classList.add('exhibit-note-mode');
+  el.panel.innerHTML = '';
+  const h1 = document.createElement('h1'); h1.style.fontSize='20px'; h1.textContent='EXHIBIT A';
+  const sub = document.createElement('div'); sub.className='sub'; sub.textContent='A NOTE, UNSIGNED (AS IF IT NEEDED TO BE)';
+  el.panel.appendChild(h1); el.panel.appendChild(sub);
+
+  const card = document.createElement('div'); card.className='exhibit-note-card';
+  card.innerHTML =
+    '<div class="note-pre">The heart will only say</div>'+
+    '<div class="note-main">Thank You</div>'+
+    '<div class="note-post">for Always and Forever.</div>';
+  el.panel.appendChild(card);
+
+  el.panel.appendChild(exhibitBackNav());
+}
+
+// --- Exhibit B: three items, a numbers story of keeping track --------
+function drawPocketWatchIcon(canvas){
+  const c2 = canvas.getContext('2d'), w=canvas.width, h=canvas.height;
+  c2.clearRect(0,0,w,h);
+  const cx=w*0.5, cy=h*0.56, r=w*0.34;
+  c2.strokeStyle='#8a713c'; c2.lineWidth=2; c2.beginPath();
+  c2.moveTo(cx,cy-r); c2.lineTo(cx,cy-r-h*0.09); c2.stroke();
+  c2.fillStyle='#c9a15a'; c2.fillRect(cx-w*0.03, cy-r-h*0.13, w*0.06, h*0.06);
+  c2.beginPath(); c2.arc(cx,cy,r,0,Math.PI*2);
+  c2.fillStyle='#171b26'; c2.fill();
+  c2.strokeStyle='#c9a15a'; c2.lineWidth=3; c2.stroke();
+  c2.strokeStyle='rgba(201,161,90,0.5)'; c2.lineWidth=1;
+  for(let i=0;i<12;i++){
+    const a = (i/12)*Math.PI*2;
+    const r1 = r*0.82, r2 = r*0.94;
+    c2.beginPath();
+    c2.moveTo(cx+Math.cos(a)*r1, cy+Math.sin(a)*r1);
+    c2.lineTo(cx+Math.cos(a)*r2, cy+Math.sin(a)*r2);
+    c2.stroke();
+  }
+  // hands, held at ten-and-two ... the reliably good-looking time
+  c2.strokeStyle='#e8e1d0'; c2.lineCap='round';
+  c2.lineWidth=2.5; c2.beginPath(); c2.moveTo(cx,cy); c2.lineTo(cx-r*0.32, cy-r*0.46); c2.stroke();
+  c2.lineWidth=2; c2.beginPath(); c2.moveTo(cx,cy); c2.lineTo(cx+r*0.5, cy-r*0.28); c2.stroke();
+  c2.fillStyle='#c9a15a'; c2.beginPath(); c2.arc(cx,cy,2,0,Math.PI*2); c2.fill();
+}
+function drawCalendarIcon(canvas){
+  const c2 = canvas.getContext('2d'), w=canvas.width, h=canvas.height;
+  c2.clearRect(0,0,w,h);
+  const bx=w*0.18, by=h*0.2, bw=w*0.64, bh=h*0.66;
+  c2.fillStyle='#171b26'; c2.strokeStyle='#c9a15a'; c2.lineWidth=2.5;
+  c2.beginPath(); c2.roundRect ? c2.roundRect(bx,by,bw,bh,4) : c2.rect(bx,by,bw,bh);
+  c2.fill(); c2.stroke();
+  c2.fillStyle='#8a5fce'; c2.fillRect(bx, by, bw, bh*0.18);
+  c2.strokeRect(bx, by, bw, bh*0.18);
+  c2.fillStyle='#c9a15a';
+  c2.fillRect(bx+bw*0.18, by-h*0.05, w*0.03, h*0.1);
+  c2.fillRect(bx+bw*0.76, by-h*0.05, w*0.03, h*0.1);
+  const cols=4, rows=3, pad=bw*0.12;
+  const cellW=(bw-pad*2)/cols, cellH=(bh-bh*0.18-pad)/rows;
+  let marked = {r:1,c:2};
+  for(let r=0;r<rows;r++){
+    for(let cIdx=0;cIdx<cols;cIdx++){
+      const dx = bx+pad+cIdx*cellW+cellW*0.5, dy = by+bh*0.18+pad*0.6+r*cellH+cellH*0.4;
+      if(r===marked.r && cIdx===marked.c){
+        c2.strokeStyle='#6fe0a0'; c2.lineWidth=1.5;
+        c2.beginPath(); c2.arc(dx,dy,3.2,0,Math.PI*2); c2.stroke();
+      } else {
+        c2.fillStyle='rgba(232,225,208,0.35)';
+        c2.beginPath(); c2.arc(dx,dy,1.4,0,Math.PI*2); c2.fill();
+      }
+    }
+  }
+}
+function drawCalculatorIcon(canvas){
+  const c2 = canvas.getContext('2d'), w=canvas.width, h=canvas.height;
+  c2.clearRect(0,0,w,h);
+  const bx=w*0.24, by=h*0.14, bw=w*0.52, bh=h*0.76;
+  c2.fillStyle='#171b26'; c2.strokeStyle='#c9a15a'; c2.lineWidth=2.5;
+  c2.beginPath(); c2.roundRect ? c2.roundRect(bx,by,bw,bh,4) : c2.rect(bx,by,bw,bh);
+  c2.fill(); c2.stroke();
+  const screenH = bh*0.16;
+  c2.fillStyle='#0b0e14'; c2.fillRect(bx+bw*0.1, by+bh*0.06, bw*0.8, screenH);
+  c2.strokeStyle='rgba(201,161,90,0.4)'; c2.lineWidth=1;
+  c2.strokeRect(bx+bw*0.1, by+bh*0.06, bw*0.8, screenH);
+  c2.fillStyle='#7fbf8f'; c2.font=(screenH*0.65)+'px monospace'; c2.textAlign='right';
+  c2.fillText('2', bx+bw*0.85, by+bh*0.06+screenH*0.75);
+  c2.textAlign='left';
+  const gridTop = by+bh*0.3, gridBot = by+bh*0.92;
+  const cols=3, rows=4, gpad=bw*0.1;
+  const cw=(bw-gpad*2)/cols, ch=(gridBot-gridTop)/rows;
+  for(let r=0;r<rows;r++){
+    for(let cIdx=0;cIdx<cols;cIdx++){
+      const cx0 = bx+gpad+cIdx*cw+cw*0.12, cy0 = gridTop+r*ch+ch*0.12;
+      c2.fillStyle = (r===rows-1&&cIdx===1) ? 'rgba(201,161,90,0.35)' : 'rgba(232,225,208,0.12)';
+      c2.fillRect(cx0, cy0, cw*0.76, ch*0.7);
+    }
+  }
+}
+const EXHIBIT_B_ITEMS = [
+  { id:'watch', name:'Pocket Watch', draw:drawPocketWatchIcon, text:'Every hour, accounted for. Some things are worth timing exactly.' },
+  { id:'calendar', name:'Calendar', draw:drawCalendarIcon, text:"Every day, marked off on purpose. Not counting down ... counting up." },
+  { id:'calculator', name:'Calculator', draw:drawCalculatorIcon, text:'The numbers that mattered were never complicated. Just worth doing the math on, every time.' },
+];
+function showExhibitB(){
+  el.panel.className = '';
+  el.panel.classList.add('exhibit-items-mode');
+  el.panel.innerHTML = '';
+  const h1 = document.createElement('h1'); h1.style.fontSize='20px'; h1.textContent='EXHIBIT B';
+  const sub = document.createElement('div'); sub.className='sub'; sub.textContent='THREE ITEMS, LOGGED TOGETHER';
+  const lede = document.createElement('p'); lede.className='flavor'; lede.style.cssText='font-size:12.5px;max-width:min(480px,88vw);';
+  lede.textContent = 'A numbers story of keeping track.';
+  el.panel.appendChild(h1); el.panel.appendChild(sub); el.panel.appendChild(lede);
+
+  const grid = document.createElement('div'); grid.className='exhibit-item-grid';
+  EXHIBIT_B_ITEMS.forEach(it=>{
+    const card = document.createElement('div'); card.className='exhibit-item-card';
+    const canvas = document.createElement('canvas'); canvas.width=120; canvas.height=120;
+    const name = document.createElement('div'); name.className='exhibit-item-name'; name.textContent = it.name;
+    const text = document.createElement('div'); text.className='exhibit-item-text'; text.textContent = it.text;
+    card.appendChild(canvas); card.appendChild(name); card.appendChild(text);
+    grid.appendChild(card);
+    it.draw(canvas);
+  });
+  el.panel.appendChild(grid);
+
+  const closing = document.createElement('p'); closing.className='flavor';
+  closing.style.cssText='font-size:11px;color:#7a7f8c;max-width:min(480px,88vw);margin-top:4px;';
+  closing.textContent = "Time, days, and whatever else was worth counting, all the way to always and forever.";
+  el.panel.appendChild(closing);
+
+  el.panel.appendChild(exhibitBackNav());
+}
+
+// --- Exhibit C: the swan boat incident (comic strip) -------------------
+function drawSwanBoatIcon(canvas, opts){
+  opts = opts || {};
+  const c2 = canvas.getContext('2d');
+  const w = canvas.width, h = canvas.height;
+  c2.clearRect(0,0,w,h);
+  const groundY = h*0.82;
+  c2.strokeStyle = '#17130d';
+  c2.lineWidth = 2;
+  c2.beginPath(); c2.moveTo(w*0.05, groundY); c2.lineTo(w*0.95, groundY); c2.stroke();
+  // floor-tile hatching along the ground line, so it reads as a hallway ...
+  // pointedly not a lake
+  c2.lineWidth = 1;
+  for(let i=0;i<7;i++){
+    const tx = w*0.08 + i*w*0.14;
+    c2.beginPath(); c2.moveTo(tx, groundY); c2.lineTo(tx-7, h*0.97); c2.stroke();
+  }
+  const cx = w*0.48, hullY = groundY-h*0.13;
+  c2.fillStyle = '#f5efd8'; c2.strokeStyle = '#17130d'; c2.lineWidth = 2.5;
+  c2.beginPath(); c2.ellipse(cx, hullY, w*0.3, h*0.1, 0, 0, Math.PI*2); c2.fill(); c2.stroke();
+  c2.beginPath(); c2.ellipse(cx, hullY-h*0.045, w*0.09, h*0.055, 0, Math.PI, Math.PI*2);
+  c2.fillStyle = '#e0c05a'; c2.fill(); c2.stroke();
+  const nbX = cx-w*0.15, nbY = hullY-h*0.045;
+  c2.beginPath();
+  c2.moveTo(nbX, nbY);
+  c2.bezierCurveTo(nbX-w*0.09, nbY-h*0.2, nbX+w*0.13, nbY-h*0.26, nbX+w*0.02, nbY-h*0.4);
+  c2.lineWidth = w*0.065; c2.lineCap = 'round'; c2.strokeStyle = '#f5efd8'; c2.stroke();
+  c2.lineWidth = 2.5; c2.strokeStyle = '#17130d'; c2.stroke();
+  const headX = nbX+w*0.02, headY = nbY-h*0.4;
+  c2.beginPath(); c2.arc(headX, headY, w*0.042, 0, Math.PI*2);
+  c2.fillStyle = '#f5efd8'; c2.fill(); c2.stroke();
+  c2.beginPath();
+  c2.moveTo(headX+w*0.038, headY-1); c2.lineTo(headX+w*0.085, headY+2); c2.lineTo(headX+w*0.038, headY+5);
+  c2.closePath(); c2.fillStyle = '#e0793a'; c2.fill(); c2.stroke();
+  c2.beginPath(); c2.arc(headX+w*0.008, headY-w*0.006, 1.4, 0, Math.PI*2);
+  c2.fillStyle = '#17130d'; c2.fill();
+  if(opts.citation){
+    c2.strokeStyle = '#17130d'; c2.lineWidth = 1.5;
+    c2.beginPath(); c2.moveTo(cx+w*0.19, hullY); c2.lineTo(cx+w*0.19, hullY-h*0.17); c2.stroke();
+    c2.fillStyle = '#e8e1d0';
+    c2.fillRect(cx+w*0.19, hullY-h*0.17, w*0.13, h*0.08);
+    c2.strokeRect(cx+w*0.19, hullY-h*0.17, w*0.13, h*0.08);
+  }
+  if(opts.cobweb){
+    c2.strokeStyle = 'rgba(23,19,13,0.32)'; c2.lineWidth = 1;
+    c2.beginPath();
+    c2.moveTo(w*0.05,h*0.04); c2.lineTo(w*0.2,h*0.04);
+    c2.moveTo(w*0.05,h*0.04); c2.lineTo(w*0.05,h*0.19);
+    c2.moveTo(w*0.05,h*0.04); c2.lineTo(w*0.16,h*0.15);
+    c2.stroke();
+  }
+}
+const COMIC_FRAMES = [
+  { tilt:-1.4, mood:{}, caption:"Somewhere in the Filing Department, there is a swan boat. Nobody filed the paperwork for it. Nobody's owning up to it, either." },
+  { tilt:1.1, mood:{}, caption:"It has been re-parked. Reported. Re-parked again.", bubble:"Sir. This is a filing cabinet." },
+  { tilt:-0.8, mood:{citation:true}, sfx:'STAMPED!', ticket:'IMPROPER MOORING ... ONE (1) SWAN BOAT, ZERO (0) LAKES ON PREMISES' },
+  { tilt:1.3, mood:{cobweb:true}, caption:"The fine remains unpaid. The boat remains unmoved. This is, as far as anyone can tell, a permanent state of affairs." },
+];
+function showExhibitC(){
+  el.panel.className = '';
+  el.panel.classList.add('comic-mode');
+  el.panel.innerHTML = '';
+  const h1 = document.createElement('h1'); h1.style.fontSize='22px'; h1.textContent='EXHIBIT C';
+  const sub = document.createElement('div'); sub.className='sub'; sub.textContent="THE SWAN BOAT INCIDENT ... UNFILED, UNRESOLVED";
+  el.panel.appendChild(h1); el.panel.appendChild(sub);
+
+  const strip = document.createElement('div'); strip.className='comic-strip';
+  COMIC_FRAMES.forEach(f=>{
+    const frame = document.createElement('div'); frame.className='comic-frame';
+    frame.style.setProperty('--tilt', f.tilt+'deg');
+    const canvas = document.createElement('canvas'); canvas.width=260; canvas.height=150;
+    frame.appendChild(canvas);
+    if(f.sfx){ const sfx = document.createElement('div'); sfx.className='comic-sfx'; sfx.textContent=f.sfx; frame.appendChild(sfx); }
+    if(f.caption){ const cap = document.createElement('div'); cap.className='comic-caption'; cap.textContent=f.caption; frame.appendChild(cap); }
+    if(f.bubble){ const b = document.createElement('div'); b.className='comic-bubble'; b.textContent=f.bubble; frame.appendChild(b); }
+    if(f.ticket){ const t = document.createElement('div'); t.className='comic-ticket'; t.textContent=f.ticket; frame.appendChild(t); }
+    strip.appendChild(frame);
+    drawSwanBoatIcon(canvas, f.mood);
+  });
+  const signoff = document.createElement('div'); signoff.className='comic-frame'; signoff.style.setProperty('--tilt','-0.6deg');
+  const signCap = document.createElement('div');
+  signCap.style.cssText = "text-align:center;font-family:'Playfair Display',serif;font-style:italic;font-weight:700;font-size:13px;color:#17130d;position:relative;";
+  signCap.innerHTML = 'NO PARKING: SWAN BOATS<br><span style="font-family:\'IBM Plex Mono\',monospace;font-style:normal;font-size:9.5px;opacity:0.7;">(you know why this is here.)</span>';
+  signoff.appendChild(signCap);
+  strip.appendChild(signoff);
+  el.panel.appendChild(strip);
+
+  el.panel.appendChild(exhibitBackNav());
+}
+el.exhibitsBtn.addEventListener('click', ()=>{
+  closeMenuDropdown();
+  if(['WIN','GAMEOVER'].includes(state.mode)) return;
+  playSfx('blip');
+  showExhibits();
+});
+
+// ---------------------------------------------------------------------
+// 0e2b. THE FLOTSAM EXCHANGE ... a revisitable counter, not a new pickup source.
+// Every keepsake you've already found sits behind the glass, and you can
+// step back up and hear the scene again any time. Anything still out
+// there in Filing shows as an empty case. Nothing here changes what the
+// keepsakes actually say ... it's just a place to go be with them.
+// ---------------------------------------------------------------------
+const SHOP_BANTER = [
+  "\"Everything in here belonged to somebody,\" she says, same as always. \"Come back to visit, or come back to buy?\"",
+  "She doesn't look up from the register. \"Take your time. Nothing in this case is going anywhere. That's sort of the whole point down here.\"",
+  "\"You again,\" she says, not unkindly, dusting a shelf that was already clean. \"Case still open. Come see whoever you need to see.\"",
+  "The fluorescent light over the counter flickers once, settles. \"Everything's marked,\" she says. \"Doesn't mean everything's for sale. You'll know which is which.\"",
+];
+function showOpShop(){
+  openPanel();
+  el.panel.classList.add('shop-mode');
+  el.panel.innerHTML = '';
+  const browsingFromMenu = state.prevMode === 'MENU';
+  const inv = browsingFromMenu ? ((loadSave()||{}).inventory || []) : state.inventory;
+
+  const sign = document.createElement('div'); sign.className='shop-sign';
+  sign.innerHTML = '<span>THE FLOTSAM EXCHANGE</span>';
+  el.panel.appendChild(sign);
+
+  const sub = document.createElement('div'); sub.className='sub'; sub.textContent='EVERYTHING IN HERE BELONGED TO SOMEBODY';
+  el.panel.appendChild(sub);
+
+  const banter = document.createElement('p'); banter.className='flavor shop-banter';
+  banter.innerHTML = SHOP_BANTER[Math.floor(Math.random()*SHOP_BANTER.length)];
+  el.panel.appendChild(banter);
+
+  const grid = document.createElement('div'); grid.className='itemgrid shop-grid';
+  KEEPSAKE_KEYS.forEach(key=>{
+    const have = inv.includes(key);
+    const def = ITEM_DEFS[key];
+    const card = document.createElement('div');
+    card.className = 'itemcard shop-case'+(have?'':' shop-locked');
+    if(have){
+      card.innerHTML = '<div class="glyph">'+def.glyph+'</div><div>'+def.name+'</div><div class="shop-tag">not for sale... already yours</div>';
+      card.onclick = ()=>{
+        playSfx('blip');
+        const mem = MEMORY_DEFS[key];
+        closePanel();
+        openDialogue(mem.speaker, mem.lines, null, ()=>{ showOpShop(); });
+      };
+    } else {
+      card.innerHTML = '<div class="glyph">?</div><div>???</div><div class="shop-tag">still out there, somewhere in Filing</div>';
+    }
+    grid.appendChild(card);
+  });
+  el.panel.appendChild(grid);
+
+  const count = document.createElement('div'); count.className='shop-count';
+  count.textContent = inv.filter(k=>KEEPSAKE_KEYS.includes(k)).length+' / '+KEEPSAKE_KEYS.length+' RECOVERED';
+  el.panel.appendChild(count);
+
+  const btn = document.createElement('div'); btn.className='btn primary'; btn.textContent='STEP AWAY FROM THE COUNTER';
+  btn.onclick = ()=>{ playSfx('blip'); closePanel(); };
+  el.panel.appendChild(btn);
+}
+el.opShopBtn.addEventListener('click', ()=>{
+  closeMenuDropdown();
+  if(['WIN','GAMEOVER'].includes(state.mode)) return;
+  playSfx('blip');
+  showOpShop();
 });
 
 // ---------------------------------------------------------------------
@@ -2180,6 +3572,64 @@ function drawMarkerGlow(tileX, tileY, colorRgba){
   ctx.fillStyle = glow;
   ctx.fillRect(tileX-TILE*0.6, tileY-TILE*0.6, TILE*2.2, TILE*2.2);
 }
+// A small engraved-brass sign, replacing bare floating text for room labels
+// (VAULT, ARCHIVE, the sub-basement hatch, and so on) ... reads like actual
+// Department signage instead of a debug overlay.
+function drawSignPlaque(cx, y, text, textColor){
+  ctx.font = '8px monospace';
+  const w = ctx.measureText(text).width + 10;
+  const h = 12;
+  ctx.fillStyle = 'rgba(8,6,3,0.8)';
+  ctx.fillRect(cx-w/2, y, w, h);
+  ctx.strokeStyle = 'rgba(201,161,90,0.55)';
+  ctx.lineWidth = 1;
+  ctx.strokeRect(cx-w/2+0.5, y+0.5, w-1, h-1);
+  ctx.fillStyle = textColor || '#c9a15a';
+  ctx.textAlign = 'center';
+  ctx.fillText(text, cx, y+9);
+  ctx.textAlign = 'left';
+}
+// A small desk, drawn on the tile behind whoever's stationed there ... just
+// enough furniture that the Records Office reads as a workplace rather than
+// an empty grid. A paper stack and a lamp glow keep it from reading as a
+// blank crate.
+function drawDeskProp(cx, tileY){
+  const dw = TILE*0.82, dh = TILE*0.4;
+  const dx = cx - dw/2, dy = tileY + TILE*0.42;
+  ctx.fillStyle = 'rgba(48,36,20,0.92)';
+  ctx.fillRect(dx, dy, dw, dh);
+  ctx.fillStyle = 'rgba(255,255,255,0.05)';
+  ctx.fillRect(dx, dy, dw, 1.5);
+  ctx.fillStyle = 'rgba(0,0,0,0.35)';
+  ctx.fillRect(dx, dy+dh-2, dw, 2);
+  ctx.strokeStyle = 'rgba(201,161,90,0.3)';
+  ctx.lineWidth = 1;
+  ctx.strokeRect(dx+0.5, dy+0.5, dw-1, dh-1);
+  ctx.fillStyle = '#c9c3b0';
+  ctx.fillRect(dx+dw*0.14, dy+dh*0.2, dw*0.22, dh*0.4);
+  ctx.fillStyle = '#8a8470';
+  ctx.fillRect(dx+dw*0.16, dy+dh*0.26, dw*0.18, dh*0.06);
+  const lampX = dx+dw*0.78, lampY = dy+dh*0.22;
+  const lg = ctx.createRadialGradient(lampX,lampY,0, lampX,lampY,TILE*0.6);
+  lg.addColorStop(0, 'rgba(255,205,140,0.32)');
+  lg.addColorStop(1, 'rgba(255,205,140,0)');
+  ctx.fillStyle = lg;
+  ctx.fillRect(lampX-TILE*0.6, lampY-TILE*0.6, TILE*1.2, TILE*1.2);
+  ctx.fillStyle = '#c9a15a';
+  ctx.fillRect(lampX-1.5, lampY-1.5, 3, 3);
+}
+// A worn rug, purely to break up the floor in the larger open rooms so they
+// don't read as one flat slab of tile.
+function drawRug(cx, cy, w, h){
+  ctx.fillStyle = 'rgba(122,58,42,0.24)';
+  ctx.fillRect(cx-w/2, cy-h/2, w, h);
+  ctx.strokeStyle = 'rgba(201,161,90,0.3)';
+  ctx.lineWidth = 2;
+  ctx.strokeRect(cx-w/2+3, cy-h/2+3, w-6, h-6);
+  ctx.strokeStyle = 'rgba(201,161,90,0.15)';
+  ctx.lineWidth = 1;
+  ctx.strokeRect(cx-w/2+7, cy-h/2+7, w-14, h-14);
+}
 
 const PAL_PLAYER = { a:'#e8e1d0', b:'#3a3f52', c:'#c9a15a', d:'#0b0e14' };
 const SPR_PLAYER = [
@@ -2230,8 +3680,8 @@ const SPR_CLERK = [
   '.bb..bb.',
   'bb....bb',
 ];
-const PAL_AUDITOR = { a:'#5a1f1f', b:'#1a0505', c:'#b4453a', d:'#e8e1d0' };
-const SPR_AUDITOR = [
+const PAL_ASSESSOR = { a:'#5a1f1f', b:'#1a0505', c:'#b4453a', d:'#e8e1d0' };
+const SPR_ASSESSOR = [
   '.bbbbbb.',
   'bccccccb',
   'bcddddcb',
@@ -2495,7 +3945,7 @@ function buildHub(){
   hub.dungeonDoor = {x:24,y:7};
   // punch a door tile at the dungeon door / edge
   hub.grid[7][24] = 'D';
-  // sub-basement hatch ... sealed until the Concierge is shown a working
+  // sub-basement hatch ... sealed until the Intake Warden is shown a working
   // Stamp of Approval (see ITEM_DEFS / talkToNpc('concierge'))
   hub.subbasement = {x:20, y:6};
   hub.grid[6][20] = 'B';
@@ -2547,6 +3997,9 @@ function drawHub(){
       }
     }
   }
+  // a worn rug in the open room between the enclosed cubicles and the vault,
+  // so the largest empty stretch of floor isn't just one flat slab of tile
+  drawRug(offX+15*TILE+TILE/2, offY+7.5*TILE+TILE/2, TILE*5.4, TILE*1.9);
 
   // PASS 2 ... wall bevel + fake-height faces, and the door glow, drawn after
   // the floor pass so faces correctly overlay the tile below them
@@ -2586,6 +4039,20 @@ function drawHub(){
             ctx.fillRect(fx-TILE*1.3, fy-TILE*1.3, TILE*2.6, TILE*2.6);
             ctx.fillStyle = '#c9a15a';
             ctx.fillRect(fx-2, fy-1, 4, 3);
+          } else if(tileNoise(x,y,9.14) < 0.05){
+            // a ventilation grate ... the Chronicler's favorite unlisted room
+            const vw = TILE*0.42, vh = faceH*0.48;
+            const vx = tileX+(TILE-vw)/2, vy = tileY+TILE+faceH*0.24;
+            ctx.fillStyle = shadeColor(wallBase, -46);
+            ctx.fillRect(vx, vy, vw, vh);
+            ctx.strokeStyle = 'rgba(0,0,0,0.55)';
+            ctx.lineWidth = 1;
+            for(let li=1; li<4; li++){
+              const ly = vy + (vh/4)*li;
+              ctx.beginPath(); ctx.moveTo(vx+1, ly); ctx.lineTo(vx+vw-1, ly); ctx.stroke();
+            }
+            ctx.strokeStyle = 'rgba(201,161,90,0.18)';
+            ctx.strokeRect(vx+0.5, vy+0.5, vw-1, vh-1);
           }
         }
       }
@@ -2609,17 +4076,13 @@ function drawHub(){
   drawMarkerGlow(offX+hub.vault.x*TILE, offY+hub.vault.y*TILE, state.vaultSolved ? 'rgba(127,191,143,0.15)' : 'rgba(180,69,58,'+(0.18+0.1*pulse2)+')');
   ctx.fillStyle = state.vaultSolved ? '#3a4a3a' : '#4a2f2f';
   ctx.fillRect(offX+hub.vault.x*TILE, offY+hub.vault.y*TILE, TILE, TILE);
-  ctx.fillStyle = '#c9a15a';
-  ctx.font = '9px monospace';
-  ctx.fillText(state.vaultSolved?'OPEN':'VAULT', offX+hub.vault.x*TILE-4, offY+hub.vault.y*TILE+20);
+  drawSignPlaque(offX+hub.vault.x*TILE+TILE/2, offY+hub.vault.y*TILE+TILE-14, state.vaultSolved?'OPEN':'VAULT');
 
   // archive marker
   drawMarkerGlow(offX+hub.archive.x*TILE, offY+hub.archive.y*TILE, state.archiveSolved ? 'rgba(127,191,143,0.15)' : 'rgba(138,95,206,'+(0.16+0.1*pulse2)+')');
   ctx.fillStyle = state.archiveSolved ? '#3a4a3a' : '#2a2440';
   ctx.fillRect(offX+hub.archive.x*TILE, offY+hub.archive.y*TILE, TILE, TILE);
-  ctx.fillStyle = '#c9a15a';
-  ctx.font = '8px monospace';
-  ctx.fillText(state.archiveSolved?'OPEN':'ARCHIVE', offX+hub.archive.x*TILE-8, offY+hub.archive.y*TILE+20);
+  drawSignPlaque(offX+hub.archive.x*TILE+TILE/2, offY+hub.archive.y*TILE+TILE-14, state.archiveSolved?'OPEN':'ARCHIVE');
 
   // memory booth
   if(state.shards.photo){
@@ -2627,9 +4090,7 @@ function drawHub(){
   }
   ctx.fillStyle = state.shards.photo ? '#3a3a5a' : '#22243a';
   ctx.fillRect(offX+hub.memory.x*TILE, offY+hub.memory.y*TILE, TILE, TILE);
-  ctx.fillStyle = '#8a8fce';
-  ctx.font = '8px monospace';
-  ctx.fillText('BOOTH', offX+hub.memory.x*TILE-6, offY+hub.memory.y*TILE+20);
+  drawSignPlaque(offX+hub.memory.x*TILE+TILE/2, offY+hub.memory.y*TILE+TILE-14, 'BOOTH', '#8a8fce');
 
   // a small warm light that only ever appears once "sempre" has been
   // typed somewhere ... a second, quieter echo of the willow, findable
@@ -2651,15 +4112,16 @@ function drawHub(){
   drawMarkerGlow(offX+hub.subbasement.x*TILE, offY+hub.subbasement.y*TILE, hatchOpen ? 'rgba(201,161,90,'+(0.18+0.1*pulse2)+')' : 'rgba(120,120,120,0.08)');
   ctx.fillStyle = hatchOpen ? '#3a3020' : '#22242c';
   ctx.fillRect(offX+hub.subbasement.x*TILE, offY+hub.subbasement.y*TILE, TILE, TILE);
-  ctx.fillStyle = hatchOpen ? '#c9a15a' : '#5f6472';
-  ctx.font = '7px monospace';
-  ctx.fillText(hatchOpen?'SUB-BSMT':'SEALED', offX+hub.subbasement.x*TILE-8, offY+hub.subbasement.y*TILE+20);
+  drawSignPlaque(offX+hub.subbasement.x*TILE+TILE/2, offY+hub.subbasement.y*TILE+TILE-14, hatchOpen?'SUB-BSMT':'SEALED', hatchOpen?'#c9a15a':'#5f6472');
 
   // npcs
+  drawDeskProp(offX+hub.npcs.concierge.x*TILE+TILE/2, offY+(hub.npcs.concierge.y-1)*TILE);
   drawGroundShadow(ctx, offX+hub.npcs.concierge.x*TILE+TILE/2, offY+hub.npcs.concierge.y*TILE+TILE*0.82, TILE);
   drawSprite(ctx, offX+hub.npcs.concierge.x*TILE, offY+hub.npcs.concierge.y*TILE, SPR_NPC1, PAL_NPC1);
+  drawDeskProp(offX+hub.npcs.clerk.x*TILE+TILE/2, offY+(hub.npcs.clerk.y-1)*TILE);
   drawGroundShadow(ctx, offX+hub.npcs.clerk.x*TILE+TILE/2, offY+hub.npcs.clerk.y*TILE+TILE*0.82, TILE);
   drawSprite(ctx, offX+hub.npcs.clerk.x*TILE, offY+hub.npcs.clerk.y*TILE, SPR_NPC2, PAL_NPC2);
+  drawDeskProp(offX+hub.npcs.archivist.x*TILE+TILE/2, offY+(hub.npcs.archivist.y-1)*TILE);
   drawGroundShadow(ctx, offX+hub.npcs.archivist.x*TILE+TILE/2, offY+hub.npcs.archivist.y*TILE+TILE*0.82, TILE);
   drawSprite(ctx, offX+hub.npcs.archivist.x*TILE, offY+hub.npcs.archivist.y*TILE, SPR_NPC3, PAL_NPC3);
   if(state.andyUnlocked && hub.npcs.andy){
@@ -2681,10 +4143,6 @@ function drawHub(){
   endShakeTransform(shaking);
   drawVignette(ctx, canvas2d.width, canvas2d.height);
   drawFilmGrade(ctx, canvas2d.width, canvas2d.height);
-
-  ctx.fillStyle = 'rgba(201,161,90,0.85)';
-  ctx.font = '11px "IBM Plex Mono"';
-  ctx.fillText('RECORDS OFFICE ... walk into a clerk to talk, the door (>) leads to Filing.', offX, 24);
 }
 
 // ---------------------------------------------------------------------
@@ -2754,20 +4212,20 @@ function genDungeon(floorNum){
   if(isBossFloor && !state.bossDefeated){
     dungeon.enemies.push({
       x: dungeon.stairs.x, y: Math.max(1,dungeon.stairs.y-1),
-      hp: 40, maxHp:40, dmg:6, name:'The Auditor', spr:SPR_AUDITOR, pal:PAL_AUDITOR, alive:true, boss:true, weakTo:'overtime',
+      hp: 40, maxHp:40, dmg:6, name:'The Assessor', spr:SPR_ASSESSOR, pal:PAL_ASSESSOR, alive:true, boss:true, weakTo:'overtime',
     });
   }
   if(isMinibossFloor && !state.minibossDefeated){
     dungeon.enemies.push({
       x: dungeon.stairs.x, y: Math.max(1,dungeon.stairs.y-1),
-      hp: 55, maxHp:55, dmg:7, name:'The Repossessor', spr:SPR_MINIBOSS, pal:PAL_MINIBOSS, alive:true,
+      hp: 55, maxHp:55, dmg:7, name:'The Collector', spr:SPR_MINIBOSS, pal:PAL_MINIBOSS, alive:true,
       miniboss:true, dropShard:'tape', weakTo:'dash',
     });
   }
   if(isFinalBossFloor && !state.finalBossDefeated){
     dungeon.enemies.push({
       x: dungeon.stairs.x, y: Math.max(1,dungeon.stairs.y-1),
-      hp: 90, maxHp:90, dmg:8, name:'The Chief Auditor', spr:SPR_FINALBOSS, pal:PAL_FINALBOSS, alive:true,
+      hp: 90, maxHp:90, dmg:8, name:'The Director', spr:SPR_FINALBOSS, pal:PAL_FINALBOSS, alive:true,
       finalboss:true, enraged:false, weakTo:'sweep',
     });
   }
@@ -2808,6 +4266,22 @@ function genDungeon(floorNum){
     const iy = r.y+Math.floor(rng()*r.h);
     dungeon.items.push({x: (grid[iy]&&grid[iy][ix]==='.')?ix:dungeon.start.x, y:(grid[iy]&&grid[iy][ix]==='.')?iy:dungeon.start.y, type:'item', item:kkey});
   });
+  // the red herring ... one floor, once ever, no memory scene, doesn't
+  // count toward any collection. Just there to be found.
+  if(floorNum===4 && !state.inventory.includes('stress_stapler')){
+    const r = rooms[Math.min(rooms.length-1, 1+Math.floor(rng()*(rooms.length-1)))];
+    const ix = r.x+Math.floor(rng()*r.w);
+    const iy = r.y+Math.floor(rng()*r.h);
+    dungeon.items.push({x: (grid[iy]&&grid[iy][ix]==='.')?ix:dungeon.start.x, y:(grid[iy]&&grid[iy][ix]==='.')?iy:dungeon.start.y, type:'item', item:'stress_stapler'});
+  }
+  // A second red herring, same spirit as the stapler above ... a "grog"
+  // joke item, purely there to be found and carried.
+  if(floorNum===5 && !state.inventory.includes('office_grog')){
+    const r = rooms[Math.min(rooms.length-1, 1+Math.floor(rng()*(rooms.length-1)))];
+    const ix = r.x+Math.floor(rng()*r.w);
+    const iy = r.y+Math.floor(rng()*r.h);
+    dungeon.items.push({x: (grid[iy]&&grid[iy][ix]==='.')?ix:dungeon.start.x, y:(grid[iy]&&grid[iy][ix]==='.')?iy:dungeon.start.y, type:'item', item:'office_grog'});
+  }
   // occasional equippable trinket, independent of the shard track
   if(rng() < 0.55){
     const keys = Object.keys(TRINKET_DEFS);
@@ -2864,7 +4338,7 @@ function makeEnemy(floorNum, ex, ey){
   }
   if(floorNum>=4 && roll<0.32){
     return { x:ex,y:ey, hp:5+floorNum, maxHp:5+floorNum, dmg:2+Math.floor(floorNum/2),
-      name:'Ghost Auditor', spr:SPR_GHOST, pal:PAL_GHOST, alive:true, ranged:true, weakTo:'dash' };
+      name:'Ghost Assessor', spr:SPR_GHOST, pal:PAL_GHOST, alive:true, ranged:true, weakTo:'dash' };
   }
   if(floorNum>=2 && roll<0.6){
     return { x:ex,y:ey, hp:14+floorNum*3, maxHp:14+floorNum*3, dmg:2+Math.floor(floorNum/2),
@@ -2937,6 +4411,35 @@ function drawDungeon(){
         ctx.lineWidth = 1;
         ctx.strokeRect(tileX+0.5, tileY+0.5, t-1, t-1);
       }
+      // sparse floor clutter ... a dropped form or a hairline crack, never on
+      // stairs, deterministic per-tile (seeded off its own coordinates) so it
+      // doesn't shift or flicker between frames
+      if(c!=='#' && c!=='>'){
+        const dimA = visibleNow ? 1 : 0.4;
+        const cn = tileNoise(x,y,13.7);
+        if(cn < 0.045){
+          const rot = (tileNoise(x,y,21.3)-0.5)*0.6;
+          ctx.save();
+          ctx.translate(tileX+t*0.5, tileY+t*0.56);
+          ctx.rotate(rot);
+          ctx.fillStyle = 'rgba(224,216,190,'+(0.5*dimA)+')';
+          ctx.fillRect(-t*0.16, -t*0.11, t*0.32, t*0.22);
+          ctx.strokeStyle = 'rgba(0,0,0,'+(0.3*dimA)+')';
+          ctx.lineWidth = 1;
+          ctx.strokeRect(-t*0.16, -t*0.11, t*0.32, t*0.22);
+          ctx.restore();
+        } else if(cn < 0.085){
+          ctx.strokeStyle = 'rgba(0,0,0,'+(0.32*dimA)+')';
+          ctx.lineWidth = 1;
+          const cx0 = tileX+t*0.22, cy0 = tileY+t*0.78;
+          ctx.beginPath();
+          ctx.moveTo(cx0, cy0);
+          ctx.lineTo(cx0+t*0.2, cy0-t*0.16);
+          ctx.lineTo(cx0+t*0.36, cy0-t*0.06);
+          ctx.lineTo(cx0+t*0.52, cy0-t*0.26);
+          ctx.stroke();
+        }
+      }
     }
   }
 
@@ -2956,6 +4459,21 @@ function drawDungeon(){
         ctx.fillStyle = 'rgba(0,0,0,0.2)';
         ctx.fillRect(tileX, tileY+t-1.5, t, 1.5);
         ctx.fillRect(tileX+t-1.5, tileY, 1.5, t);
+
+        // an occasional cobweb tucked in the corner ... it just needs to
+        // read as neglected, no structural logic required
+        if(tileNoise(x,y,26.1) < 0.035){
+          const wx = tileX+2, wy = tileY+2;
+          ctx.strokeStyle = 'rgba(180,180,190,0.22)';
+          ctx.lineWidth = 1;
+          ctx.beginPath();
+          ctx.moveTo(wx, wy); ctx.lineTo(wx+t*0.32, wy);
+          ctx.moveTo(wx, wy); ctx.lineTo(wx, wy+t*0.32);
+          ctx.moveTo(wx, wy); ctx.lineTo(wx+t*0.24, wy+t*0.24);
+          ctx.moveTo(wx+t*0.11, wy); ctx.quadraticCurveTo(wx+t*0.11, wy+t*0.11, wx, wy+t*0.11);
+          ctx.moveTo(wx+t*0.22, wy); ctx.quadraticCurveTo(wx+t*0.22, wy+t*0.22, wx, wy+t*0.22);
+          ctx.stroke();
+        }
 
         const belowChar = dungeon.grid[y+1] ? dungeon.grid[y+1][x] : '#';
         if(belowChar !== '#'){
@@ -2982,6 +4500,19 @@ function drawDungeon(){
             ctx.fillRect(fx-t*1.6, fy-t*1.6, t*3.2, t*3.2);
             ctx.fillStyle = 'rgba('+biome.torch+',0.9)';
             ctx.beginPath(); ctx.arc(fx, fy, 1.8+flicker*0.6, 0, Math.PI*2); ctx.fill();
+          } else if(tileNoise(x,y,15.83) < 0.05){
+            // a hanging chain, empty ... whatever it was holding got
+            // repossessed already
+            const chx = tileX + t*(0.3+0.4*tileNoise(x,y,3.2));
+            const linkRx = t*0.045, linkRy = t*0.07;
+            ctx.strokeStyle = 'rgba(15,13,12,0.65)';
+            ctx.lineWidth = 1.3;
+            for(let li=0; li<4; li++){
+              const ly = tileY+t + faceH*(0.08+li*0.2);
+              ctx.beginPath();
+              ctx.ellipse(chx, ly, linkRx, linkRy, 0, 0, Math.PI*2);
+              ctx.stroke();
+            }
           }
         }
       }
@@ -3077,13 +4608,6 @@ function drawDungeon(){
   drawVignette(ctx, canvas2d.width, canvas2d.height);
   drawFilmGrade(ctx, canvas2d.width, canvas2d.height);
 
-  ctx.fillStyle='rgba(201,161,90,0.85)';
-  ctx.font='11px "IBM Plex Mono"';
-  const floorLabel = state.floor===3 ? ' (RECORDS AUDIT)' : state.floor===5 ? ' (REPOSSESSION NOTICE)' : state.floor===8 ? ' (FINAL NOTICE)' : '';
-  const deptName = biome.name;
-  const diffTag = state.difficulty==='nightmare' ? '  [NIGHTMARE]' : state.difficulty==='hardcore' ? '  [HARDCORE]' : '';
-  ctx.fillText(deptName+' ... FLOOR '+state.floor+floorLabel+'   Lv.'+state.player.level+' ('+state.player.xp+'/'+xpToNext(state.player.level)+' XP)'+diffTag, offX, 20);
-
   drawMinimap();
 }
 function dimColor(hex){
@@ -3147,6 +4671,12 @@ function tryMove(dx,dy){
       return;
     }
     if(hubTileAt(nx,ny)==='D'){
+      if(!state.seenDungeonDoorFlavor){
+        state.seenDungeonDoorFlavor = true;
+        writeSave();
+        openDialogue('THE EAST DOOR', ["Plain, heavy, unmarked except for a small brass plate: \"FILING ... PULL.\"", "You push it instead, on principle. It opens anyway. Doors down here have given up expecting better."], null, ()=>{ enterDungeon(); });
+        return;
+      }
       enterDungeon();
       return;
     }
@@ -3184,6 +4714,7 @@ function tryMove(dx,dy){
 }
 
 function dashMove(){
+  registerShardUse('hollow');
   // dash 2 tiles in last-pressed direction
   const dirs = [
     ['w',[0,-1]],['arrowup',[0,-1]],['s',[0,1]],['arrowdown',[0,1]],
@@ -3202,10 +4733,10 @@ function dashMove(){
   const farEnemy = (!midEnemy && !dungeonSolid(midX,midY) && !dungeonSolid(farX,farY)) ? enemyAt(farX,farY) : null;
   const target = midEnemy || farEnemy;
   if(target){
-    state.player.dashCd = 8;
+    state.player.dashCd = dashCooldown();
     playSfx('dash');
     flashBanner('HOLLOW STEP STRIKE');
-    let dmg = 5 + Math.floor(Math.random()*3) + (state.player.level-1) + trinketBonus('dmg') + (state.shards.ember?2:0) + (fullLedger()?2:0);
+    let dmg = 5 + Math.floor(Math.random()*3) + (state.player.level-1) + trinketBonus('dmg') + (state.shards.ember?2+emberMasteryBonus():0) + (fullLedger()?2:0);
     if(state.player.weakenTurns>0) dmg = Math.max(1, dmg-2);
     gainLimit(10);
     if(state.fusions.hollow_wind) state.player.invincibleUntil = Date.now()+300;
@@ -3219,7 +4750,7 @@ function dashMove(){
   if(dungeonSolid(nx,ny)){ nx = midX; ny = midY; }
   if(!dungeonSolid(nx,ny)){
     state.player.tileX = nx; state.player.tileY = ny;
-    state.player.dashCd = 8;
+    state.player.dashCd = dashCooldown();
     checkDungeonTile(nx,ny);
     updateVisibility();
     if(state.fusions.hollow_wind){
@@ -3285,28 +4816,40 @@ function checkDungeonTile(x,y){
   }
   if(dungeon.grid[y][x]==='>'){
     if(state.floor===3 && !state.bossDefeated){
-      flashBanner('The stairwell is sealed until the Auditor is answered for.');
+      flashBanner('The stairwell is sealed until the Assessor is answered for.');
       return;
     }
     if(state.floor===5 && !state.minibossDefeated){
-      flashBanner('The stairwell is sealed until the Repossessor is answered for.');
+      flashBanner('The stairwell is sealed until the Collector is answered for.');
       return;
     }
     if(state.floor===8 && !state.finalBossDefeated){
-      flashBanner('The stairwell is sealed until the Chief Auditor is answered for.');
+      flashBanner('The stairwell is sealed until the Director is answered for.');
       return;
     }
     state.floor++;
     playSfx('door');
     screenFlash('#000', 0.7);
     spawnParticles(canvas2d.width/2, canvas2d.height/2, 'rgba(228,224,245,0.55)', 12);
+    // Marigold petals drift down through the frame on every descent ...
+    // the same flower that, elsewhere, is said to show the living what
+    // they can't otherwise see. Purely cosmetic, on purpose.
+    for(let i=0;i<10;i++){
+      fx.particles.push({
+        x: Math.random()*canvas2d.width, y: -10-Math.random()*40,
+        vx: (Math.random()*2-1)*0.4, vy: 0.6+Math.random()*0.7,
+        life:1, decay:0.008, gravity:0.006, friction:0.99,
+        color: Math.random()<0.5?'#e8823a':'#f0a860', size:3+Math.random()*3,
+      });
+    }
     genDungeon(state.floor);
     locationLabel = getBiome(state.floor).name;
     updateAmbientPitch(getBiome(state.floor).ambientHz);
-    el.floorTag.textContent = 'FLOOR '+state.floor;
+    updateFloorTag();
     if(state.floor > stats.deepestFloor){ stats.deepestFloor = state.floor; writeStats(); }
     if(state.floor >= 5) achieve('floor5','Reached the Fifth Floor');
     if(state.floor >= 8) achieve('floor8','Reached the Deep Archive');
+    chroniclerFloorBark();
   }
 }
 
@@ -3345,8 +4888,9 @@ function offerTrinket(key){
 
 function playerAttack(enemy){
   let dmg = 3 + Math.floor(Math.random()*3) + (state.player.level-1) + trinketBonus('dmg');
-  if(state.shards.ember) dmg += 2;
+  if(state.shards.ember){ dmg += 2 + emberMasteryBonus(); registerShardUse('ember'); }
   if(fullLedger()) dmg += 2;
+  if(threeTrialsComplete()) dmg += 1;
   if(state.player.weakenTurns>0) dmg = Math.max(1, dmg-2);
   if(state.player.timeLoopTurns>0) dmg += 2;
   const critChance = 0.15 + trinketBonus('crit');
@@ -3378,8 +4922,9 @@ function applyDamageToEnemy(enemy, dmg, opts){
   if(weakHit && enemy.hp>0){
     flashBanner('WEAKNESS EXPOSED ... the '+enemy.name+' never saw that coming.');
   }
-  if(state.shards.tape && Math.random()<(state.fusions.ember_tape?0.45:0.3) && enemy.hp>0){
+  if(state.shards.tape && Math.random()<(state.fusions.ember_tape?0.45:0.3)+tapeMasteryBonus() && enemy.hp>0){
     enemy.stunned = true;
+    registerShardUse('tape');
     if(state.fusions.ember_tape){
       const burnDmg = 2;
       enemy.hp = Math.max(0, enemy.hp-burnDmg);
@@ -3397,31 +4942,31 @@ function applyDamageToEnemy(enemy, dmg, opts){
       state.bossDefeated = true;
       state.shards.photo = true;
       writeSave();
-      flashBanner('THE AUDITOR IS SILENCED. A photograph falls from its ledger.');
+      flashBanner('THE ASSESSOR IS SILENCED. A photograph falls from its ledger.');
       grantXp(30);
       screenShake(8,20); screenFlash('#b4453a',0.3); playSfx('win');
-      achieve('boss','The Auditor Silenced');
+      achieve('boss','The Assessor Silenced');
       checkFullLedger();
     } else if(enemy.miniboss){
       state.minibossDefeated = true;
       if(enemy.dropShard && !state.shards[enemy.dropShard]){
         state.shards[enemy.dropShard] = true;
-        flashBanner('THE REPOSSESSOR YIELDS: '+SHARD_DEFS[enemy.dropShard].name.toUpperCase());
+        flashBanner('THE COLLECTOR YIELDS: '+SHARD_DEFS[enemy.dropShard].name.toUpperCase());
         checkFullLedger();
       } else {
-        flashBanner('THE REPOSSESSOR IS DISMISSED.');
+        flashBanner('THE COLLECTOR IS DISMISSED.');
       }
       writeSave();
       grantXp(15);
       screenShake(6,16); playSfx('win');
-      achieve('miniboss','The Repossessor Answered For');
+      achieve('miniboss','The Collector Answered For');
     } else if(enemy.finalboss){
       state.finalBossDefeated = true;
       writeSave();
-      flashBanner('THE CHIEF AUDITOR CLOSES THE FILE, FOR GOOD.');
+      flashBanner('THE CHIEF ASSESSOR CLOSES THE FILE, FOR GOOD.');
       grantXp(60);
       screenShake(10,26); screenFlash('#e0c05a',0.4); playSfx('win');
-      achieve('finalboss','The Chief Auditor Answered For');
+      achieve('finalboss','The Director Answered For');
       if(state.memoryDone){ setTimeout(()=>showWin(), 1400); }
     } else if(enemy.joke){
       const lines = [
@@ -3459,9 +5004,10 @@ function overtimeReady(){ return state.player.limit >= state.player.limitMax; }
 function overtimeAttack(enemy){
   state.player.limit = 0;
   achieve('overtime','Invoked the Overtime Clause');
+  spawnLimitCard('Severance');
   flashBanner('OVERTIME CLAUSE INVOKED ... every hour, all at once.');
   screenShake(10,24); screenFlash('#e0c05a', 0.4); playSfx('overtime');
-  const dmg = 10 + Math.floor(Math.random()*5) + (state.player.level-1)*2 + trinketBonus('dmg')*2 + (state.shards.ember?4:0);
+  const dmg = 10 + Math.floor(Math.random()*5) + (state.player.level-1)*2 + trinketBonus('dmg')*2 + (state.shards.ember?4+emberMasteryBonus():0);
   applyDamageToEnemy(enemy, dmg, {crit:true, source:'overtime'});
   for(const other of dungeon.enemies){
     if(!other.alive || other===enemy) continue;
@@ -3486,9 +5032,10 @@ function overtimeAttack(enemy){
 function auditSweep(primary){
   state.player.limit = 0;
   achieve('overtime','Invoked the Overtime Clause');
+  spawnLimitCard('Audit Sweep');
   flashBanner('AUDIT SWEEP ... every open case in the room, closed at once.');
   screenShake(9,22); screenFlash('#7fbf8f', 0.35); playSfx('overtime');
-  const dmg = 6 + Math.floor(Math.random()*4) + (state.player.level-1) + trinketBonus('dmg') + (state.shards.ember?2:0);
+  const dmg = 6 + Math.floor(Math.random()*4) + (state.player.level-1) + trinketBonus('dmg') + (state.shards.ember?2+emberMasteryBonus():0);
   let hitCount = 0;
   for(const e of dungeon.enemies){
     if(!e.alive || !tileVisibleNow(e.x,e.y)) continue;
@@ -3500,16 +5047,51 @@ function auditSweep(primary){
   updateHud();
 }
 
+// A third, rarer Overtime option ... unlocked only once every personal
+// effect in Filing has been recovered. Same gauge, same one-shot spend,
+// but this one calls on Sparkwing itself rather than the paperwork.
+// Every keepsake that carried the motif (the ring, the moon-halo, the
+// scratched platter, the jar of light) pays off here at once.
+function summonSparkwing(enemy){
+  state.player.limit = 0;
+  achieve('summon','Summoned Sparkwing');
+  spawnLimitCard('Summon: Sparkwing');
+  flashBanner('SPARKWING, CALLED IN FULL ... every debt this department owed, collected at once.');
+  screenShake(14,32); screenFlash('#6fe0a0', 0.5); playSfx('overtime');
+  const dmg = 16 + Math.floor(Math.random()*6) + (state.player.level-1)*3 + trinketBonus('dmg')*2 + (state.shards.ember?6+emberMasteryBonus():0);
+  let hitCount = 0;
+  for(const e of dungeon.enemies){
+    if(!e.alive) continue;
+    applyDamageToEnemy(e, dmg, {crit:true, noStamp: e!==enemy, source:'summon'});
+    if(e.hp>0) e.stunned = true;
+    hitCount++;
+  }
+  if(hitCount>1) flashBanner('SPARKWING passed over '+hitCount+' open cases ... every one of them, bound and stamped.');
+  const healAmt = Math.round(maxHp()*0.4);
+  if(healAmt>0 && state.player.hp>0){
+    state.player.hp = Math.min(maxHp(), state.player.hp+healAmt);
+    const {t,offX,offY} = dungeonMetrics();
+    const px = offX+state.player.tileX*t+t/2, py = offY+state.player.tileY*t;
+    spawnFloater(px-6, py, '+'+healAmt, '#6fe0a0');
+  }
+  const {t,offX,offY} = dungeonMetrics();
+  spawnParticles(offX+state.player.tileX*t+t/2, offY+state.player.tileY*t+t/2, '#6fe0a0', 26);
+  updateHud();
+}
+
 // Presented the instant the gauge caps out on a melee swing ... a small,
 // FFVII-limit-break-flavored fork rather than an auto-fired attack.
 function presentLimitBreakChoice(enemy){
-  openDialogueChoices('OVERTIME CLAUSE ... READY',
-    "The gauge is full. Collect it your way: one devastating strike with a refund of vitality, or a sweep that leaves every open case in the room a little worse for wear.",
-    [
-      {label:'SEVERANCE ... heavy single strike + self-heal', next: ()=>{ overtimeAttack(enemy); enemyTurn(); }},
-      {label:'AUDIT SWEEP ... hits all visible enemies, guaranteed Red Tape', next: ()=>{ auditSweep(enemy); enemyTurn(); }},
-    ]
-  );
+  const options = [
+    {label:'SEVERANCE ... heavy single strike + self-heal', next: ()=>{ overtimeAttack(enemy); enemyTurn(); }},
+    {label:'AUDIT SWEEP ... hits all visible enemies, guaranteed Red Tape', next: ()=>{ auditSweep(enemy); enemyTurn(); }},
+  ];
+  let body = "The gauge is full. Collect it your way: one devastating strike with a refund of vitality, or a sweep that leaves every open case in the room a little worse for wear.";
+  if(allKeepsakesCollected()){
+    options.push({label:'SUMMON SPARKWING ... every enemy in the room, hit hard and bound (biggest heal)', next: ()=>{ summonSparkwing(enemy); enemyTurn(); }});
+    body = "The gauge is full. Every personal effect in Filing came back to you, which means so did something else. Collect it your way.";
+  }
+  openDialogueChoices('OVERTIME CLAUSE ... READY', body, options);
 }
 
 function difficultyMultiplier(){
@@ -3529,7 +5111,7 @@ function enemyTurn(){
     if(e.finalboss && !e.enraged && e.hp <= e.maxHp*0.5){
       e.enraged = true;
       e.dmg = Math.round(e.dmg*1.4);
-      flashBanner('THE CHIEF AUDITOR REVOKES ALL PENDING APPEALS.');
+      flashBanner('THE CHIEF ASSESSOR REVOKES ALL PENDING APPEALS.');
       screenShake(7,18); screenFlash('#e0c05a',0.3);
       const {t,offX,offY} = dungeonMetrics();
       spawnParticles(offX+e.x*t+t/2, offY+e.y*t+t/2, '#e0c05a', 16);
@@ -3621,6 +5203,26 @@ function spawnStamp(crit){
   });
 }
 
+// A brief hold on the move's name the instant an Overtime Clause fires ...
+// the beat FFVII always gave a Limit Break before the hit landed. Doesn't
+// pause the turn (everything below still resolves on the same tick), but
+// the card punches in, holds, and fades out over ~1.2s so it reads as one.
+function spawnLimitCard(text){
+  el.limitCard.textContent = text;
+  el.limitCard.style.transition='none';
+  el.limitCard.style.opacity='0';
+  el.limitCard.style.transform='translate(-50%,-50%) scale(0.7)';
+  requestAnimationFrame(()=>{
+    el.limitCard.style.transition='opacity .15s ease-out, transform .25s cubic-bezier(.2,1.4,.4,1)';
+    el.limitCard.style.opacity='1';
+    el.limitCard.style.transform='translate(-50%,-50%) scale(1)';
+  });
+  clearTimeout(spawnLimitCard._t);
+  spawnLimitCard._t = setTimeout(()=>{
+    el.limitCard.style.transition='opacity .5s ease-in';
+    el.limitCard.style.opacity='0';
+  }, 700);
+}
 function flashBanner(text){
   el.banner.textContent = text;
   el.banner.style.opacity='1';
@@ -3641,7 +5243,7 @@ function gameOver(){
 // ---------------------------------------------------------------------
 const NPC_LINES = {
   concierge: {
-    speaker:'THE CONCIERGE',
+    speaker:'THE INTAKE WARDEN',
     lines: function(){
       if(!state._archivistTalked && state.floor<=1 && !Object.values(state.shards).some(Boolean)){
         return [
@@ -3652,10 +5254,10 @@ const NPC_LINES = {
       }
       const shardCount = Object.values(state.shards).filter(Boolean).length;
       if(state.finalBossDefeated){
-        return ["The Chief Auditor's file is closed. First time that's happened in this office, as far as anyone here still remembers doing.", "Don't let it go to your head. We've plenty more cabinets, and eternity's a long shift."];
+        return ["The Director's file is closed. First time that's happened in this office, as far as anyone here still remembers doing.", "Don't let it go to your head. We've plenty more cabinets, and eternity's a long shift."];
       }
       if(state.bossDefeated && !state.memoryDone){
-        return ["The Auditor's silence has reached upstairs already. There's a booth in the back that might finally have use for you."];
+        return ["The Assessor's silence has reached upstairs already. There's a booth in the back that might finally have use for you."];
       }
       if(state.memoryDone){
         return ["Whatever you saw in that booth, you've been walking differently since. That's not nothing, down here."];
@@ -3663,11 +5265,17 @@ const NPC_LINES = {
       if(shardCount>=3){
         return ["Level "+state.player.level+" already. You're better at this than the paperwork suggested you'd be."];
       }
-      return ["Floor "+state.floor+", is it. Mind the Repo Men ... heavier than they look, and twice as slow to admit it."];
+      const idleLines = [
+        "Floor "+state.floor+", is it. Mind the Repo Men ... heavier than they look, and twice as slow to admit it.",
+        "Floor "+state.floor+" again. The forms don't file themselves, unfortunately, or I'd have retired centuries ago.",
+        "Back already, or back still. Floor "+state.floor+" isn't going anywhere without you.",
+        "Filing Department's the same today as it was ... well. Time works strangely down here. You'll see.",
+      ];
+      return [idleLines[Math.floor(Math.random()*idleLines.length)]];
     },
   },
   clerk: {
-    speaker:'FELLOW CLERK, DESK 14',
+    speaker:'CLERK OF BERTH 14',
     lines: function(){
       const base = [
         "Six years I've worked this floor. Or was it six minutes. Time files strangely here.",
@@ -3707,7 +5315,7 @@ function talkToNpc(key){
       "Coffee first, always. A beer now and then. Somewhere along the way I got promoted to favorite chef despite never training as one ... Princess Lauren and Liam's doing, probably. I'll take the title anyway.",
       "LittleLove doesn't have words for any of this yet. Doesn't need them. And Japan's still on the list ... for all of us, someday.",
       "Somebody put a lot of hours into handing you this game, by the way. That's not nothing. Take care of it. And of them.",
-      "Anyway. Don't tell the Concierge I'm here. I'm not supposed to still be in this build.",
+      "Anyway. Don't tell the Intake Warden I'm here. I'm not supposed to still be in this build.",
     ];
     if(state.inventory.includes('dj_table')){
       lines.push("You found the little spin table, I take it. Before any of this I went by DJ Daddy Cool behind a set of decks ... don't ask what happened to the name people actually called me. That one's retired, on purpose, and it's staying that way.");
@@ -3740,13 +5348,13 @@ function talkToNpc(key){
     else if(state.archiveSolved) lines.push("The switches favored you. The scale in the back room hasn't been so generous with anyone yet.");
     else lines.push("Both doors still wait. Scale in the back, switches to the east. Take your time ... we have nothing but.");
     if(state.floor >= 5 || state.minibossDefeated){
-      lines.push(state.minibossDefeated ? "Word travels fast down here. The Repossessor answered for its debts, they say." : "Careful past the fourth floor. Something's been repossessing more than files.");
+      lines.push(state.minibossDefeated ? "Word travels fast down here. The Collector answered for its debts, they say." : "Careful past the fourth floor. Something's been repossessing more than files.");
     }
     openDialogue('THE ARCHIVIST', lines, null, ()=>{});
     return;
   }
   if(key==='concierge' && state.inventory.includes('workingstamp') && !state.subbasementUnlocked){
-    openDialogueChoices('THE CONCIERGE',
+    openDialogueChoices('THE INTAKE WARDEN',
       "Is that... you got the old stamp working again? I haven't seen that used since before my time. Present it properly, and I'll have to take you seriously.",
       [
         {label:'Present the Stamp of Approval.', next: ()=>{
@@ -3754,7 +5362,7 @@ function talkToNpc(key){
           state.subbasementUnlocked = true;
           writeSave();
           flashBanner('AUTHORIZED ... the hatch by the east wall unseals.');
-          openDialogue('THE CONCIERGE', ["Well. Properly stamped is properly stamped. There's a hatch near the east wall that's been sealed longer than either of us. It's yours now, for what it's worth."], null, ()=>{});
+          openDialogue('THE INTAKE WARDEN', ["Well. Properly stamped is properly stamped. There's a hatch near the east wall that's been sealed longer than either of us. It's yours now, for what it's worth."], null, ()=>{});
         }},
         {label:"Not yet.", next: ()=>{}},
       ]
@@ -3762,14 +5370,14 @@ function talkToNpc(key){
     return;
   }
   if(key==='concierge' && state.finalBossDefeated && !state.exitDuelWon && !state.inventory.includes('willow_leaf')){
-    openDialogue('THE CONCIERGE',
-      ["The Chief Auditor's ready for you, but ... hold on.", "You're not carrying a willow leaf. Filing's insistent about it, for reasons nobody upstairs will explain.", "Find one before you go up. It won't take long, if it hasn't already found you."],
+    openDialogue('THE INTAKE WARDEN',
+      ["The Director's ready for you, but ... hold on.", "You're not carrying a willow leaf. Filing's insistent about it, for reasons nobody upstairs will explain.", "Find one before you go up. It won't take long, if it hasn't already found you."],
       null, ()=>{});
     return;
   }
   if(key==='concierge' && state.finalBossDefeated && !state.exitDuelWon){
-    openDialogueChoices('THE CONCIERGE',
-      "The Chief Auditor wants to see you before you go. Not a fight, they said. Just a conversation. Take it or don't ... but they don't usually ask twice.",
+    openDialogueChoices('THE INTAKE WARDEN',
+      "The Director wants to see you before you go. Not a fight, they said. Just a conversation. Take it or don't ... but they don't usually ask twice.",
       [
         {label:'Hear them out.', next: ()=>startDuel('exit')},
         {label:'Not yet.', next: ()=>{}},
@@ -3781,7 +5389,7 @@ function talkToNpc(key){
     const base = typeof NPC_LINES.clerk.lines === 'function' ? NPC_LINES.clerk.lines() : NPC_LINES.clerk.lines;
     openDialogue(NPC_LINES.clerk.speaker, base, null, ()=>{
       if(state.duelWon && !state.rivalDuelWon){
-        openDialogueChoices('FELLOW CLERK, DESK 14',
+        openDialogueChoices('CLERK OF BERTH 14',
           "Word of your little victory reached the Inspector upstairs. They don't lose arguments ... but they've asked for you by name, if you're brave enough.",
           [
             {label:'Face the Inspector.', next: ()=>startDuel('rival')},
@@ -3790,10 +5398,20 @@ function talkToNpc(key){
         );
         return;
       }
+      if(state.rivalDuelWon && !state.internDuelWon){
+        openDialogueChoices('CLERK OF BERTH 14',
+          "There's a new Intern down the hall, very eager, very unpaid. They've been asking around for someone to practice arguing with. Feel like being their first?",
+          [
+            {label:'Sure, why not.', next: ()=>startDuel('intern')},
+            {label:"Let them practice on someone else.", next: ()=>{}},
+          ]
+        );
+        return;
+      }
       const offer = state.duelWon
         ? "Care for a rematch? No stakes this time ... it just passes the shift."
         : "Fancy trading complaints for practice? Loser buys the coffee, if either of us could still drink it.";
-      openDialogueChoices('FELLOW CLERK, DESK 14', offer, [
+      openDialogueChoices('CLERK OF BERTH 14', offer, [
         {label:'Trade complaints.', next: ()=>startDuel()},
         {label:'Maybe later.', next: ()=>{}},
       ]);
@@ -3874,6 +5492,24 @@ function enterPuzzle(){
   el.leaveBtn.style.display='block';
   puzzleSolved=false;
 
+  try{
+    buildPuzzleWorld();
+  }catch(e){
+    // Matter.js loads from a CDN; a slow connection, an ad-blocker, or a
+    // restrictive network can all keep it from arriving. Fail into a short
+    // in-voice explanation and back to the Hub rather than an unhandled
+    // error ... same spirit as the Memory Booth's WebGL fallback below.
+    // No shard is granted here, same as walking away from the vault
+    // unsolved any other time ... just a chance to try again later.
+    el.leaveBtn.style.display='none';
+    goToHub();
+    openDialogue('THE VAULT', [
+      "The scale won't budge tonight ... something in the mechanism isn't answering.",
+      "Try again later, once the lights are behaving.",
+    ], null, ()=>{});
+  }
+}
+function buildPuzzleWorld(){
   puzzleEngine = Matter.Engine.create();
   puzzleWorld = puzzleEngine.world;
   puzzleWorld.gravity.y = 0;
@@ -3967,6 +5603,7 @@ function solvePuzzle(){
     state.player.hp = Math.min(maxHp(), state.player.hp+15);
     writeSave();
     checkFullLedger();
+    checkThreeTrials();
     cancelAnimationFrame(puzzleRAF);
     goToHub();
     openDialogue('THE VAULT', ["The scale settles. Something in the wall clicks free.", "A shard, and fifteen pounds of case file added to your name. (+15 Max HP, SECOND WIND)"], null, ()=>{});
@@ -4019,6 +5656,7 @@ function archiveToggle(){
       state.player.hp = Math.min(maxHp(), state.player.hp+5);
       writeSave();
       checkFullLedger();
+      checkThreeTrials();
       goToHub();
       openDialogue('THE ARCHIVE', ["Every switch catches at once ... a small, satisfying click of finality.", "A shard rolls out of a drawer that wasn't there a moment ago. (LEDGER'S WEIGHT)"], null, ()=>{});
     }, 900);
@@ -4291,10 +5929,19 @@ function doEnterDungeon(){
   el.controlsNote.textContent = 'WASD / arrows to move & attack.'+(state.shards.hollow?' SPACE to dash.':'');
   state.floor = 1;
   genDungeon(state.floor);
-  el.floorTag.textContent='FLOOR 1';
+  updateFloorTag();
   updateAmbientPitch(getBiome(1).ambientHz);
 }
 
+// Consolidates floor number, boss-floor label, and difficulty into the one
+// footer tag ... previously this same information was also being drawn a
+// second time directly onto the canvas, which sat right underneath the DOM
+// HUD block and overlapped it. One source of truth now.
+function updateFloorTag(){
+  const floorLabel = state.floor===3 ? ' (RECORDS AUDIT)' : state.floor===5 ? ' (REPOSSESSION NOTICE)' : state.floor===8 ? ' (FINAL NOTICE)' : '';
+  const diffTag = state.difficulty==='nightmare' ? ' · NIGHTMARE' : state.difficulty==='hardcore' ? ' · HARDCORE' : '';
+  el.floorTag.textContent = 'FLOOR '+state.floor+floorLabel+diffTag;
+}
 function updateHud(){
   const hpPct = Math.max(0, state.player.hp / maxHp() * 100);
   el.hpfill.style.width = hpPct+'%';
@@ -4302,7 +5949,7 @@ function updateHud(){
   el.limitfill.style.width = limitPct+'%';
   el.limitfill.classList.toggle('ready', overtimeReady());
   const trinketLabel = state.equippedTrinket ? (' · '+TRINKET_DEFS[state.equippedTrinket].name) : '';
-  el.hudLevel.textContent = 'CLERK STATUS ... LV.'+state.player.level+' ('+Math.max(0,state.player.hp)+'/'+maxHp()+' HP)'+trinketLabel;
+  el.hudLevel.textContent = 'CLERK STATUS ... LV.'+state.player.level+' ('+Math.max(0,state.player.hp)+'/'+maxHp()+' HP) · '+state.player.xp+'/'+xpToNext(state.player.level)+' XP'+trinketLabel;
   el.shardrow.innerHTML='';
   Object.values(SHARD_DEFS).forEach(s=>{
     const d = document.createElement('div');
@@ -4326,6 +5973,12 @@ function showMenu(){
   const save = loadSave();
   el.overlay.innerHTML = '';
   el.overlay.style.display='flex';
+  // Same guard as showSplash()/playVoidIntro(): briefly ignore taps the
+  // instant this screen appears, so a leftover ghost-click (or a startled
+  // extra tap) from dismissing the previous screen can't land on NEW CASE
+  // FILE and launch a run nobody meant to start yet.
+  el.overlay.style.pointerEvents='none';
+  setTimeout(()=>{ el.overlay.style.pointerEvents='auto'; }, 400);
   const h1 = document.createElement('h1'); h1.textContent='LEDGER OF THE LOST';
   const sub = document.createElement('div'); sub.className='sub'; sub.textContent='DEPARTMENT OF POSTMORTEM AFFAIRS';
   const p = document.createElement('p'); p.className='flavor';
@@ -4427,6 +6080,12 @@ function resetProgress(){
   state.duelWon=false;
   state.rivalDuelWon=false;
   state.exitDuelWon=false;
+  state.internDuelWon=false;
+  state.learnedInsults={};
+  state.chroniclerFloorsHeard={};
+  state.shardUses={ ember:0, hollow:0, tape:0 };
+  state.shardMastered={ ember:false, hollow:false, tape:false };
+  state.seenDungeonDoorFlavor=false;
   state.player.level=1; state.player.xp=0;
   state.player.limit=0;
   state.player.hp = maxHp();
@@ -4474,6 +6133,12 @@ function continueGame(save){
   state.duelWon = !!save.duelWon;
   state.rivalDuelWon = !!save.rivalDuelWon;
   state.exitDuelWon = !!save.exitDuelWon;
+  state.internDuelWon = !!save.internDuelWon;
+  state.learnedInsults = Object.fromEntries((Array.isArray(save.learnedInsults)?save.learnedInsults:[]).map(s=>[s,true]));
+  state.chroniclerFloorsHeard = Object.fromEntries((Array.isArray(save.chroniclerFloorsHeard)?save.chroniclerFloorsHeard:[]).map(s=>[s,true]));
+  state.shardUses = { ember:0, hollow:0, tape:0, ...(save.shardUses||{}) };
+  state.shardMastered = { ember:false, hollow:false, tape:false, ...Object.fromEntries((Array.isArray(save.shardMastered)?save.shardMastered:[]).map(s=>[s,true])) };
+  state.seenDungeonDoorFlavor = !!save.seenDungeonDoorFlavor;
   setSeed(save.seed || '');
   el.fileTag.textContent = 'CASE FILE NO. '+String(state.caseNo).padStart(4,'0');
   state.player.hp = maxHp();
@@ -4534,8 +6199,8 @@ function revealWinOverlay(trueEnding, runMs, newBest){
   const sub=document.createElement('div'); sub.className='sub'; sub.textContent = trueEnding ? 'FORM 14-B, SEALED ENTRY' : 'FORM 14-B, FINAL ENTRY';
   const p=document.createElement('p'); p.className='flavor';
   p.textContent = trueEnding
-    ? "The Auditor is silenced, the Repossessor answered for, and the Chief Auditor's own signature finally revoked. The photograph is yours again, all the way down. Somewhere above, an entire cabinet slides shut ... and locks. The infinite black, for once, has nothing left of yours to hold."
-    : "The Auditor is silenced, the photograph returned to whoever you were. The Department, for once, has nothing left to ask of you. Somewhere above, a drawer slides shut. The infinite black keeps the rest, for now. (Deeper floors remain, if you're not done yet.)";
+    ? "The Assessor is silenced, the Collector answered for, and the Director's own signature finally revoked. The photograph is yours again, all the way down. Somewhere above, an entire cabinet slides shut ... and locks. The infinite black, for once, has nothing left of yours to hold."
+    : "The Assessor is silenced, the photograph returned to whoever you were. The Department, for once, has nothing left to ask of you. Somewhere above, a drawer slides shut. The infinite black keeps the rest, for now. (Deeper floors remain, if you're not done yet.)";
   el.overlay.appendChild(h1); el.overlay.appendChild(sub); el.overlay.appendChild(p);
   const shardCount = Object.values(state.shards).filter(Boolean).length;
   const summary = document.createElement('p'); summary.className='flavor';
@@ -4548,6 +6213,12 @@ function revealWinOverlay(trueEnding, runMs, newBest){
     btnNgPlus.title='Carry your level forward into a fresh, harder case file.';
     btnNgPlus.onclick = ()=>startNewGamePlus();
     el.overlay.appendChild(btnNgPlus);
+  }
+  if(state.inventory.some(k=>KEEPSAKE_KEYS.includes(k))){
+    const btnGallery=document.createElement('div'); btnGallery.className='btn'; btnGallery.textContent='VIEW GALLERY';
+    btnGallery.title='Every personal effect recovered this case, one more time.';
+    btnGallery.onclick = ()=>showGallery();
+    el.overlay.appendChild(btnGallery);
   }
   const btn=document.createElement('div'); btn.className='btn'+(trueEnding?'':' primary'); btn.textContent='OPEN A NEW CASE FILE';
   btn.onclick = ()=>showMenu();
@@ -4632,6 +6303,24 @@ function pollGamepad(){
 }
 
 // ---------------------------------------------------------------------
+// 9a. INPUT ARMING GUARD ... on touch devices, a single tap on a full-
+// screen element can fire 'touchstart' AND a browser-synthesized 'click'
+// a moment later; that synthetic click lands on whatever is now on top,
+// since the previous screen just hid itself. Chained across splash ->
+// void intro -> menu, that one tap can silently skip two screens in a
+// row (the "it skips straight past the menu" bug). A fast double-tap
+// from an impatient/confused player can do the same thing even without
+// any ghost event involved. Every dismiss/skip handler in this section
+// checks inputIsArmed() first, and each screen re-arms itself only after
+// a brief settle time, so a screen can't be dismissed within an eyeblink
+// of appearing ... long enough to eat a ghost click, short enough that a
+// deliberate tap never feels delayed.
+// ---------------------------------------------------------------------
+let _inputArmedAt = 0;
+function armInput(delayMs){ _inputArmedAt = performance.now() + (delayMs||0); }
+function inputIsArmed(){ return performance.now() >= _inputArmedAt; }
+
+// ---------------------------------------------------------------------
 // 9. THE VOID ... a short, skippable overture that plays before the menu,
 // and a lighter shared variant (voidBlink) reused at death, victory, and
 // floor transitions so the same "unnamed dark" motif recurs throughout
@@ -4678,6 +6367,7 @@ function voidBlink(durationMs, line, onDone){
   el.hudTop.style.display='none';
   el.dialogue.style.display='none';
   el.overlay.style.display='none';
+  armInput(Math.min(400, durationMs*0.5));
   const stars = makeStarfield(90, canvas2d.width, canvas2d.height);
   const start = performance.now();
   const fadeIn = Math.min(280, durationMs*0.3);
@@ -4691,7 +6381,10 @@ function voidBlink(durationMs, line, onDone){
     ctx.textAlign = 'left';
     onDone();
   }
-  function skip(){ finish(); }
+  function skip(){
+    if(!inputIsArmed()) return;
+    finish();
+  }
   window.addEventListener('keydown', skip);
   canvas2d.addEventListener('click', skip);
   function frame(now){
@@ -4720,6 +6413,7 @@ function showSplash(onDone){
   el.panel.style.display='none';
   el.controlsNote.textContent='';
   el.splash.style.display='flex';
+  armInput(400);
 
   const stars = makeStarfield(70, canvas2d.width, canvas2d.height);
   let done = false;
@@ -4732,7 +6426,11 @@ function showSplash(onDone){
     el.splash.style.display='none';
     onDone();
   }
-  function dismiss(){ playSfx('blip'); finish(); }
+  function dismiss(){
+    if(!inputIsArmed()) return;
+    playSfx('blip');
+    finish();
+  }
   window.addEventListener('keydown', dismiss);
   el.splash.addEventListener('click', dismiss);
   el.splash.addEventListener('touchstart', dismiss);
@@ -4751,6 +6449,7 @@ function playVoidIntro(onDone){
   el.overlay.style.display='none';
   el.dialogue.style.display='none';
   el.controlsNote.textContent='';
+  armInput(400);
 
   const stars = [];
   for(let i=0;i<150;i++){
@@ -4779,7 +6478,10 @@ function playVoidIntro(onDone){
     ctx.textAlign = 'left';
     onDone();
   }
-  function onSkip(){ finish(); }
+  function onSkip(){
+    if(!inputIsArmed()) return;
+    finish();
+  }
   window.addEventListener('keydown', onSkip);
   canvas2d.addEventListener('click', onSkip);
   canvas2d.addEventListener('touchstart', onSkip);
@@ -4841,6 +6543,17 @@ function mainLoop(){
 requestAnimationFrame(mainLoop);
 loadStats();
 showSplash(()=>playVoidIntro(showMenu));
+</script>
+<script>
+  // Registered separately from the game script itself, and deliberately
+  // fails silently: a rejected registration (unsupported browser, opened
+  // straight from a local file instead of a real host, etc.) should never
+  // block the game from loading and playing normally.
+  if('serviceWorker' in navigator){
+    window.addEventListener('load', ()=>{
+      navigator.serviceWorker.register('./sw.js').catch(()=>{});
+    });
+  }
 </script>
 </body>
 </html>
